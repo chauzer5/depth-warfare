@@ -28,6 +28,7 @@ export default function Lobby() {
 
   const { username } = useGameContext();
   const [allUsers, setAllUsers] = useState([]);
+  if(username){ console.log(username); }
   const [presenceData] = usePresence("depth-warfare", username);
   
   useEffect(() => {
