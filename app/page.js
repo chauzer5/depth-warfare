@@ -1,40 +1,58 @@
 "use client";
 
-import { configureAbly, useChannel, usePresence } from '@ably-labs/react-hooks'
-import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useGameContext } from "./context/game_state";
 
-configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", clientId: Math.floor(Math.random() * 10000).toString()});
+export default function Login() {
 
-export default function Home() {
-  const [allMessages, setAllMessages] = useState([]);
-  const [numUsers, setNumUsers] = useState(0);
+  const styles = {
+    main: {
+      width: "100%",
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    usernameInput: {
+      width: "400px",
+      height: "50px",
+      border: "solid 3px #45FF04",
+      backgroundColor: "black",
+      color: "#45FF04",
+      textAlign: "center",
+      fontSize: "20px",
+    },
+    lobbyButton: {
+      border: "none",
+      color: "white",
+      marginTop: "100px",
+      fontFamily: "'Stalinist One', cursive",
+      fontSize: "26px",
+      backgroundColor: "black",
+    },
+  }
 
-  const [channel] = useChannel("lobby", (message) => {
-    setAllMessages((prev) => [...prev, message]);
-  });
+  const router = useRouter();
 
-  const [presenceData, updateStatus] = usePresence("lobby");
-  
-  useEffect(() => {
-    setNumUsers(presenceData.length);
-  }, [presenceData]);
+  const {
+    setUsername,
+  } = useGameContext();
+
+  const handleChangeUsername = (event) => {
+    setUsername(event.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    router.push("/lobby");
+  };
 
   return (
-    <>
-      <h1 onClick={() => {
-        console.log("ALL MESSAGES");
-        console.log(allMessages);
-      }}>MESSAGES</h1>
-      <p>Number of people in the lobby: {numUsers}</p>
-      <ul>
-        {allMessages.map((msg, index) => {
-          return <li key={index}>{msg.name}</li>;
-        })}
-      </ul>
-      <button onClick={(e) => {
-        e.preventDefault();
-        channel.publish("test-message", {});
-      }}>Add a message</button>
-    </>
+      <form style={styles.main} onSubmit={handleSubmit}>
+        <label>Username</label>
+        <input style={styles.usernameInput} type="text" onChange={handleChangeUsername}/>
+        <button style={styles.lobbyButton} type="submit">Enter Lobby</button>
+      </form>
   );
 }
