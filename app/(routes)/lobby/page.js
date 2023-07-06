@@ -40,8 +40,8 @@ export default function Lobby() {
       <div style={styles.container}>
         <h4>Waiting for more players...</h4>
         {
-          allUsers.map((user) => (
-            <p style={styles.user}>{user.data}</p>
+          allUsers.map((user, index) => (
+            <p key={index} style={styles.user}>{user.data}</p>
           ))
         }
       </div>
