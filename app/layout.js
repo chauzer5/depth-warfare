@@ -1,3 +1,5 @@
+"use client";
+
 import { GameWrapper } from './context/game_state'
 
 export const metadata = {
