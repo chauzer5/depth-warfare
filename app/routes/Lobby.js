@@ -2,7 +2,7 @@
 
 import { useGameContext } from '@/app/context/game_state';
 import { useChannel, usePresence } from '@ably-labs/react-hooks'
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Lobby() {
@@ -22,29 +22,26 @@ export default function Lobby() {
       justifyContent: "flex-start",
       alignItems: "center",
     },
-    user: {
+    player: {
       margin: "5px",
     }
   };
 
+  const NUM_PLAYERS_TO_START = 3;
+
   const { username, selfClientId, setGameId, setCurrentStage } = useGameContext();
-  const [allUsers, setAllUsers] = useState([]);
   
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
-    console.log(message);
-
     if(message.name === "start-game"){
       setGameId(message.data.gameId);
       setCurrentStage("teams");
     }
   });
-  const [presenceData] = usePresence("depth-warfare-lobby", username);
+
+  const [presenceData] = usePresence("depth-warfare-lobby", {name: username});
   
   useEffect(() => {
-    console.log(presenceData);
-    setAllUsers(presenceData);
-
-    if(presenceData.length === 8 && selfClientId === presenceData[0].clientId){
+    if(presenceData.length === NUM_PLAYERS_TO_START && selfClientId === presenceData[0].clientId){
       channel.publish("start-game", {gameId: uuidv4()});
     }
   }, [presenceData]);
@@ -52,10 +49,10 @@ export default function Lobby() {
   return (
     <div style={styles.main}>
       <div style={styles.container}>
-        <h4>Waiting for more players...</h4>
+        <h3>Waiting for more players...</h3>
         {
-          allUsers.map((user, index) => (
-            <p key={index} style={styles.user}>{user.data}</p>
+          presenceData.map((player, index) => (
+            <p key={index} style={styles.player}>{player.data.name}</p>
           ))
         }
       </div>
