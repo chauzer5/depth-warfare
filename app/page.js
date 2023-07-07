@@ -44,8 +44,8 @@ export default function Login() {
     setUsername(event.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    // e.preventDefault();
     console.log(username);
     router.push("/lobby");
   };
@@ -54,7 +54,7 @@ export default function Login() {
       <form style={styles.main} onSubmit={handleSubmit}>
         <label>Username</label>
         <input style={styles.usernameInput} type="text" onChange={handleChangeUsername}/>
-        <button style={styles.lobbyButton} type="submit">Enter Lobby</button>
+        <button style={styles.lobbyButton} onClick={handleSubmit}>Enter Lobby</button>
       </form>
   );
 }
