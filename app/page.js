@@ -51,10 +51,10 @@ export default function Login() {
   };
 
   return (
-      <form style={styles.main} onSubmit={handleSubmit}>
+      <div style={styles.main}>
         <label>Username</label>
         <input style={styles.usernameInput} type="text" onChange={handleChangeUsername}/>
         <button style={styles.lobbyButton} onClick={handleSubmit}>Enter Lobby</button>
-      </form>
+      </div>
   );
 }
