@@ -10,7 +10,6 @@ export default function RootLayout({ children }) {
     body: {
       backgroundColor: "black",
       margin: 0,
-      // fontFamily: "'Stalinist One', cursive",
       fontFamily: "'VT323', monospace",
       fontSize: "26px",
       color: "#45FF04",
