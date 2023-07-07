@@ -38,9 +38,6 @@ export default function TeamSelection(props) {
   const { username, selfClientId } = useGameContext();
 
   const handleClick = (selectedTeam, selectedRole) => {
-    console.log(selectedRole);
-    console.log(selectedTeam);
-
     const playerSelected = presenceData.filter((player) => {
       return (player.data.team === selectedTeam && player.data.role === selectedRole);
     })[0];
