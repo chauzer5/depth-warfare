@@ -1,4 +1,4 @@
-import { useGameContext } from "../context/game_state";
+import { useGameContext } from "../../context/game_state";
 
 export default function Login() {
 

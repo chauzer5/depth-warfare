@@ -1,5 +1,5 @@
-import TeamRoleButton from "../components/TeamRoleButton";
-import { useGameContext } from "../context/game_state";
+import TeamRoleButton from "./TeamRoleButton";
+import { useGameContext } from "../../context/game_state";
 
 export default function TeamSelection(props) {
   const styles = {

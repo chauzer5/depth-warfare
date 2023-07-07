@@ -1,6 +1,6 @@
 import { useChannel, usePresence } from "@ably-labs/react-hooks";
-import { useGameContext } from "../context/game_state";
-import TeamSelection from "./TeamSelection";
+import { useGameContext } from "../../context/game_state";
+import TeamSelection from "../TeamSelection/TeamSelection";
 
 export default function Game() {
   const { gameId, username, currentStage } = useGameContext();
