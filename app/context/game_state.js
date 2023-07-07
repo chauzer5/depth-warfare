@@ -12,6 +12,7 @@ const GameContext = createContext();
 export function GameWrapper({children}) {
     const [playersList, setPlayersList] = useState([]);
     const [username, setUsername] = useState();
+    const [currentStage, setCurrentStage] = useState("login");
 
     const addPlayer = (player) => {
         setPlayersList((prev) => [...prev, player]);
@@ -19,9 +20,11 @@ export function GameWrapper({children}) {
 
     return (
         <GameContext.Provider value={{
+            currentStage,
             selfClientId,
             playersList,
             username,
+            setCurrentStage,
             addPlayer,
             setUsername,
         }}>
