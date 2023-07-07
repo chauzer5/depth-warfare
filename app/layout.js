@@ -2,11 +2,6 @@
 
 import { GameWrapper } from './context/game_state'
 
-export const metadata = {
-  title: 'Depth Warfare',
-  description: 'A game of underwater conflict',
-}
-
 export default function RootLayout({ children }) {
   const styles = {
     body: {
