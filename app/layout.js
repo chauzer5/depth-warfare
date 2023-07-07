@@ -1,6 +1,9 @@
-"use client";
-
 import { GameWrapper } from './context/game_state'
+
+export const metadata = {
+  title: 'Depth Warfare',
+  description: 'An underwater game of combat',
+};
 
 export default function RootLayout({ children }) {
   const styles = {
