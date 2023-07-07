@@ -36,6 +36,7 @@ export default function Login() {
   const router = useRouter();
 
   const {
+    username,
     setUsername,
   } = useGameContext();
 
@@ -45,6 +46,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(username);
     router.push("/lobby");
   };
 
