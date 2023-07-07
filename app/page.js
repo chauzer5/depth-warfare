@@ -3,6 +3,7 @@
 import { useGameContext } from "./context/game_state";
 import Lobby from "./routes/Lobby";
 import Login from "./routes/Login";
+import Game from "./routes/Game";
 
 export default function App() {
 
@@ -12,7 +13,7 @@ export default function App() {
       <>
         {currentStage === "login" ? <Login /> :
          currentStage === "lobby" ? <Lobby /> :
-         null
+         <Game />
         }
       </>
   );

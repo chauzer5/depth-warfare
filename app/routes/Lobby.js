@@ -1,8 +1,9 @@
 "use client";
 
 import { useGameContext } from '@/app/context/game_state';
-import { usePresence } from '@ably-labs/react-hooks'
+import { useChannel, usePresence } from '@ably-labs/react-hooks'
 import { useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Lobby() {
   const styles = {
@@ -26,14 +27,26 @@ export default function Lobby() {
     }
   };
 
-  const { username } = useGameContext();
+  const { username, selfClientId, setGameId, setCurrentStage } = useGameContext();
   const [allUsers, setAllUsers] = useState([]);
-  if(username){ console.log(username); }
-  const [presenceData] = usePresence("depth-warfare", username);
+  
+  const [channel] = useChannel("depth-warfare-lobby", (message) => {
+    console.log(message);
+
+    if(message.name === "start-game"){
+      setGameId(message.data.gameId);
+      setCurrentStage("teams");
+    }
+  });
+  const [presenceData] = usePresence("depth-warfare-lobby", username);
   
   useEffect(() => {
     console.log(presenceData);
     setAllUsers(presenceData);
+
+    if(presenceData.length === 8 && selfClientId === presenceData[0].clientId){
+      channel.publish("start-game", {gameId: uuidv4()});
+    }
   }, [presenceData]);
 
   return (

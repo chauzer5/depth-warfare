@@ -13,6 +13,7 @@ export function GameWrapper({children}) {
     const [playersList, setPlayersList] = useState([]);
     const [username, setUsername] = useState();
     const [currentStage, setCurrentStage] = useState("login");
+    const [gameId, setGameId] = useState();
 
     const addPlayer = (player) => {
         setPlayersList((prev) => [...prev, player]);
@@ -24,9 +25,11 @@ export function GameWrapper({children}) {
             selfClientId,
             playersList,
             username,
+            gameId,
             setCurrentStage,
             addPlayer,
             setUsername,
+            setGameId,
         }}>
             {children}
         </GameContext.Provider>

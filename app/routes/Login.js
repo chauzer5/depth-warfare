@@ -1,5 +1,3 @@
-"use client";
-
 import { useGameContext } from "../context/game_state";
 
 export default function Login() {
@@ -35,7 +33,6 @@ export default function Login() {
   }
 
   const {
-    username,
     setUsername,
     setCurrentStage,
   } = useGameContext();
@@ -46,7 +43,6 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(username);
     setCurrentStage("lobby");
   };
 
