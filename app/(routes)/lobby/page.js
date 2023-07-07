@@ -15,7 +15,7 @@ export default function Lobby() {
     },
     container: {
       width: "650px",
-      height: "550px",
+      height: "450px",
       display: "flex",
       flexDirection: "column",
       justifyContent: "flex-start",
