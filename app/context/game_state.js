@@ -10,26 +10,25 @@ configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A"
 const GameContext = createContext();
 
 export function GameWrapper({children}) {
-    const [playersList, setPlayersList] = useState([]);
     const [username, setUsername] = useState();
     const [currentStage, setCurrentStage] = useState("login");
     const [gameId, setGameId] = useState();
-
-    const addPlayer = (player) => {
-        setPlayersList((prev) => [...prev, player]);
-    };
+    const [playerTeam, setPlayerTeam] = useState();
+    const [playerRole, setPlayerRole] = useState();
 
     return (
         <GameContext.Provider value={{
-            currentStage,
             selfClientId,
-            playersList,
+            currentStage,
             username,
             gameId,
+            playerTeam,
+            playerRole,
             setCurrentStage,
-            addPlayer,
             setUsername,
             setGameId,
+            setPlayerTeam,
+            setPlayerRole,
         }}>
             {children}
         </GameContext.Provider>

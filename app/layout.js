@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
       margin: 0,
       fontFamily: "'VT323', monospace",
       fontSize: "26px",
-      color: "#45FF04",
+      color: "#00FF00"
     }
   }
 

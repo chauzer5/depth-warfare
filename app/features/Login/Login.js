@@ -14,9 +14,9 @@ export default function Login() {
     usernameInput: {
       width: "400px",
       height: "50px",
-      border: "solid 3px #45FF04",
+      border: "solid 3px #00FF00",
       backgroundColor: "black",
-      color: "#45FF04",
+      color: "#00FF00",
       textAlign: "center",
       fontSize: "20px",
       fontFamily: "'VT323', monospace",

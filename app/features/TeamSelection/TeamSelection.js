@@ -1,5 +1,6 @@
 import TeamRoleButton from "./TeamRoleButton";
 import { useGameContext } from "../../context/game_state";
+import { useEffect } from "react";
 
 export default function TeamSelection(props) {
   const styles = {
@@ -35,12 +36,28 @@ export default function TeamSelection(props) {
     updateStatus,
   } = props;
 
-  const { username, selfClientId } = useGameContext();
+  const {
+    username,
+    selfClientId,
+    setCurrentStage,
+    setPlayerTeam,
+    setPlayerRole,
+  } = useGameContext();
+
+  const NUM_REQUIRED_PLAYERS = 3;
+
+  useEffect(() => {
+    if(presenceData.length === NUM_REQUIRED_PLAYERS && !presenceData.find(player => !player.data.team)){
+      setPlayerTeam(presenceData.find(player => player.clientId === selfClientId).data.team);
+      setPlayerRole(presenceData.find(player => player.clientId === selfClientId).data.role);
+      setCurrentStage("starting-spot");
+    }
+  }, [presenceData]);
 
   const handleClick = (selectedTeam, selectedRole) => {
-    const playerSelected = presenceData.filter((player) => {
+    const playerSelected = presenceData.find((player) => {
       return (player.data.team === selectedTeam && player.data.role === selectedRole);
-    })[0];
+    });
 
     if(!playerSelected){
       updateStatus({ name: username, team: selectedTeam, role: selectedRole});

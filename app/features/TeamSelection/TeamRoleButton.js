@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useGameContext } from "../../context/game_state";
 
 export default function TeamRoleButton (props) {
@@ -10,11 +11,11 @@ export default function TeamRoleButton (props) {
 
     const { selfClientId } = useGameContext();
 
-    const playerSelected = presenceData.filter((player) => {
+    const playerSelected = presenceData.find((player) => {
         return (player.data.team === team && player.data.role === role);
-    })[0];
+    });
 
-    const buttonColor = playerSelected?.clientId === selfClientId ? "#45FF04" : team;
+    const buttonColor = playerSelected?.clientId === selfClientId ? "#00FF00" : team;
     const buttonStyle = playerSelected ? "dashed" : "solid";
 
     const styles = {

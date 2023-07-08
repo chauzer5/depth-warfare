@@ -27,7 +27,7 @@ export default function Lobby() {
     }
   };
 
-  const NUM_PLAYERS_TO_START = 3;
+  const NUM_REQUIRED_PLAYERS = 3;
 
   const { username, selfClientId, setGameId, setCurrentStage } = useGameContext();
   
@@ -41,7 +41,7 @@ export default function Lobby() {
   const [presenceData] = usePresence("depth-warfare-lobby", {name: username});
   
   useEffect(() => {
-    if(presenceData.length === NUM_PLAYERS_TO_START && selfClientId === presenceData[0].clientId){
+    if(presenceData.length === NUM_REQUIRED_PLAYERS && selfClientId === presenceData[0].clientId){
       channel.publish("start-game", {gameId: uuidv4()});
     }
   }, [presenceData]);
