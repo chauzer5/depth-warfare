@@ -12,7 +12,8 @@ export default function RootLayout({ children }) {
       margin: 0,
       fontFamily: "'VT323', monospace",
       fontSize: "26px",
-      color: "#00FF00"
+      color: "#00FF00",
+      userSelect: "none",
     }
   }
 

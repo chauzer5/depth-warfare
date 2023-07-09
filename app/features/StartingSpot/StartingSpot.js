@@ -3,19 +3,10 @@ import CaptainStartingSpot from "./CaptainStartingSpot";
 import WaitingStartingSpot from "./WaitingStartingSpot";
 
 export default function StartingSpot (props) {
+    const { playerRole } = useGameContext();
     const { channel } = props;
-    const { playerTeam, playerRole } = useGameContext();
 
-    return (
-        <>
-            {
-                playerRole === "captain" ? (
-                    <CaptainStartingSpot />
-                ) :
-                (
-                    <WaitingStartingSpot />
-                )
-            }
-        </>
-    );
+    return playerRole === "captain" 
+    ? <CaptainStartingSpot channel={channel}/>
+    : <WaitingStartingSpot />;
 }

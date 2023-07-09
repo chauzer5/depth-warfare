@@ -1,7 +1,8 @@
-import SectorsKey from "@/app/components/SectorsKey";
-import StartingSpotMap from "./StartingSpotMap";
+import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import TeamRoleDescription from "./TeamRoleDescription";
-import Timer from "@/app/components/Timer";
+import Timer from "@/app/components/Timer/Timer";
+import GameMap from "@/app/components/GameMap/GameMap";
+import { useGameContext } from "@/app/context/game_state";
 
 export default function CaptainStartingSpot () {
     const styles = {
@@ -13,9 +14,8 @@ export default function CaptainStartingSpot () {
             alignItems: "center",
         },
         container: {
-            backgroundColor: "grey",
-            width: "900px",
-            height: "800px",
+            width: "800px",
+            height: "700px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -27,13 +27,20 @@ export default function CaptainStartingSpot () {
         },
         bottomSection: {
             flexGrow: 1,
-            backgroundColor: "pink",
             width: "100%",
             display: "flex",
             flexDirection: "row",
             justifyContent: "center",
             alignItems: "flex-start",
         },
+    };
+
+    const { playerTeam, refreshMap } = useGameContext();
+
+    const handleClick = (cell) => {
+        if(cell.type === "water"){
+            // TODO Publish a message to set the starting location
+        }
     };
 
     return (
@@ -43,7 +50,7 @@ export default function CaptainStartingSpot () {
                 <h3 style={styles.header}>{"Please choose a starting location\nfor your team's submarine:"}</h3>
                 <div style={styles.bottomSection}>
                     <Timer />
-                    <StartingSpotMap />
+                    <GameMap handleClick={handleClick}/>
                     <SectorsKey />
                 </div>
             </div>
