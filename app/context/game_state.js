@@ -14,7 +14,6 @@ export function GameWrapper({children}) {
     const STARTING_HIT_POINTS = 4;
     const ISLAND_MAP = "map1";
 
-
     const islandList = maps[ISLAND_MAP];
     const [username, setUsername] = useState();
     const [currentStage, setCurrentStage] = useState("login");

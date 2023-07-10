@@ -13,11 +13,14 @@ export default function Game() {
     gameId,
     username,
     currentStage,
+    setCurrentStage,
     setGameMap,
     islandList,
     moveBlueSub,
     moveRedSub,
     getMessagePlayer,
+    blueSubLocation,
+    redSubLocation,
   } = useGameContext();
 
   const [messagesList, setMessagesList] = useState([]);
@@ -57,13 +60,22 @@ export default function Game() {
   }, [presenceData]);
 
   const setStartingSpot = (message) => {
+    let allDone = false;
     if(getMessagePlayer(message).team === "blue"){
       moveBlueSub(message.data.row, message.data.column);
+      if(redSubLocation){ allDone = true; }
     }
     else{
       moveRedSub(message.data.row, message.data.column);
+      if(blueSubLocation){ allDone = true; };
+    }
+
+    if(allDone){
+      setCurrentStage("countdown");
     }
   };
+
+
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
@@ -72,8 +84,6 @@ export default function Game() {
     switch(newMessage?.name){
       case "set-starting-spot":
         setStartingSpot(newMessage);
-        break;
-      default:
         break;
     }
 
