@@ -4,7 +4,7 @@ import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
 import { useGameContext } from "@/app/context/game_state";
 
-export default function CaptainStartingSpot () {
+export default function CaptainStartingSpot (props) {
     const styles = {
         main: {
             width: "100%",
@@ -31,15 +31,19 @@ export default function CaptainStartingSpot () {
             display: "flex",
             flexDirection: "row",
             justifyContent: "center",
-            alignItems: "flex-start",
+            alignItems: "flex-start",        
         },
     };
 
-    const { playerTeam, refreshMap } = useGameContext();
+    const { channel } = props;
+    const { playerTeam } = useGameContext();
 
-    const handleClick = (cell) => {
+    const handleClick = (cell, row, column) => {
         if(cell.type === "water"){
-            // TODO Publish a message to set the starting location
+            if(cell.blueSub === true && playerTeam === "blue"){ return; }
+            if(cell.redSub === true && playerTeam === "red"){ return; }
+
+            channel.publish("set-starting-spot", {row: row, column: column});
         }
     };
 

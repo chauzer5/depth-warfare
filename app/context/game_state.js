@@ -11,7 +11,7 @@ configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A"
 const GameContext = createContext();
 
 export function GameWrapper({children}) {
-    const STARTING_HIT_POINTS = 3;
+    const STARTING_HIT_POINTS = 4;
     const ISLAND_MAP = "map1";
 
 
@@ -28,6 +28,50 @@ export function GameWrapper({children}) {
     const [redHitPoints, setRedHitPoints] = useState(STARTING_HIT_POINTS);
     const [blueHitPoints, setBlueHitPoints] = useState(STARTING_HIT_POINTS);
     const [gameMap, setGameMap] = useState();
+    const [playerData, setPlayerData] = useState();
+
+    const getMessagePlayer = (message) => {
+        const messageSender = playerData.find((player) => player.clientId === message.clientId);
+        return messageSender;
+    };
+
+    const moveBlueSub = (row, column) => {
+        const mapCopy = [...gameMap];
+
+        // remove the old position and make it visited
+        if(blueSubLocation){
+            const prevContents = gameMap[blueSubLocation[0]][blueSubLocation[1]];
+            const newContents = { ...prevContents, blueSub: false, blueVisited: true };
+            mapCopy[blueSubLocation[0]][blueSubLocation[1]] = newContents;
+        }
+
+        // add the new position
+        const prevContents = gameMap[row][column];
+        const newContents = { ...prevContents, blueSub: true };
+        mapCopy[row][column] = newContents;
+
+        setBlueSubLocation([row, column]);
+        setGameMap(mapCopy);
+    };
+
+    const moveRedSub = (row, column) => {
+        const mapCopy = [...gameMap];
+
+        // remove the old position
+        if(redSubLocation){
+            const prevContents = gameMap[redSubLocation[0]][redSubLocation[1]];
+            const newContents = { ...prevContents, redSub: false, redVisited: true };
+            mapCopy[redSubLocation[0]][redSubLocation[1]] = newContents;
+        }
+
+        // add the new position
+        const prevContents = gameMap[row][column];
+        const newContents = { ...prevContents, redSub: true };
+        mapCopy[row][column] = newContents;
+
+        setRedSubLocation([row, column]);
+        setGameMap(mapCopy);
+    };
 
     return (
         <GameContext.Provider value={{
@@ -45,6 +89,7 @@ export function GameWrapper({children}) {
             blueHitPoints,
             redHitPoints,
             gameMap,
+            playerData,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -57,6 +102,10 @@ export function GameWrapper({children}) {
             setBlueHitPoints,
             setRedHitPoints,
             setGameMap,
+            moveBlueSub,
+            moveRedSub,
+            setPlayerData,
+            getMessagePlayer,
         }}>
             {children}
         </GameContext.Provider>

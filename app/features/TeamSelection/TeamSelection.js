@@ -42,6 +42,7 @@ export default function TeamSelection(props) {
     setCurrentStage,
     setPlayerTeam,
     setPlayerRole,
+    setPlayerData,
   } = useGameContext();
 
   const NUM_REQUIRED_PLAYERS = 3;
@@ -50,6 +51,20 @@ export default function TeamSelection(props) {
     if(presenceData.length === NUM_REQUIRED_PLAYERS && !presenceData.find(player => !player.data.team)){
       setPlayerTeam(presenceData.find(player => player.clientId === selfClientId).data.team);
       setPlayerRole(presenceData.find(player => player.clientId === selfClientId).data.role);
+
+      const newPlayerData = presenceData.map((player) => {
+        return {
+          username: player.data.name,
+          clientId: player.clientId,
+          team: player.data.team,
+          role: player.data.role,
+        };
+      });
+
+      console.log("NEW PLAYER DATA");
+      console.log(newPlayerData);
+
+      setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
     }
   }, [presenceData]);

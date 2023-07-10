@@ -40,17 +40,11 @@ export default function GameMap (props) {
             width: "26px",
             height: "26px",
             backgroundColor: "blue",
-            "&:hover": {
-                backgroundColor: "#00FF00",
-            },
         },
         redSub: {
             width: "26px",
             height: "26px",
             backgroundColor: "red",
-            "&:hover": {
-                backgroundColor: "#00FF00",
-            },
         },
     };
 
@@ -64,11 +58,11 @@ export default function GameMap (props) {
                     ))}
                 </tr>
 
-                {gameMap.map((row, index) => (
-                    <tr key={index} style={styles.row}>
-                        <th>{indexToRow(index)}</th>
-                        {row.map((cell, index) => (
-                            <td key={index} style={styles.cell}>
+                {gameMap.map((row, rowIndex) => (
+                    <tr key={rowIndex} style={styles.row}>
+                        <th>{indexToRow(rowIndex)}</th>
+                        {row.map((cell, columnIndex) => (
+                            <td key={columnIndex} style={styles.cell}>
                                 {
                                     cell.type === "island" ? (
                                         <div style={styles.island} onClick={() => handleClick(cell)}/>
@@ -79,7 +73,7 @@ export default function GameMap (props) {
                                     cell.redSub && playerTeam === "red" ? (
                                         <Box sx={styles.redSub} onClick={() => handleClick(cell)}/>
                                     ) : 
-                                    <Box sx={styles.water} onClick={() => handleClick(cell)}>
+                                    <Box sx={styles.water} onClick={() => handleClick(cell, rowIndex, columnIndex)}>
                                         
                                     </Box>
                                 }

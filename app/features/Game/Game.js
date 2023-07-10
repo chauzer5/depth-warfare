@@ -3,19 +3,28 @@ import { useGameContext } from "../../context/game_state";
 import TeamSelection from "../TeamSelection/TeamSelection";
 import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { columnToIndex, rowToIndex } from "@/app/utils";
 
 const MAP_DIMENSION = 15;
 
 export default function Game() {
-  const { gameId, username, currentStage, setGameMap, islandList } = useGameContext();
+  const {
+    gameId,
+    username,
+    currentStage,
+    setGameMap,
+    islandList,
+    moveBlueSub,
+    moveRedSub,
+    getMessagePlayer,
+  } = useGameContext();
 
-  const [channel] = useChannel(`dw-${gameId}`, (message) => {
-    console.log(message);
-  });
-
+  const [messagesList, setMessagesList] = useState([]);
   const [presenceData, updateStatus] = usePresence(`dw-${gameId}`, {name: username, team: null, role: null});
+  const [channel] = useChannel(`dw-${gameId}`, (message) => {
+    setMessagesList((prev) => [...prev, {...message}]);
+  });
 
   const mapSetup = () => {
     let gameMap = Array(MAP_DIMENSION);
@@ -41,6 +50,34 @@ export default function Game() {
   useEffect(() => {
     mapSetup();
   }, []);
+
+  useEffect(() => {
+    console.log("PRESENCE DATA UPDATED");
+    console.log(presenceData);
+  }, [presenceData]);
+
+  const setStartingSpot = (message) => {
+    if(getMessagePlayer(message).team === "blue"){
+      moveBlueSub(message.data.row, message.data.column);
+    }
+    else{
+      moveRedSub(message.data.row, message.data.column);
+    }
+  };
+
+  useEffect(() => {
+    const newMessage = messagesList[messagesList.length - 1];
+    console.log(newMessage);
+
+    switch(newMessage?.name){
+      case "set-starting-spot":
+        setStartingSpot(newMessage);
+        break;
+      default:
+        break;
+    }
+
+  }, [messagesList])
 
   return (
     <>
