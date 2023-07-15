@@ -5,6 +5,7 @@ import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import { columnToIndex, rowToIndex } from "@/app/utils";
+import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
 
 const MAP_DIMENSION = 15;
 
@@ -95,6 +96,7 @@ export default function Game() {
         currentStage === "teams" ? <TeamSelection presenceData={presenceData} updateStatus={updateStatus} channel={channel}/> :
         currentStage === "starting-spot" ? <StartingSpot channel={channel} /> :
         currentStage === "countdown" ? <Countdown /> :
+        currentStage === "main" ? <PlayerDashboard /> :
         null
       }
     </>
