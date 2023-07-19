@@ -38,7 +38,7 @@ export default function CaptainStartingSpot (props) {
     const { channel } = props;
     const { playerTeam, gameMap } = useGameContext();
 
-    const SECONDS_TO_DECIDE = 30;
+    const SECONDS_TO_DECIDE = 1000;
     const MAP_DIMENSION = 15;
 
     const handleClick = (cell, row, column) => {
