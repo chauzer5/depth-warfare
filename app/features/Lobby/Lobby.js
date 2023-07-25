@@ -46,6 +46,15 @@ export default function Lobby() {
     }
   }, [presenceData]);
 
+  // Disables the context menu on right click if not running locally
+  useEffect(() => {
+    if(window.location.hostname !== "localhost"){
+      document.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+      });
+    }
+  }, []);
+
   return (
     <div style={styles.main}>
       <div style={styles.container}>
