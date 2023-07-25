@@ -1,5 +1,8 @@
+import EngineerDashboard from "./EngineerDashboard/EngineerDashboard";
+
 export default function PlayerDashboard(){
+    
     return (
-        <p>Dashboard</p>
+        <EngineerDashboard /> 
     );
 }
