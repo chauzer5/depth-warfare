@@ -2,7 +2,8 @@ export default function SectorsKey() {
     const styles = {
         table: {
             borderCollapse: "collapse",
-            margin: "35px",
+            margin: "25px",
+            maxHeight: "80px",
         },
         caption: {
             color: "white",

@@ -9,7 +9,7 @@ export default function PlayerDashboard(){
     const { playerRole } = useGameContext();
 
     return (
-        <>
+        <div style={{display: "flex", flexDirection: "column", width: "100%", height: "100vh"}}>
             <DashboardHeader />
             {
                 playerRole === "captain" ? <CaptainDashboard /> :
@@ -18,6 +18,6 @@ export default function PlayerDashboard(){
                 playerRole === "radio-operator" ? <RadioOperatorDashboard /> :
                 null
             }
-        </>
+        </div>
     );
 }

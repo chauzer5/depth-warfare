@@ -12,6 +12,7 @@ export default function GameMap (props) {
     const styles = {
         table: {
             borderCollapse: "collapse",
+            maxHeight: `${(MAP_DIMENSION + 1) * 25}px`,
         },
         cell: {
             border: "2px solid #00FF00",
