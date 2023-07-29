@@ -27,7 +27,7 @@ export default function GameMap (props) {
         island: {
             width: "26px",
             height: "26px",
-            backgroundColor: "white",
+            backgroundColor: "#058800",
         },
         water: {
             width: "26px",
