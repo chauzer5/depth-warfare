@@ -112,7 +112,7 @@ export default function CaptainDashboard(){
                     </div>
                     <div style={styles.silenceControls}>
                         <button style={styles.silenceButton}>Activate Silence</button>
-                        <SystemChargeMeter system="silence"/>
+                        <SystemChargeMeter systemName="silence"/>
                     </div>
                     <button style={styles.surfaceButton}>Surface</button>
                 </div>

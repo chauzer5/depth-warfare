@@ -1,38 +1,14 @@
+import { useGameContext } from "@/app/context/game_state";
+
 export default function SystemChargeMeter(props){
     const {
-        system,
+        systemName,
         showAdditionalCharge,
     } = props;
 
-    const SYSTEMS_INFO = [
-        {
-            name: "silence",
-            color: "#9900FF",
-            maxCharge: 6,
-        },
-        {
-            name: "sonar",
-            color: "#00FF00",
-            maxCharge: 3,
-        },
-        {
-            name: "drone",
-            color: "#00FF00",
-            maxCharge: 4,
-        },
-        {
-            name: "torpedo",
-            color: "#FF9900",
-            maxCharge: 4,
-        },
-        {
-            name: "mine",
-            color: "#FF9900",
-            maxCharge: 3,
-        }
-    ];
+    const { SYSTEMS_INFO } = useGameContext();
 
-    const selectedSystem = SYSTEMS_INFO.find((sys) => sys.name === system);
+    const selectedSystem = SYSTEMS_INFO.find((sys) => sys.name === systemName);
 
     const styles = {
         main: {
