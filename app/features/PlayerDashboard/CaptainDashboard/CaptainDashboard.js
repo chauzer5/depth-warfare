@@ -1,6 +1,11 @@
+import React, { useState } from "react";
 import GameMap from "@/app/components/GameMap/GameMap";
+import Sonar from "@/app/components/Sonar/SonarL1"
 
 export default function CaptainDashboard() {
+    const [circleColor, setCircleColor] = useState(
+        new Array(false, true, false, true, false, true)
+        )
     const styles = {
       container: {
         display: "flex",
@@ -43,7 +48,11 @@ export default function CaptainDashboard() {
         height: "15px",
         borderRadius: "50%",
         backgroundColor: "#0F0",
-        marginRight: "10px"
+        marginRight: "10px",
+        transition: "background-color 0.2s ease",
+      },
+      offCircle:{
+        backgroundColor: "#058800"
       },
       launchButton: {
         width: "200px",
@@ -54,11 +63,62 @@ export default function CaptainDashboard() {
         fontSize: "40px",
         fontWeight: "bold",
         fontFamily: "'Exo', 'VT323'"
+      },
+      buttonContainer:{
+        display: "flex",
+        alignItems: "left",
+        padding: "10px",
+        marginLeft: "23%",
+      },
+      weaponButton:{
+        width: "80px",
+        height: "40px",
+        baackgorundColor: "#0F0",
+        borderRadius: "10%",
+        backgroundColor: "#0F0",
+        fontFamily: "VT323",
+        fontSize: "20px",
+        marginRight: "10px"
+      },
+      space:{
+        padding: "10px",
       }
     };
+
+    const handleButtonClick = (weaponIndex) => {
+        console.log("weapon index: ", weaponIndex)
+        const newCircleColor = [...circleColor]; // Create a copy of the array
+        if (weaponIndex === 0) {
+            newCircleColor[1] = false
+            newCircleColor[3] = true
+            newCircleColor[5] = true
+            setCircleColor(newCircleColor); 
+          } else if (weaponIndex === 1) {
+            newCircleColor[1] = true
+            newCircleColor[3] = false
+            newCircleColor[5] = true
+            setCircleColor(newCircleColor); 
+        } else if (weaponIndex === 2) {
+            newCircleColor[1] = true
+            newCircleColor[3] = true
+            newCircleColor[5] = false
+            setCircleColor(newCircleColor);
+        }
+    }
   
     return (
       <>
+      <div style={styles.buttonContainer}>
+      <button style={styles.weaponButton} onClick={() => handleButtonClick(0)}>
+            torpedo
+        </button>
+        <button style={styles.weaponButton} onClick={() => handleButtonClick(1)}>
+            depth ch
+        </button>
+        <button style={styles.weaponButton} onClick={() => handleButtonClick(2)}>
+            air str
+        </button>
+      </div>
       <div style={styles.container}>
         <div style={styles.container}>
 
@@ -67,22 +127,34 @@ export default function CaptainDashboard() {
                 <div style={styles.wordContainer}>
                 <span style={styles.wordText}>torpedo</span>
                 <div style={styles.circleContainer}>
-                    <div style={styles.circle} />
-                    <div style={styles.circle} /> {/* Second circle */}
+                    <div style={{
+                        ...styles.circle,
+                        ...(circleColor[0] ? styles.offCircle: {})}} />
+                    <div style={{
+                        ...styles.circle,
+                        ...(circleColor[1] ? styles.offCircle: {})}} /> {/* Second circle */}
                 </div>
                 </div>
                 <div style={styles.wordContainer}>
                 <span style={styles.wordText}>depth charger</span>
                 <div style={styles.circleContainer}>
-                    <div style={styles.circle} />
-                    <div style={styles.circle} /> {/* Second circle */}
+                    <div style={{
+                        ...styles.circle,
+                        ...(circleColor[2] ? styles.offCircle: {})}} />
+                    <div style={{
+                        ...styles.circle,
+                        ...(circleColor[3] ? styles.offCircle: {})}} /> {/* Second circle */}
                 </div>
                 </div>
                 <div style={styles.wordContainer}>
                 <span style={styles.wordText}>air strike</span>
                 <div style={styles.circleContainer}>
-                    <div style={styles.circle} />
-                    <div style={styles.circle} /> {/* Second circle */}
+                    <div style={{
+                        ...styles.circle,
+                        ...(circleColor[4] ? styles.offCircle: {})}} />
+                    <div style={{
+                        ...styles.circle,
+                        ...(circleColor[5] ? styles.offCircle: {})}} /> {/* Second circle */}
                 </div>
                 </div>
             </div>
@@ -94,7 +166,11 @@ export default function CaptainDashboard() {
         </div>
 
         <GameMap></GameMap>
+        <div style={styles.space}> 
         </div>
+        <Sonar></Sonar>
+        </div>
+    
       </>
     );
   }

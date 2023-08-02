@@ -56,7 +56,7 @@ export default function EngineerDashboard(){
     };
 
     const [buttonStates, setButtonStates] = useState(
-        new Array(NUM_BUTTONS).fill(true) // Assuming you have 5 buttons, initialize all to false
+        new Array(NUM_BUTTONS).fill(true) // Assuming you have 5 buttons, initialize all to true
       );
     
       // Function to handle button click
