@@ -14,6 +14,34 @@ export function GameWrapper({children}) {
     const STARTING_HIT_POINTS = 4;
     const ISLAND_MAP = "map1";
 
+    const SYSTEMS_INFO = [
+        {
+            name: "silence",
+            color: "#9900FF",
+            maxCharge: 6,
+        },
+        {
+            name: "sonar",
+            color: "#00FF00",
+            maxCharge: 3,
+        },
+        {
+            name: "drone",
+            color: "#00FF00",
+            maxCharge: 4,
+        },
+        {
+            name: "torpedo",
+            color: "#FF9900",
+            maxCharge: 4,
+        },
+        {
+            name: "mine",
+            color: "#FF9900",
+            maxCharge: 3,
+        }
+    ];
+
     const islandList = maps[ISLAND_MAP];
     const [username, setUsername] = useState();
     const [currentStage, setCurrentStage] = useState("login");
@@ -89,6 +117,7 @@ export function GameWrapper({children}) {
             redHitPoints,
             gameMap,
             playerData,
+            SYSTEMS_INFO,
             setCurrentStage,
             setUsername,
             setGameId,
