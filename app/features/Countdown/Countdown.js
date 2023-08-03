@@ -12,7 +12,7 @@ export default function Countdown () {
         }
     }
 
-    const SECONDS_COUNTDOWN = 10;
+    const SECONDS_COUNTDOWN = 3;
 
     const { setCurrentStage } = useGameContext();
 
