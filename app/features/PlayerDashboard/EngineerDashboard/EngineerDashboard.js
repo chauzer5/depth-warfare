@@ -17,7 +17,8 @@ export default function EngineerDashboard(){
           },
           label: {
             width: "100px", /* Set a fixed width for the labels */
-            marginRight: "10px" /* Add some spacing between the label and the blue bar */
+            marginRight: "10px", /* Add some spacing between the label and the blue bar */
+            fontSize: "25px",
           },
           rectangle: {
             flex: 1,
@@ -29,8 +30,9 @@ export default function EngineerDashboard(){
             transition: "width 1s ease",
           },
           button2: {
-            padding: "20px 20px",
+            padding: "20px 10px",
             fontFamily: "'VT323', monospace",        /*This is also hard coded... potentially fix */
+            fontSize: "20px",
             backgroundColor: "#C0C0C0",
             color: "#000",
             borderRadius: "10px",
@@ -40,8 +42,9 @@ export default function EngineerDashboard(){
             label: "Grey Button"
           },
           button: {
-            padding: "20px 20px",
+            padding: "20px 10px",
             fontFamily: "'VT323', monospace",        /*This is also hard coded... potentially fix */
+            fontSize: "20px",
             backgroundColor: "#0F0",
             color: "#000",
             borderRadius: "10px",
