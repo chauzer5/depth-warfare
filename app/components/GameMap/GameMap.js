@@ -7,46 +7,68 @@ export default function GameMap (props) {
     const { gameMap, playerTeam } = useGameContext();
 
     const MAP_DIMENSION = 15;
+    const SECTOR_DIMENSION = 5;
 
     const styles = {
         table: {
             borderCollapse: "collapse",
+            maxHeight: `${(MAP_DIMENSION + 1) * 25}px`,
         },
         cell: {
             border: "2px solid #00FF00",
             borderCollapse: "collapse",
-            width: "26px",
+            width: "25px",
             padding: 0,
         },
-        row: {
-            height: "20px",
-        },
         columnHeader: {
-            width: "26px",
+            width: "25px",
         },
         island: {
-            width: "26px",
-            height: "26px",
+            width: "25px",
+            height: "25px",
             backgroundColor: "#058800",
         },
         water: {
-            width: "26px",
+            width: "25px",
             height: "26px",
             "&:hover": {
                 backgroundColor: "#00FF00",
             },
         },
         blueSub: {
-            width: "26px",
+            width: "25px",
             height: "26px",
             backgroundColor: "blue",
         },
         redSub: {
-            width: "26px",
+            width: "25px",
             height: "26px",
             backgroundColor: "red",
         },
     };
+
+    const getSectorStyle = (row, column) => {
+        const sectorStyle = {};
+
+        if(column % SECTOR_DIMENSION === 0){ sectorStyle.borderLeft = "5px solid #00FF00"; }
+        if(column === MAP_DIMENSION - 1){ sectorStyle.borderRight = "5px solid #00FF00"; }
+        if(row % SECTOR_DIMENSION === 0){ sectorStyle.borderTop = "5px solid #00FF00"; }
+        if(row === MAP_DIMENSION - 1){ sectorStyle.borderBottom = "5px solid #00FF00"; }
+
+        return sectorStyle;
+    };
+
+    const getIslandBorders = (row, column) => {
+        const islandStyle = {};
+
+        const cell = gameMap[row][column];
+        if(cell.type != "island"){ return islandStyle; }
+        
+        islandStyle.border = "none";
+        islandStyle.backgroundColor = "#058800";
+
+        return islandStyle;
+    }
 
     return (
         <table style={styles.table}>
@@ -62,7 +84,7 @@ export default function GameMap (props) {
                     <tr key={rowIndex} style={styles.row}>
                         <th>{indexToRow(rowIndex)}</th>
                         {row.map((cell, columnIndex) => (
-                            <td key={columnIndex} style={styles.cell}>
+                            <td key={columnIndex} style={{...styles.cell, ...getSectorStyle(rowIndex, columnIndex), ...getIslandBorders(rowIndex, columnIndex)}}>
                                 {
                                     cell.type === "island" ? (
                                         <div style={styles.island} onClick={() => handleClick(cell)}/>

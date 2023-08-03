@@ -1,177 +1,122 @@
-import React, { useState } from "react";
 import GameMap from "@/app/components/GameMap/GameMap";
-import Sonar from "@/app/components/Sonar/SonarL1"
+import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
+import SystemChargeMeter from "@/app/components/SystemChargeMeter/SystemChargeMeter";
+import MovementPendingCard from "./MovementPendingCard";
 
-export default function CaptainDashboard() {
-    const [circleColor, setCircleColor] = useState(
-        new Array(false, true, false, true, false, true)
-        )
+export default function CaptainDashboard(){
     const styles = {
-      container: {
-        display: "flex",
-        justifyContent: "space-between",
-        justifyContent: "center", // Center the content horizontally
-        alignItems: "center", // Center the content vertically
-        padding: "40px",
-      },
-      LSContainer: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      },
-      rectangle: {
-        height: "100px", // Adjust the height as per your requirement
-        width: "300px", // Adjust the width as per your requirement
-        backgroundColor: "#000",
-        borderRadius: "15px",
-        border: "4px solid #0F0",
-        padding: "20px", // Add some padding for better spacing
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-      },
-      wordContainer: {
-        display: "flex",
-        justifyContent: "space-between", // Push circles to the right end
-        alignItems: "center",
-      },
-      wordText: {
-        marginRight: "10px",
-      },
-      circleContainer: {
-        display: "flex",
-        alignItems: "center",
-        padding: "10px"
-      },
-      circle: {
-        width: "15px",
-        height: "15px",
-        borderRadius: "50%",
-        backgroundColor: "#0F0",
-        marginRight: "10px",
-        transition: "background-color 0.2s ease",
-      },
-      offCircle:{
-        backgroundColor: "#058800"
-      },
-      launchButton: {
-        width: "200px",
-        height: "200px",
-        backgroundColor: "#F00",
-        borderRadius: "50%",
-        margin: "40px 10px 10px 10px",
-        fontSize: "40px",
-        fontWeight: "bold",
-        fontFamily: "'Exo', 'VT323'"
-      },
-      buttonContainer:{
-        display: "flex",
-        alignItems: "left",
-        padding: "10px",
-        marginLeft: "23%",
-      },
-      weaponButton:{
-        width: "80px",
-        height: "40px",
-        baackgorundColor: "#0F0",
-        borderRadius: "10%",
-        backgroundColor: "#0F0",
-        fontFamily: "VT323",
-        fontSize: "20px",
-        marginRight: "10px"
-      },
-      space:{
-        padding: "10px",
-      }
-    };
-
-    const handleButtonClick = (weaponIndex) => {
-        console.log("weapon index: ", weaponIndex)
-        const newCircleColor = [...circleColor]; // Create a copy of the array
-        if (weaponIndex === 0) {
-            newCircleColor[1] = false
-            newCircleColor[3] = true
-            newCircleColor[5] = true
-            setCircleColor(newCircleColor); 
-          } else if (weaponIndex === 1) {
-            newCircleColor[1] = true
-            newCircleColor[3] = false
-            newCircleColor[5] = true
-            setCircleColor(newCircleColor); 
-        } else if (weaponIndex === 2) {
-            newCircleColor[1] = true
-            newCircleColor[3] = true
-            newCircleColor[5] = false
-            setCircleColor(newCircleColor);
-        }
+        main: {
+            width: "100%",
+            height: "100%",
+            flexGrow: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        container: {
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+        },
+        controls: {
+            width: "300px",
+            height: "450px",
+            marginLeft: "40px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            alignItems: "center",
+        },
+        navButtons: {
+            width: "100%",
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        navRow: {
+            width: "100%",
+            height: "40px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+        },
+        directionText: {
+            margin: "10px",
+        },
+        silenceControls: {
+            width: "100%",
+            height: "50px",
+            marginBottom: "20px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        surfaceButton: {
+            backgroundColor: "black",
+            border: "none",
+            color: "white",
+            textDecoration: "none",
+            fontFamily: "'VT323', monospace",
+            fontSize: "24px",
+        },
+        silenceButton: {
+            backgroundColor: "black",
+            border: "none",
+            color: "#555555",
+            textDecoration: "none",
+            fontFamily: "'VT323', monospace",
+            fontSize: "24px",
+        },
     }
-  
+
+    // Triangle that points in a given direction
+    const Triangle = ({ w = '30', h = '30', direction = 'right', color = '#00FF00' }) => {
+        const points = {
+          top: [`${w / 2},0`, `0,${h}`, `${w},${h}`],
+          right: [`0,0`, `0,${h}`, `${w},${h / 2}`],
+          bottom: [`0,0`, `${w},0`, `${w / 2},${h}`],
+          left: [`${w},0`, `${w},${h}`, `0,${h / 2}`],
+        }
+      
+        return (
+          <svg width={w} height={h}>
+            <polygon points={points[direction].join(' ')} fill={color} />
+          </svg>
+        )
+      }
+
     return (
-      <>
-      <div style={styles.buttonContainer}>
-      <button style={styles.weaponButton} onClick={() => handleButtonClick(0)}>
-            torpedo
-        </button>
-        <button style={styles.weaponButton} onClick={() => handleButtonClick(1)}>
-            depth ch
-        </button>
-        <button style={styles.weaponButton} onClick={() => handleButtonClick(2)}>
-            air str
-        </button>
-      </div>
-      <div style={styles.container}>
-        <div style={styles.container}>
-
-            <div style={styles.LSContainer}>
-            <div style={styles.rectangle}>
-                <div style={styles.wordContainer}>
-                <span style={styles.wordText}>torpedo</span>
-                <div style={styles.circleContainer}>
-                    <div style={{
-                        ...styles.circle,
-                        ...(circleColor[0] ? styles.offCircle: {})}} />
-                    <div style={{
-                        ...styles.circle,
-                        ...(circleColor[1] ? styles.offCircle: {})}} /> {/* Second circle */}
-                </div>
-                </div>
-                <div style={styles.wordContainer}>
-                <span style={styles.wordText}>depth charger</span>
-                <div style={styles.circleContainer}>
-                    <div style={{
-                        ...styles.circle,
-                        ...(circleColor[2] ? styles.offCircle: {})}} />
-                    <div style={{
-                        ...styles.circle,
-                        ...(circleColor[3] ? styles.offCircle: {})}} /> {/* Second circle */}
-                </div>
-                </div>
-                <div style={styles.wordContainer}>
-                <span style={styles.wordText}>air strike</span>
-                <div style={styles.circleContainer}>
-                    <div style={{
-                        ...styles.circle,
-                        ...(circleColor[4] ? styles.offCircle: {})}} />
-                    <div style={{
-                        ...styles.circle,
-                        ...(circleColor[5] ? styles.offCircle: {})}} /> {/* Second circle */}
-                </div>
+        <div style={styles.main}>
+            <div style={styles.container}>
+                <SectorsKey />
+                <GameMap handleClick={() => {}}/>
+                <div style={styles.controls}>
+                    <MovementPendingCard />
+                    <div style={styles.navButtons}>
+                        <div style={styles.navRow}><span>North</span></div>
+                        <div style={styles.navRow}><Triangle direction="top" /></div>
+                        <div style={styles.navRow}>
+                            <span style={styles.directionText}>West</span>
+                            <Triangle direction="left" />
+                            <div style={{height: "100%", width: "50px"}} />
+                            <Triangle direction="right" />
+                            <span style={styles.directionText}>East</span>
+                        </div>
+                        <div style={styles.navRow}><Triangle direction="bottom" /></div>
+                        <div style={styles.navRow}><span>South</span></div>
+                    </div>
+                    <div style={styles.silenceControls}>
+                        <button style={styles.silenceButton}>Activate Silence</button>
+                        <SystemChargeMeter systemName="silence"/>
+                    </div>
+                    <button style={styles.surfaceButton}>Surface</button>
                 </div>
             </div>
-            <button style={styles.launchButton}>
-                LAUNCH
-            </button>
-            </div>
-            
         </div>
-
-        <GameMap></GameMap>
-        <div style={styles.space}> 
-        </div>
-        <Sonar></Sonar>
-        </div>
-    
-      </>
     );
-  }
-  
+}
