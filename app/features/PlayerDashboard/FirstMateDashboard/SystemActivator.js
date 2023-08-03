@@ -33,8 +33,9 @@ export default function SystemActivator(props){
         },
         circleText: {
             color: system.color,
-        }
+        },
     }
+
 
     return (
         <div style={styles.main}>

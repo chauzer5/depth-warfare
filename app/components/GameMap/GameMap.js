@@ -26,7 +26,7 @@ export default function GameMap (props) {
         island: {
             width: "25px",
             height: "25px",
-            backgroundColor: "white",
+            backgroundColor: "#058800",
         },
         water: {
             width: "25px",
@@ -65,7 +65,7 @@ export default function GameMap (props) {
         if(cell.type != "island"){ return islandStyle; }
         
         islandStyle.border = "none";
-        islandStyle.backgroundColor = "white";
+        islandStyle.backgroundColor = "#058800";
 
         return islandStyle;
     }
