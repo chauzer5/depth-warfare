@@ -21,18 +21,13 @@ export function GameWrapper({children}) {
             maxCharge: 6,
         },
         {
-            name: "sonar",
-            color: "#00FF00",
-            maxCharge: 3,
-        },
-        {
-            name: "drone",
+            name: "scan",
             color: "#00FF00",
             maxCharge: 4,
         },
         {
             name: "torpedo",
-            color: "#FF9900",
+            color: "#FF0000",
             maxCharge: 4,
         },
         {
