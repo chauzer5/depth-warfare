@@ -34,6 +34,15 @@ export default function EngineerDashboard(){
             height: "30px",
             backgroundColor: "#000",       /*This will need to change later, so that it is a constant*/
             borderRadius: "18px",
+            // border: "4px solid #0F0",
+            marginRight: "10px",
+            transition: "width 1s ease",
+          },
+          rectangleBorder: {
+            flex: 1,
+            height: "30px",
+            backgroundColor: "#000",       /*This will need to change later, so that it is a constant*/
+            borderRadius: "18px",
             border: "4px solid #0F0",
             marginRight: "10px",
             transition: "width 1s ease",
