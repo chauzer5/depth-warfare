@@ -1,5 +1,6 @@
 import { useGameContext } from "../../state/game_state";
 import theme from "@/app/styles/theme";
+import { ROLE_MAP } from "@/app/utils";
 
 export default function TeamRoleButton (props) {
     const {
@@ -31,16 +32,9 @@ export default function TeamRoleButton (props) {
         }
     };
 
-    const roleMap = {
-        "captain": "Captain",
-        "first-mate": "First Mate",
-        "engineer": "Engineer",
-        "radio-operator": "Radio Operator",
-    };
-
     return (
         <button style={styles.button} onClick={() => handleClick(team, role)}>
-            {`${roleMap[role]}${playerSelected?.data.name ? ` (${playerSelected.data.name})` : ""}`}
+            {`${ROLE_MAP[role]}${playerSelected?.data.name ? ` (${playerSelected.data.name})` : ""}`}
         </button>
     );
 }
