@@ -6,6 +6,7 @@ import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import { columnToIndex, rowToIndex } from "@/app/utils";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
+import { setStartingSpot } from "./message_handler";
 
 const MAP_DIMENSION = 15;
 
@@ -14,13 +15,11 @@ export default function Game() {
     gameId,
     username,
     currentStage,
-    setCurrentStage,
     setGameMap,
     islandList,
-    moveSub,
-    getMessagePlayer,
-    subLocations
   } = useGameContext();
+
+  const gameContext = useGameContext();
 
   const [messagesList, setMessagesList] = useState([]);
   const [presenceData, updateStatus] = usePresence(`dw-${gameId}`, {name: username, team: null, role: null});
@@ -53,18 +52,6 @@ export default function Game() {
     mapSetup();
   }, []);
 
-  const setStartingSpot = (message) => {
-    let allDone = false;
-    moveSub(getMessagePlayer(message).team, message.data.row, message.data.column);
-    if(subLocations[getMessagePlayer(message).team === "blue" ? "red" : "blue"]){
-      allDone = true;
-    }
-
-    if(allDone){
-      setCurrentStage("countdown");
-    }
-  };
-
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
     console.log("NEW MESSAGE RECEIVED");
@@ -72,7 +59,7 @@ export default function Game() {
 
     switch(newMessage?.name){
       case "set-starting-spot":
-        setStartingSpot(newMessage);
+        setStartingSpot(gameContext, newMessage);
         break;
     }
 
