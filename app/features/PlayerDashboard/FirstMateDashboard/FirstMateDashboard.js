@@ -3,10 +3,9 @@ import SystemActivator from "./SystemActivator";
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import GameMap from "@/app/components/GameMap/GameMap";
 import theme from "@/app/styles/theme";
+import { SYSTEMS_INFO } from "@/app/utils";
 
 export default function FirstMateDashboard(){
-    const { SYSTEMS_INFO } = useGameContext();
-
     const styles = {
         main: {
             width: "100%",

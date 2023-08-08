@@ -1,12 +1,11 @@
 import { useGameContext } from "@/app/context/game_state";
+import { SYSTEMS_INFO } from "@/app/utils";
 
 export default function SystemChargeMeter(props){
     const {
         systemName,
         showAdditionalCharge,
     } = props;
-
-    const { SYSTEMS_INFO } = useGameContext();
 
     const selectedSystem = SYSTEMS_INFO.find((sys) => sys.name === systemName);
 
