@@ -1,3 +1,5 @@
+import theme from '@/app/styles/theme';
+
 export const SYSTEMS_INFO = [
     {
         name: "silence",
