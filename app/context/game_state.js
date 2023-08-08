@@ -21,18 +21,13 @@ export function GameWrapper({children}) {
             maxCharge: 6,
         },
         {
-            name: "sonar",
-            color: "#00FF00",
-            maxCharge: 3,
-        },
-        {
-            name: "drone",
+            name: "scan",
             color: "#00FF00",
             maxCharge: 4,
         },
         {
             name: "torpedo",
-            color: "#FF9900",
+            color: "#FF0000",
             maxCharge: 4,
         },
         {
@@ -48,55 +43,33 @@ export function GameWrapper({children}) {
     const [gameId, setGameId] = useState();
     const [playerTeam, setPlayerTeam] = useState();
     const [playerRole, setPlayerRole] = useState();
-    const [blueSubLocation, setBlueSubLocation] = useState();
-    const [redSubLocation, setRedSubLocation] = useState();
-    const [redMinesList, setRedMinesList] = useState([]);
-    const [blueMinesList, setBlueMinesList] = useState([]);
-    const [redHitPoints, setRedHitPoints] = useState(STARTING_HIT_POINTS);
-    const [blueHitPoints, setBlueHitPoints] = useState(STARTING_HIT_POINTS);
     const [gameMap, setGameMap] = useState();
     const [playerData, setPlayerData] = useState();
+    const [subLocations, setSubLocations] = useState({ blue: null, red: null });
+    const [minesList, setMinesList] = useState({ blue: [], red: [] });
+    const [hitPoints, setHitPoints] = useState({ blue: STARTING_HIT_POINTS, red: STARTING_HIT_POINTS });
 
     const getMessagePlayer = (message) => {
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
         return messageSender;
     };
 
-    const moveBlueSub = (row, column) => {
+    const moveSub = (team, row, column) => {
         const mapCopy = [...gameMap];
 
         // remove the old position and make it visited
-        if(blueSubLocation){
-            const prevContents = gameMap[blueSubLocation[0]][blueSubLocation[1]];
-            const newContents = { ...prevContents, blueSub: false, blueVisited: true };
-            mapCopy[blueSubLocation[0]][blueSubLocation[1]] = newContents;
+        if(subLocations[team]){
+            const prevContents = gameMap[subLocations[team][0]][subLocations[team][1]];
+            const newContents = { ...prevContents, [`${team}Sub`]: false, [`${team}Visited`]: true };
+            mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
         }
 
         // add the new position
         const prevContents = gameMap[row][column];
-        const newContents = { ...prevContents, blueSub: true };
+        const newContents = { ...prevContents, [`${team}Sub`]: true };
         mapCopy[row][column] = newContents;
 
-        setBlueSubLocation([row, column]);
-        setGameMap(mapCopy);
-    };
-
-    const moveRedSub = (row, column) => {
-        const mapCopy = [...gameMap];
-
-        // remove the old position
-        if(redSubLocation){
-            const prevContents = gameMap[redSubLocation[0]][redSubLocation[1]];
-            const newContents = { ...prevContents, redSub: false, redVisited: true };
-            mapCopy[redSubLocation[0]][redSubLocation[1]] = newContents;
-        }
-
-        // add the new position
-        const prevContents = gameMap[row][column];
-        const newContents = { ...prevContents, redSub: true };
-        mapCopy[row][column] = newContents;
-
-        setRedSubLocation([row, column]);
+        setSubLocations({ ...subLocations, [team]: [row, column] });
         setGameMap(mapCopy);
     };
 
@@ -109,12 +82,9 @@ export function GameWrapper({children}) {
             playerTeam,
             playerRole,
             islandList,
-            blueMinesList,
-            redMinesList,
-            blueSubLocation,
-            redSubLocation,
-            blueHitPoints,
-            redHitPoints,
+            minesList,
+            subLocations,
+            hitPoints,
             gameMap,
             playerData,
             SYSTEMS_INFO,
@@ -123,15 +93,11 @@ export function GameWrapper({children}) {
             setGameId,
             setPlayerTeam,
             setPlayerRole,
-            setBlueMinesList,
-            setRedMinesList,
-            setBlueSubLocation,
-            setRedSubLocation,
-            setBlueHitPoints,
-            setRedHitPoints,
+            setMinesList,
+            setSubLocations,
+            setHitPoints,
             setGameMap,
-            moveBlueSub,
-            moveRedSub,
+            moveSub,
             setPlayerData,
             getMessagePlayer,
         }}>

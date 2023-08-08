@@ -6,22 +6,23 @@ export default function SystemActivator(props){
 
     const styles = {
         main: {
-            width: "180px",
-            height: "200px",
+            width: "150px",
+            height: "150px",
             margin: "10px",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
         },
         circle: {
-            width: "100px",
-            height: "100px",
+            width: "80px",
+            height: "80px",
             border: `5px solid ${system.color}`,
             borderRadius: "50%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            margin: "10px",
         },
         activateButton: {
             border: "none",
@@ -33,6 +34,7 @@ export default function SystemActivator(props){
         },
         circleText: {
             color: system.color,
+            fontSize: "24px",
         },
     }
 
@@ -40,7 +42,7 @@ export default function SystemActivator(props){
     return (
         <div style={styles.main}>
             <div style={{height: "30px"}}>
-                <button style={styles.activateButton}>Activate</button>
+                <button style={styles.activateButton}>Ready</button>
             </div>
             <div style={styles.circle}><span style={styles.circleText}>{capitalizeFirstLetter(system.name)}</span></div>
             <SystemChargeMeter systemName={system.name} />

@@ -21,11 +21,11 @@ export default function SystemChargeMeter(props){
 
     const charges = Array(selectedSystem.maxCharge).fill(0).map((_, i) => {
         const chargeStyle = {
-            width: "25px",
-            height: "10px",
+            width: "18px",
+            height: "8px",
             backgroundColor: "black",
             margin: "3px",
-            border: `3px solid ${selectedSystem.color}`,
+            border: `2px solid ${selectedSystem.color}`,
         };
 
         return <div key={i} style={chargeStyle}></div>;
