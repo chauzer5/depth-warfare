@@ -1,3 +1,26 @@
+export const SYSTEMS_INFO = [
+    {
+        name: "silence",
+        color: theme.purple,
+        maxCharge: 6,
+    },
+    {
+        name: "scan",
+        color: theme.green,
+        maxCharge: 4,
+    },
+    {
+        name: "torpedo",
+        color: theme.red,
+        maxCharge: 4,
+    },
+    {
+        name: "mine",
+        color: theme.orange,
+        maxCharge: 3,
+    }
+];
+
 export function rowToIndex(row){
     return row - 1;
 }
