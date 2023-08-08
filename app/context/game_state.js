@@ -26,7 +26,9 @@ export function GameWrapper({children}) {
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
     const [hitPoints, setHitPoints] = useState({ blue: STARTING_HIT_POINTS, red: STARTING_HIT_POINTS });
-    
+    const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
+    const [pendingSystemDamage, setPendingSystemDamage] = useState({ blue: null, red: null });
+    const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
 
     const getMessagePlayer = (message) => {
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
@@ -66,6 +68,9 @@ export function GameWrapper({children}) {
             hitPoints,
             gameMap,
             playerData,
+            pendingNavigate,
+            pendingSystemDamage,
+            pendingSystemCharge,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -78,6 +83,9 @@ export function GameWrapper({children}) {
             moveSub,
             setPlayerData,
             getMessagePlayer,
+            setPendingNavigate,
+            setPendingSystemDamage,
+            setPendingSystemCharge,
         }}>
             {children}
         </GameContext.Provider>

@@ -1,5 +1,5 @@
 // This function lets the captain pick a starting point
-// MESAGE: {row, column}
+// MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
     const {
         moveSub,
@@ -18,7 +18,6 @@ export function captainSetStartingSpot(context, message) {
     if(allDone){
       setCurrentStage("countdown");
     }
-
 }
 
 // This is the one where the captain picks a direction to go, 
