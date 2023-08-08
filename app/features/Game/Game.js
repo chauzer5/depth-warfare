@@ -6,7 +6,7 @@ import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import { columnToIndex, rowToIndex } from "@/app/utils";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
-import { setStartingSpot } from "./message_handler";
+import { captainSetStartingSpot } from "./message_handler";
 
 const MAP_DIMENSION = 15;
 
@@ -58,8 +58,8 @@ export default function Game() {
     console.log(newMessage);
 
     switch(newMessage?.name){
-      case "set-starting-spot":
-        setStartingSpot(gameContext, newMessage);
+      case "captain-set-starting-spot":
+        captainSetStartingSpot(gameContext, newMessage);
         break;
     }
 

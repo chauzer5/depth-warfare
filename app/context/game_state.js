@@ -26,6 +26,7 @@ export function GameWrapper({children}) {
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
     const [hitPoints, setHitPoints] = useState({ blue: STARTING_HIT_POINTS, red: STARTING_HIT_POINTS });
+    
 
     const getMessagePlayer = (message) => {
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
