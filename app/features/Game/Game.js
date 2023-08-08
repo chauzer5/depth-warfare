@@ -1,12 +1,12 @@
 import { useChannel, usePresence } from "@ably-labs/react-hooks";
-import { useGameContext } from "../../context/game_state";
+import { useGameContext } from "../../state/game_state";
 import TeamSelection from "../TeamSelection/TeamSelection";
 import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import { columnToIndex, rowToIndex } from "@/app/utils";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
-import { captainSetStartingSpot } from "./message_handler";
+import { captainSetStartingSpot } from "../../state/message_handler";
 
 const MAP_DIMENSION = 15;
 

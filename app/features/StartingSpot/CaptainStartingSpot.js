@@ -2,7 +2,7 @@ import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import TeamRoleDescription from "./TeamRoleDescription";
 import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 
 export default function CaptainStartingSpot (props) {
     const styles = {

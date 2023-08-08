@@ -1,4 +1,4 @@
-import { GameWrapper } from './context/game_state'
+import { GameWrapper } from './state/game_state'
 import theme from "@/app/styles/theme";
 
 export const metadata = {

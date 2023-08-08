@@ -1,6 +1,6 @@
 "use client";
 
-import { useGameContext } from '@/app/context/game_state';
+import { useGameContext } from '@/app/state/game_state';
 import { useChannel, usePresence } from '@ably-labs/react-hooks'
 import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
