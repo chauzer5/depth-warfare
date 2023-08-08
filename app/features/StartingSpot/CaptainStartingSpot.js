@@ -46,7 +46,7 @@ export default function CaptainStartingSpot (props) {
             if(cell.blueSub === true && playerTeam === "blue"){ return; }
             if(cell.redSub === true && playerTeam === "red"){ return; }
 
-            channel.publish("set-starting-spot", {row, column});
+            channel.publish("captain-set-starting-spot", {row, column});
         }
     };
 
@@ -63,7 +63,7 @@ export default function CaptainStartingSpot (props) {
             }
         } while (!validSpot)
 
-        channel.publish("set-starting-spot", {row, column});
+        channel.publish("captain-set-starting-spot", {row, column});
     };
 
     return (
