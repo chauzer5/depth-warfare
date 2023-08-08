@@ -2,6 +2,7 @@ import GameMap from "@/app/components/GameMap/GameMap";
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import SystemChargeMeter from "@/app/components/SystemChargeMeter/SystemChargeMeter";
 import MovementPendingCard from "./MovementPendingCard";
+import theme from "@/app/styles/theme";
 
 export default function CaptainDashboard(){
     const styles = {
@@ -57,17 +58,17 @@ export default function CaptainDashboard(){
             alignItems: "center",
         },
         surfaceButton: {
-            backgroundColor: "black",
+            backgroundColor: theme.black,
             border: "none",
-            color: "white",
+            color: theme.white,
             textDecoration: "none",
             fontFamily: "'VT323', monospace",
             fontSize: "24px",
         },
         silenceButton: {
-            backgroundColor: "black",
+            backgroundColor: theme.black,
             border: "none",
-            color: "#555555",
+            color: theme.gray,
             textDecoration: "none",
             fontFamily: "'VT323', monospace",
             fontSize: "24px",
@@ -75,7 +76,7 @@ export default function CaptainDashboard(){
     }
 
     // Triangle that points in a given direction
-    const Triangle = ({ w = '30', h = '30', direction = 'right', color = '#00FF00' }) => {
+    const Triangle = ({ w = '30', h = '30', direction = 'right', color = theme.green }) => {
         const points = {
           top: [`${w / 2},0`, `0,${h}`, `${w},${h}`],
           right: [`0,0`, `0,${h}`, `${w},${h / 2}`],
