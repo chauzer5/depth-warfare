@@ -2,6 +2,7 @@ import { useGameContext } from "@/app/context/game_state";
 import SystemActivator from "./SystemActivator";
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import GameMap from "@/app/components/GameMap/GameMap";
+import theme from "@/app/styles/theme";
 
 export default function FirstMateDashboard(){
     const { SYSTEMS_INFO } = useGameContext();
@@ -85,9 +86,9 @@ export default function FirstMateDashboard(){
                 <SectorsKey />
                 <GameMap handleClick={() => {}}/>
                 <div style={styles.controlsContainer}>
-                    <button style={{...styles.systemButton, border: "3px solid red"}}>Torpedo</button>
-                    <button style={{...styles.systemButton, border: "3px solid orange"}}>Mine</button>
-                    <button style={{...styles.systemButton, border: "3px solid #00FF00"}}>Scan</button>
+                    <button style={{...styles.systemButton, border: `3px solid ${theme.red}`}}>Torpedo</button>
+                    <button style={{...styles.systemButton, border: `3px solid ${theme.orange}`}}>Mine</button>
+                    <button style={{...styles.systemButton, border: `3px solid ${theme.green}`}}>Scan</button>
 
                     <button style={styles.bigButton}>Launch Torpedo</button>
                 </div>

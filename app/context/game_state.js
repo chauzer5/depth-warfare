@@ -4,6 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
+import theme from "../styles/theme";
 
 const selfClientId = uuidv4();
 configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", clientId: selfClientId });
@@ -17,22 +18,22 @@ export function GameWrapper({children}) {
     const SYSTEMS_INFO = [
         {
             name: "silence",
-            color: "#9900FF",
+            color: theme.purple,
             maxCharge: 6,
         },
         {
             name: "scan",
-            color: "#00FF00",
+            color: theme.green,
             maxCharge: 4,
         },
         {
             name: "torpedo",
-            color: "#FF0000",
+            color: theme.red,
             maxCharge: 4,
         },
         {
             name: "mine",
-            color: "#FF9900",
+            color: theme.orange,
             maxCharge: 3,
         }
     ];
