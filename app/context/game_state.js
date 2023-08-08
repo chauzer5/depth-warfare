@@ -68,6 +68,9 @@ export function GameWrapper({children}) {
             hitPoints,
             gameMap,
             playerData,
+            pendingNavigate,
+            pendingSystemDamage,
+            pendingSystemCharge,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -80,6 +83,9 @@ export function GameWrapper({children}) {
             moveSub,
             setPlayerData,
             getMessagePlayer,
+            setPendingNavigate,
+            setPendingSystemDamage,
+            setPendingSystemCharge,
         }}>
             {children}
         </GameContext.Provider>
