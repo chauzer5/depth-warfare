@@ -1,3 +1,5 @@
+import theme from "@/app/styles/theme";
+
 export default function SectorsKey() {
     const styles = {
         table: {
@@ -12,7 +14,7 @@ export default function SectorsKey() {
             height: "20px",
         },
         cell: {
-            border: "2px solid #00FF00",
+            border: `2px solid ${theme.green}`,
             textAlign: "center",
             color: "white",
             width: "26px",

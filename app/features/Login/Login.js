@@ -1,4 +1,5 @@
 import { useGameContext } from "../../context/game_state";
+import theme from "@/app/styles/theme";
 
 export default function Login() {
 
@@ -14,19 +15,19 @@ export default function Login() {
     usernameInput: {
       width: "400px",
       height: "50px",
-      border: "solid 3px #00FF00",
-      backgroundColor: "black",
-      color: "#00FF00",
+      border: `solid 3px ${theme.green}`,
+      backgroundColor: theme.black,
+      color: theme.green,
       textAlign: "center",
       fontSize: "20px",
       fontFamily: "'VT323', monospace",
     },
     lobbyButton: {
       border: "none",
-      color: "white",
+      color: theme.white,
       marginTop: "100px",
       fontSize: "26px",
-      backgroundColor: "black",
+      backgroundColor: theme.black,
       textDecoration: "none",
       fontFamily: "'VT323', monospace",
     },

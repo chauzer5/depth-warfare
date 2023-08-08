@@ -1,4 +1,5 @@
 import { GameWrapper } from './context/game_state'
+import theme from "@/app/styles/theme";
 
 export const metadata = {
   title: 'Depth Warfare',
@@ -8,11 +9,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   const styles = {
     body: {
-      backgroundColor: "black",
+      backgroundColor: theme.black,
       margin: 0,
       fontFamily: "'VT323', monospace",
       fontSize: "26px",
-      color: "#00FF00",
+      color: theme.green,
       userSelect: "none",
     }
   }

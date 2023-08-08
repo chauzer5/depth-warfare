@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import { useGameContext } from "../../context/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
+import theme from "@/app/styles/theme";
 
 export default function GameMap (props) {
     const { handleClick } = props;
@@ -15,7 +16,7 @@ export default function GameMap (props) {
             maxHeight: `${(MAP_DIMENSION + 1) * 25}px`,
         },
         cell: {
-            border: "2px solid #00FF00",
+            border: `2px solid ${theme.green}`,
             borderCollapse: "collapse",
             width: "25px",
             padding: 0,
@@ -26,34 +27,34 @@ export default function GameMap (props) {
         island: {
             width: "25px",
             height: "25px",
-            backgroundColor: "#058800",
+            backgroundColor: theme.darkGreen,
         },
         water: {
             width: "25px",
             height: "26px",
             "&:hover": {
-                backgroundColor: "#00FF00",
+                backgroundColor: handleClick ? theme.green : theme.black,
             },
         },
         blueSub: {
             width: "25px",
             height: "26px",
-            backgroundColor: "blue",
+            backgroundColor: theme.blue,
         },
         redSub: {
             width: "25px",
             height: "26px",
-            backgroundColor: "red",
+            backgroundColor: theme.red,
         },
     };
 
     const getSectorStyle = (row, column) => {
         const sectorStyle = {};
 
-        if(column % SECTOR_DIMENSION === 0){ sectorStyle.borderLeft = "5px solid #00FF00"; }
-        if(column === MAP_DIMENSION - 1){ sectorStyle.borderRight = "5px solid #00FF00"; }
-        if(row % SECTOR_DIMENSION === 0){ sectorStyle.borderTop = "5px solid #00FF00"; }
-        if(row === MAP_DIMENSION - 1){ sectorStyle.borderBottom = "5px solid #00FF00"; }
+        if(column % SECTOR_DIMENSION === 0){ sectorStyle.borderLeft = `5px solid ${theme.green}`; }
+        if(column === MAP_DIMENSION - 1){ sectorStyle.borderRight = `5px solid ${theme.green}`; }
+        if(row % SECTOR_DIMENSION === 0){ sectorStyle.borderTop = `5px solid ${theme.green}`; }
+        if(row === MAP_DIMENSION - 1){ sectorStyle.borderBottom = `5px solid ${theme.green}`; }
 
         return sectorStyle;
     };
@@ -65,7 +66,7 @@ export default function GameMap (props) {
         if(cell.type != "island"){ return islandStyle; }
         
         islandStyle.border = "none";
-        islandStyle.backgroundColor = "#058800";
+        islandStyle.backgroundColor = theme.darkGreen;
 
         return islandStyle;
     }
@@ -84,20 +85,22 @@ export default function GameMap (props) {
                     <tr key={rowIndex} style={styles.row}>
                         <th>{indexToRow(rowIndex)}</th>
                         {row.map((cell, columnIndex) => (
-                            <td key={columnIndex} style={{...styles.cell, ...getSectorStyle(rowIndex, columnIndex), ...getIslandBorders(rowIndex, columnIndex)}}>
+                            <td key={columnIndex} style={{
+                                ...styles.cell,
+                                ...getSectorStyle(rowIndex, columnIndex),
+                                ...getIslandBorders(rowIndex, columnIndex)
+                            }}>
                                 {
                                     cell.type === "island" ? (
-                                        <div style={styles.island} onClick={() => handleClick(cell)}/>
+                                        <div style={styles.island} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                     ) :
                                     cell.blueSub && playerTeam === "blue" ? (
-                                        <Box sx={styles.blueSub} onClick={() => handleClick(cell)}/>
+                                        <Box sx={styles.blueSub} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                     ) :
                                     cell.redSub && playerTeam === "red" ? (
-                                        <Box sx={styles.redSub} onClick={() => handleClick(cell)}/>
+                                        <Box sx={styles.redSub} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                     ) : 
-                                    <Box sx={styles.water} onClick={() => handleClick(cell, rowIndex, columnIndex)}>
-                                        
-                                    </Box>
+                                    <Box sx={styles.water} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                 }
                             </td>
                         ))}

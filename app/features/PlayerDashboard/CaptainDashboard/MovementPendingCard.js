@@ -1,19 +1,20 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
+import theme from '@/app/styles/theme';
 
 export default function MovementPendingCard(props){
     const styles = {
         main: {
             width: "100%",
             height: "100px",
-            backgroundColor: "#00FF00",
+            backgroundColor: theme.green,
             borderRadius: "5px",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",           
         },
         header: {
-            color: "black",
+            color: theme.black,
             fontSize: "20px",
             margin: "10px",
         },
@@ -39,7 +40,7 @@ export default function MovementPendingCard(props){
             alignItems: "flex-start",
         },
         direction: {
-            color: "black",
+            color: theme.black,
             fontSize: "50px",
         },
         waitingOnPlayer: {
@@ -55,7 +56,7 @@ export default function MovementPendingCard(props){
         checkbox: {
             width: "20px",
             height: "20px",
-            backgroundColor: "black",
+            backgroundColor: theme.black,
             marginRight: "10px",
             display: "flex",
             justifyContent: "center",
@@ -65,7 +66,7 @@ export default function MovementPendingCard(props){
             position: "relative",
             bottom: "84px",
             left: "132px",
-            color: "black",
+            color: theme.black,
         },
     };
 

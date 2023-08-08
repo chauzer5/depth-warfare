@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { useGameContext } from "../../context/game_state";
+import theme from "@/app/styles/theme";
 
 export default function TeamRoleButton (props) {
     const {
@@ -15,7 +15,7 @@ export default function TeamRoleButton (props) {
         return (player.data.team === team && player.data.role === role);
     });
 
-    const buttonColor = playerSelected?.clientId === selfClientId ? "#00FF00" : team;
+    const buttonColor = playerSelected?.clientId === selfClientId ? theme.green : team;
     const buttonStyle = playerSelected ? "dashed" : "solid";
 
     const styles = {
