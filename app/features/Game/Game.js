@@ -17,11 +17,9 @@ export default function Game() {
     setCurrentStage,
     setGameMap,
     islandList,
-    moveBlueSub,
-    moveRedSub,
+    moveSub,
     getMessagePlayer,
-    blueSubLocation,
-    redSubLocation,
+    subLocations
   } = useGameContext();
 
   const [messagesList, setMessagesList] = useState([]);
@@ -55,20 +53,11 @@ export default function Game() {
     mapSetup();
   }, []);
 
-  useEffect(() => {
-    console.log("PRESENCE DATA UPDATED");
-    console.log(presenceData);
-  }, [presenceData]);
-
   const setStartingSpot = (message) => {
     let allDone = false;
-    if(getMessagePlayer(message).team === "blue"){
-      moveBlueSub(message.data.row, message.data.column);
-      if(redSubLocation){ allDone = true; }
-    }
-    else{
-      moveRedSub(message.data.row, message.data.column);
-      if(blueSubLocation){ allDone = true; };
+    moveSub(getMessagePlayer(message).team, message.data.row, message.data.column);
+    if(subLocations[getMessagePlayer(message).team === "blue" ? "red" : "blue"]){
+      allDone = true;
     }
 
     if(allDone){
@@ -76,10 +65,9 @@ export default function Game() {
     }
   };
 
-
-
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
+    console.log("NEW MESSAGE RECEIVED");
     console.log(newMessage);
 
     switch(newMessage?.name){

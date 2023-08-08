@@ -32,7 +32,7 @@ export default function GameMap (props) {
             width: "25px",
             height: "26px",
             "&:hover": {
-                backgroundColor: "#00FF00",
+                backgroundColor: handleClick ? "#00FF00" : "#000000",
             },
         },
         blueSub: {
@@ -84,20 +84,22 @@ export default function GameMap (props) {
                     <tr key={rowIndex} style={styles.row}>
                         <th>{indexToRow(rowIndex)}</th>
                         {row.map((cell, columnIndex) => (
-                            <td key={columnIndex} style={{...styles.cell, ...getSectorStyle(rowIndex, columnIndex), ...getIslandBorders(rowIndex, columnIndex)}}>
+                            <td key={columnIndex} style={{
+                                ...styles.cell,
+                                ...getSectorStyle(rowIndex, columnIndex),
+                                ...getIslandBorders(rowIndex, columnIndex)
+                            }}>
                                 {
                                     cell.type === "island" ? (
-                                        <div style={styles.island} onClick={() => handleClick(cell)}/>
+                                        <div style={styles.island} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                     ) :
                                     cell.blueSub && playerTeam === "blue" ? (
-                                        <Box sx={styles.blueSub} onClick={() => handleClick(cell)}/>
+                                        <Box sx={styles.blueSub} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                     ) :
                                     cell.redSub && playerTeam === "red" ? (
-                                        <Box sx={styles.redSub} onClick={() => handleClick(cell)}/>
+                                        <Box sx={styles.redSub} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                     ) : 
-                                    <Box sx={styles.water} onClick={() => handleClick(cell, rowIndex, columnIndex)}>
-                                        
-                                    </Box>
+                                    <Box sx={styles.water} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
                                 }
                             </td>
                         ))}

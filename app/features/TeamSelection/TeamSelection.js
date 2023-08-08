@@ -61,9 +61,6 @@ export default function TeamSelection(props) {
         };
       });
 
-      console.log("NEW PLAYER DATA");
-      console.log(newPlayerData);
-
       setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
     }
