@@ -4,7 +4,6 @@ import TeamSelection from "../TeamSelection/TeamSelection";
 import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
-import { columnToIndex, rowToIndex } from "@/app/utils";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
 import { captainSetStartingSpot } from "../../state/message_handler";
 
@@ -13,8 +12,7 @@ export default function Game() {
     gameId,
     username,
     currentStage,
-    setGameMap,
-    islandList,
+    resetMap,
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -25,29 +23,8 @@ export default function Game() {
     setMessagesList((prev) => [...prev, {...message}]);
   });
 
-  const mapSetup = () => {
-    let gameMap = Array(process.env.MAP_DIMENSION);
-    for(let i = 0; i < process.env.MAP_DIMENSION; i++){
-      gameMap[i] = Array(process.env.MAP_DIMENSION).fill({
-        type: "water",
-        blueVisited: false,
-        redVisited: false,
-        redSub: false,
-        blueSub: false,
-        redMine: false,
-        blueMine: false,
-      });
-    }
-
-    islandList.forEach((spot) => {
-      gameMap[rowToIndex(spot[1])][columnToIndex(spot[0])] = { type: "island" };
-    });
-
-    setGameMap(gameMap);
-  };
-
   useEffect(() => {
-    mapSetup();
+    resetMap();
   }, []);
 
   useEffect(() => {
