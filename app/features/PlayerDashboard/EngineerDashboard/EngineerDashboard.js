@@ -133,7 +133,8 @@ export default function EngineerDashboard(){
     
       const interval = setInterval(() => {
         // Shrink the rectangle by 10% each time the interval runs
-        width += 1;
+        width += 1;  // Good speed for actual game probably
+        width += 9; // Added this because I am an impatient coder
     
         if (width >= 100) {
           clearInterval(interval);
