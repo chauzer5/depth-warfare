@@ -90,18 +90,15 @@ export default function GameMap (props) {
                                 ...getSectorStyle(rowIndex, columnIndex),
                                 ...getIslandBorders(rowIndex, columnIndex)
                             }}>
-                                {
-                                    cell.type === "island" ? (
-                                        <div style={styles.island} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
-                                    ) :
-                                    cell.blueSub && playerTeam === "blue" ? (
-                                        <Box sx={styles.blueSub} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
-                                    ) :
-                                    cell.redSub && playerTeam === "red" ? (
-                                        <Box sx={styles.redSub} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
-                                    ) : 
-                                    <Box sx={styles.water} onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}/>
-                                }
+                                <Box
+                                    sx={
+                                        cell.type === "island" ? styles.island :
+                                        cell.blueSub && playerTeam === "blue" ? styles.blueSub :
+                                        cell.redSub && playerTeam === "red" ? styles.redSub :
+                                        styles.water
+                                    }
+                                    onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
+                                />
                             </td>
                         ))}
                     </tr>
