@@ -1,4 +1,4 @@
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 import DashboardHeader from "./DashboardHeader";
 import CaptainDashboard from "./CaptainDashboard/CaptainDashboard";
 import EngineerDashboard from "./EngineerDashboard/EngineerDashboard";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useGameContext } from "./context/game_state";
+import { useGameContext } from "./state/game_state";
 import Lobby from "./features/Lobby/Lobby";
 import Login from "./features/Login/Login";
 import Game from "./features/Game/Game";

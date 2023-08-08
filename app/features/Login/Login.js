@@ -1,4 +1,4 @@
-import { useGameContext } from "../../context/game_state";
+import { useGameContext } from "../../state/game_state";
 import theme from "@/app/styles/theme";
 
 export default function Login() {

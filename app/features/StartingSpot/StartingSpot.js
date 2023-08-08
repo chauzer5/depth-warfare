@@ -1,4 +1,4 @@
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 import CaptainStartingSpot from "./CaptainStartingSpot";
 import WaitingStartingSpot from "./WaitingStartingSpot";
 

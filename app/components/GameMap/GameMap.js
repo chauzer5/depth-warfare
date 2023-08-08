@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useGameContext } from "../../context/game_state";
+import { useGameContext } from "../../state/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
 import theme from "@/app/styles/theme";
 

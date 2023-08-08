@@ -1,4 +1,4 @@
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 import SystemActivator from "./SystemActivator";
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import GameMap from "@/app/components/GameMap/GameMap";
@@ -23,7 +23,7 @@ export default function FirstMateDashboard(){
             alignItems: "center",
         },
         pendingText: {
-            color: "white",
+            color: theme.white,
             margin: 0,
             textAlign: "center",
             fontSize: "24px",
