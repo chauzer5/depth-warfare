@@ -4,7 +4,6 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import theme from "../styles/theme";
 
 const selfClientId = uuidv4();
 configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", clientId: selfClientId });
@@ -12,10 +11,7 @@ configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A"
 const GameContext = createContext();
 
 export function GameWrapper({children}) {
-    const STARTING_HIT_POINTS = 4;
-    const ISLAND_MAP = "map1";
-
-    const islandList = maps[ISLAND_MAP];
+    const islandList = maps[process.env.ISLAND_MAP];
     const [username, setUsername] = useState();
     const [currentStage, setCurrentStage] = useState("login");
     const [gameId, setGameId] = useState();
@@ -25,7 +21,7 @@ export function GameWrapper({children}) {
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
-    const [hitPoints, setHitPoints] = useState({ blue: STARTING_HIT_POINTS, red: STARTING_HIT_POINTS });
+    const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
     const [pendingSystemDamage, setPendingSystemDamage] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });

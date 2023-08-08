@@ -23,7 +23,7 @@ export default function FirstMateDashboard(){
             alignItems: "center",
         },
         pendingText: {
-            color: "white",
+            color: theme.white,
             margin: 0,
             textAlign: "center",
             fontSize: "24px",

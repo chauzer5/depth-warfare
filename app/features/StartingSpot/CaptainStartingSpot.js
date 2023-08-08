@@ -38,9 +38,6 @@ export default function CaptainStartingSpot (props) {
     const { channel } = props;
     const { playerTeam, gameMap } = useGameContext();
 
-    const SECONDS_TO_DECIDE = 1000;
-    const MAP_DIMENSION = 15;
-
     const handleClick = (cell, row, column) => {
         if(cell.type === "water"){
             if(cell.blueSub === true && playerTeam === "blue"){ return; }
@@ -56,8 +53,8 @@ export default function CaptainStartingSpot (props) {
         let column;
         let validSpot = false;
         do {
-            row = Math.floor(Math.random() * MAP_DIMENSION);
-            column = Math.floor(Math.random() * MAP_DIMENSION);
+            row = Math.floor(Math.random() * process.env.MAP_DIMENSION);
+            column = Math.floor(Math.random() * process.env.MAP_DIMENSION);
             if(gameMap[row][column].type === "water"){
                 validSpot = true;
             }
@@ -72,7 +69,7 @@ export default function CaptainStartingSpot (props) {
                 <TeamRoleDescription />
                 <h3 style={styles.header}>{"Please choose a starting location\nfor your team's submarine:"}</h3>
                 <div style={styles.bottomSection}>
-                    <Timer text="Time left" seconds={SECONDS_TO_DECIDE} onFinish={handleTimeOut}/>
+                    <Timer text="Time left" seconds={process.env.STARTING_SPOT_TIMER_SECONDS} onFinish={handleTimeOut}/>
                     <GameMap handleClick={handleClick}/>
                     <SectorsKey />
                 </div>

@@ -9,10 +9,8 @@ export default function Countdown () {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-        }
+        },
     }
-
-    const SECONDS_COUNTDOWN = 3;
 
     const { setCurrentStage } = useGameContext();
 
@@ -24,7 +22,7 @@ export default function Countdown () {
         <div style={styles.main}>
             <Timer
                 text={"Starting game in:"}
-                seconds={SECONDS_COUNTDOWN}
+                seconds={process.env.GAME_COUNTDOWN_SECONDS}
                 onFinish={handleFinish}
             />
         </div>

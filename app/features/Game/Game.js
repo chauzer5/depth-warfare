@@ -8,8 +8,6 @@ import { columnToIndex, rowToIndex } from "@/app/utils";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
 import { captainSetStartingSpot } from "../../state/message_handler";
 
-const MAP_DIMENSION = 15;
-
 export default function Game() {
   const {
     gameId,
@@ -28,9 +26,9 @@ export default function Game() {
   });
 
   const mapSetup = () => {
-    let gameMap = Array(MAP_DIMENSION);
-    for(let i = 0; i < MAP_DIMENSION; i++){
-      gameMap[i] = Array(MAP_DIMENSION).fill({
+    let gameMap = Array(process.env.MAP_DIMENSION);
+    for(let i = 0; i < process.env.MAP_DIMENSION; i++){
+      gameMap[i] = Array(process.env.MAP_DIMENSION).fill({
         type: "water",
         blueVisited: false,
         redVisited: false,

@@ -1,4 +1,5 @@
 import { useGameContext } from "@/app/state/game_state";
+import theme from "@/app/styles/theme";
 
 export default function TeamRoleDescription () {
     const { playerTeam, playerRole } = useGameContext();
@@ -12,7 +13,7 @@ export default function TeamRoleDescription () {
 
     const styles = {
         role: {
-            color: "white",
+            color: theme.white,
         },
         team: {
             color: playerTeam,
