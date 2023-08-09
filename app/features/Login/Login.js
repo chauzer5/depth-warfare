@@ -50,7 +50,7 @@ export default function Login() {
   return (
       <form style={styles.main} onSubmit={handleSubmit}>
         <label>Username</label>
-        <input style={styles.usernameInput} type="text" onChange={handleChangeUsername}/>
+        <input style={styles.usernameInput} type="text" onChange={handleChangeUsername} autoFocus/>
         <button style={styles.lobbyButton} type="submit">Enter Lobby</button>
       </form>
   );

@@ -4,6 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
+import { columnToIndex, rowToIndex } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", clientId: selfClientId });
@@ -50,6 +51,27 @@ export function GameWrapper({children}) {
         setGameMap(mapCopy);
     };
 
+    const resetMap = () => {
+        let blankGameMap = Array(process.env.MAP_DIMENSION);
+        for(let i = 0; i < process.env.MAP_DIMENSION; i++){
+            blankGameMap[i] = Array(process.env.MAP_DIMENSION).fill({
+                type: "water",
+                blueVisited: false,
+                redVisited: false,
+                redSub: false,
+                blueSub: false,
+                redMine: false,
+                blueMine: false,
+            });
+        }
+
+        islandList.forEach((spot) => {
+            blankGameMap[rowToIndex(spot[1])][columnToIndex(spot[0])] = { type: "island" };
+        });
+
+        setGameMap(blankGameMap);
+    };
+
     return (
         <GameContext.Provider value={{
             selfClientId,
@@ -82,6 +104,7 @@ export function GameWrapper({children}) {
             setPendingNavigate,
             setPendingSystemDamage,
             setPendingSystemCharge,
+            resetMap,
         }}>
             {children}
         </GameContext.Provider>
