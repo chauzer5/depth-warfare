@@ -7,7 +7,7 @@ import { maps } from "../maps";
 import { columnToIndex, rowToIndex } from "../utils";
 
 const selfClientId = uuidv4();
-configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", clientId: selfClientId });
+configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
 
 const GameContext = createContext();
 
