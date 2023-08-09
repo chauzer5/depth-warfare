@@ -7,6 +7,8 @@ const nextConfig = {
         STARTING_SPOT_TIMER_SECONDS: 999,
         STARTING_HIT_POINTS: 4,
         ISLAND_MAP: "map1",
+        MAX_SYSTEM_HEALTH: 100,
+        SYSTEM_DAMAGE_AMOUNT: 25,
     }
 }
 

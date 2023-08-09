@@ -26,6 +26,36 @@ export function GameWrapper({children}) {
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
     const [pendingSystemDamage, setPendingSystemDamage] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
+    const [systemChargeLevels, setSystemChargeLevels] = useState({ 
+        blue: {
+            mine: 0,
+            torpedo: 0,
+            scan: 0,
+            silence: 0,
+        },
+        red: {
+            mine: 0,
+            torpedo: 0,
+            scan: 0,
+            silence: 0,
+        }
+    });
+    const [systemHealthLevels, setSystemHealthLevels] = useState({
+        blue: {
+            mine: process.env.MAX_SYSTEM_HEALTH,
+            torpedo: process.env.MAX_SYSTEM_HEALTH,
+            scan: process.env.MAX_SYSTEM_HEALTH,
+            engine: process.env.MAX_SYSTEM_HEALTH,
+            comms: process.env.MAX_SYSTEM_HEALTH,
+        },
+        red: {
+            mine: process.env.MAX_SYSTEM_HEALTH,
+            torpedo: process.env.MAX_SYSTEM_HEALTH,
+            scan: process.env.MAX_SYSTEM_HEALTH,
+            engine: process.env.MAX_SYSTEM_HEALTH,
+            comms: process.env.MAX_SYSTEM_HEALTH,
+        }
+    });
 
     const getMessagePlayer = (message) => {
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
@@ -49,6 +79,26 @@ export function GameWrapper({children}) {
 
         setSubLocations({ ...subLocations, [team]: [row, column] });
         setGameMap(mapCopy);
+    };
+
+    const moveSubDirection = (team, direction) => {
+        const [row, column] = subLocations[team];
+        switch(direction){
+            case "north":
+                moveSub(team, row - 1, column);
+                break;
+            case "south":
+                moveSub(team, row + 1, column);
+                break;
+            case "west":
+                moveSub(team, row, column - 1);
+                break;
+            case "east":
+                moveSub(team, row, column + 1);
+                break;
+            default:
+                console.log(`Unrecognized direction: ${direction}`);
+        }
     };
 
     const resetMap = () => {
@@ -89,6 +139,8 @@ export function GameWrapper({children}) {
             pendingNavigate,
             pendingSystemDamage,
             pendingSystemCharge,
+            systemChargeLevels,
+            systemHealthLevels,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -99,11 +151,14 @@ export function GameWrapper({children}) {
             setHitPoints,
             setGameMap,
             moveSub,
+            moveSubDirection,
             setPlayerData,
             getMessagePlayer,
             setPendingNavigate,
             setPendingSystemDamage,
             setPendingSystemCharge,
+            setSystemChargeLevels,
+            setSystemHealthLevels,
             resetMap,
         }}>
             {children}
