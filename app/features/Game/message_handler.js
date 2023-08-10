@@ -24,7 +24,7 @@ export function captainSetStartingSpot(context, message) {
 // This should trigger when the engineer and first mate can start their decisions
 // MESSAGE: {direction}
 export function captainStartSubNavigate(context, message) {
-
+  
 }
 
 //engineer picks the systems to activate, which will damage it each turn

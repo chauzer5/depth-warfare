@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from 'react';
+import theme from "@/app/styles/theme";
 
 const NUM_BUTTONS = 5;
 const ACTIVE_BUTTONS = 3;
@@ -18,12 +19,12 @@ export default function EngineerDashboard(){
           label: {
             width: "100px", /* Set a fixed width for the labels */
             marginRight: "10px", /* Add some spacing between the label and the blue bar */
-            fontSize: "25px",
+            fontSize: "30px",
           },
           rectangle: {
             flex: 1,
             height: "30px",
-            backgroundColor: "#0F0",       /*This will need to change later, so that it is a constant*/
+            backgroundColor: theme.green,       /*This will need to change later, so that it is a constant*/
             borderRadius: "15px",
             // border: "4px solid #0F0",
             marginRight: "10px",
@@ -32,7 +33,7 @@ export default function EngineerDashboard(){
           rectangleBorder: {
             flex: 1,
             height: "30px",
-            backgroundColor: "#000",       /*This will need to change later, so that it is a constant*/
+            backgroundColor: theme.black,       /*This will need to change later, so that it is a constant*/
             borderRadius: "18px",
             // border: "4px solid #0F0",
             marginRight: "10px",
@@ -41,7 +42,7 @@ export default function EngineerDashboard(){
           rectangleBorder: {
             flex: 1,
             height: "30px",
-            backgroundColor: "#000",       /*This will need to change later, so that it is a constant*/
+            backgroundColor: theme.black,       /*This will need to change later, so that it is a constant*/
             borderRadius: "18px",
             border: "4px solid #0F0",
             marginRight: "10px",
@@ -51,8 +52,9 @@ export default function EngineerDashboard(){
             padding: "20px 10px",
             fontFamily: "'VT323', monospace",        /*This is also hard coded... potentially fix */
             fontSize: "20px",
-            backgroundColor: "#C0C0C0",
-            color: "#000",
+            backgroundColor: theme.black,
+            borderColor: theme.white,
+            color: theme.white,
             borderRadius: "10px",
             cursor: "pointer",
             marginLeft: "10px",
@@ -63,8 +65,8 @@ export default function EngineerDashboard(){
             padding: "20px 10px",
             fontFamily: "'VT323', monospace",        /*This is also hard coded... potentially fix */
             fontSize: "20px",
-            backgroundColor: "#0F0",
-            color: "#000",
+            backgroundColor: theme.green,
+            color: theme.green,
             borderRadius: "10px",
             cursor: "pointer",
             marginLeft: "10px",
@@ -72,7 +74,8 @@ export default function EngineerDashboard(){
             label: "Green Button"
           },
           darkButton: {
-            backgroundColor: "#058800" /* Change to a darker shade */
+            backgroundColor: theme.black, /* Change to a darker shade */
+            borderWidth: "3px",
           }
     };
 
@@ -192,7 +195,10 @@ export default function EngineerDashboard(){
         <button
           style={{
             ...styles.button,
-            ...(buttonStates[0] ? styles.darkButton : {})
+            backgroundColor: theme.green,
+            ...(buttonStates[0] ? styles.darkButton : {}),
+            borderColor: theme.green,
+            color: theme.green,
           }}
           onClick={() => handleActivateButtonClick(0)}
         >
@@ -204,12 +210,13 @@ export default function EngineerDashboard(){
       </div>
 
       <div style={styles.container}>
-        <h5 style={styles.label}>Comms</h5>
-        <div style={styles.rectangleBorder}>
+        <h5 style={{...styles.label, color: theme.blue}}>Comms</h5>
+        <div style={{...styles.rectangleBorder, borderColor: theme.blue}}>
           <div
             style={{
               ...styles.rectangle,
               width: `${rectangleWidths[1]}%`,
+              backgroundColor: theme.blue,
             }}
           ></div>
         </div>
@@ -218,7 +225,10 @@ export default function EngineerDashboard(){
         <button
           style={{
             ...styles.button,
-            ...(buttonStates[1] ? styles.darkButton : {})
+            backgroundColor: theme.blue,
+            ...(buttonStates[1] ? styles.darkButton : {}),
+            borderColor: theme.blue,
+            color: theme.blue,
           }}
           onClick={() => handleActivateButtonClick(1)}
         >
@@ -230,12 +240,14 @@ export default function EngineerDashboard(){
       </div>
 
       <div style={styles.container}>
-        <h5 style={styles.label}>Torpedo</h5>
-        <div style={styles.rectangleBorder}>
+        <h5 style={{...styles.label, color: theme.red}}>Torpedo</h5>
+        <div style={{...styles.rectangleBorder, borderColor: theme.red}}>
           <div
             style={{
               ...styles.rectangle,
+              backgroundColor: theme.red,
               width: `${rectangleWidths[2]}%`,
+              backgroundColor: theme.red,
             }}
           ></div>
         </div>
@@ -243,7 +255,10 @@ export default function EngineerDashboard(){
         <button
           style={{
             ...styles.button,
-            ...(buttonStates[2] ? styles.darkButton : {})
+            backgroundColor: theme.red,
+            ...(buttonStates[2] ? styles.darkButton : {}),
+            borderColor: theme.red,
+            color: theme.red,
           }}
           onClick={() => handleActivateButtonClick(2)}
         >
@@ -255,12 +270,13 @@ export default function EngineerDashboard(){
       </div>
 
       <div style={styles.container}>
-        <h5 style={styles.label}>Mine</h5>
-        <div style={styles.rectangleBorder}>
+        <h5 style={{...styles.label, color: theme.orange}}>Mine</h5>
+        <div style={{...styles.rectangleBorder, borderColor: theme.orange}}>
           <div
             style={{
               ...styles.rectangle,
               width: `${rectangleWidths[3]}%`,
+              backgroundColor: theme.orange,
             }}
           ></div>
         </div>
@@ -269,7 +285,10 @@ export default function EngineerDashboard(){
         <button
           style={{
             ...styles.button,
-            ...(buttonStates[3] ? styles.darkButton : {})
+            backgroundColor: theme.orange,
+            ...(buttonStates[3] ? styles.darkButton : {}),
+            borderColor: theme.orange,
+            color: theme.orange,
           }}
           onClick={() => handleActivateButtonClick(3)}
         >
@@ -281,12 +300,13 @@ export default function EngineerDashboard(){
       </div>
 
       <div style={styles.container}>
-        <h5 style={styles.label}>Engine</h5>
-        <div style={styles.rectangleBorder}>
+        <h5 style={{...styles.label, color: theme.purple}}>Engine</h5>
+        <div style={{...styles.rectangleBorder, borderColor:theme.purple}}>
           <div
             style={{
               ...styles.rectangle,
               width: `${rectangleWidths[4]}%`,
+              backgroundColor: theme.purple,
             }}
           ></div>
         </div>
@@ -295,7 +315,10 @@ export default function EngineerDashboard(){
         <button
           style={{
             ...styles.button,
-            ...(buttonStates[4] ? styles.darkButton : {})
+            backgroundColor: theme.purple,
+            ...(buttonStates[4] ? styles.darkButton : {}),
+            borderColor: theme.purple,
+            color: theme.purple,
           }}
           onClick={() => handleActivateButtonClick(4)}
         >
