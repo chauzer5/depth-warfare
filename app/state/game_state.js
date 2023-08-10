@@ -76,7 +76,7 @@ export function GameWrapper({children}) {
                 },
                 visited: {
                     ...prevContents.visited,
-                    [team]: true,
+                    [team]: currentStage === "main" ? true : false,
                 }
             };
             mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
