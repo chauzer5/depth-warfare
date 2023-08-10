@@ -1,11 +1,17 @@
 import { useGameContext } from "@/app/state/game_state";
+import theme from "@/app/styles/theme";
 import { SYSTEMS_INFO } from "@/app/utils";
 
 export default function SystemChargeMeter(props){
     const {
         systemName,
-        showAdditionalCharge,
+        showPendingCharge,
     } = props;
+
+    const {
+        systemChargeLevels,
+        playerTeam,
+    } = useGameContext();
 
     const selectedSystem = SYSTEMS_INFO.find((sys) => sys.name === systemName);
 
@@ -19,15 +25,38 @@ export default function SystemChargeMeter(props){
     };
 
     const charges = Array(selectedSystem.maxCharge).fill(0).map((_, i) => {
-        const chargeStyle = {
+        const cellStyle = {
             width: "18px",
             height: "8px",
-            backgroundColor: "black",
+            backgroundColor: theme.black,
             margin: "3px",
             border: `2px solid ${selectedSystem.color}`,
         };
 
-        return <div key={i} style={chargeStyle}></div>;
+        const filledStyle = {
+            backgroundColor: selectedSystem.color,
+        };
+
+        const pendingStyle = {
+            backgroundColor: theme.white,
+            // animation: "blink 1s infinite",
+            // "@keyframes blink": {
+            //     "0%": { opacity: 1 },
+            //     "50%": { opacity: 0 },
+            //     "100%": { opacity: 1 },
+            // },
+        };
+
+        let correctStyle;
+        if(i < systemChargeLevels[playerTeam][systemName]){
+            correctStyle = {...cellStyle, ...filledStyle};
+        } else if(showPendingCharge && i === systemChargeLevels[playerTeam][systemName]){
+            correctStyle = {...cellStyle, ...pendingStyle};
+        } else {
+            correctStyle = cellStyle;
+        }
+
+        return <div key={i} style={correctStyle}></div>;
     })
 
     return (
