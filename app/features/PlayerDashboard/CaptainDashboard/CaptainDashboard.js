@@ -170,7 +170,7 @@ export default function CaptainDashboard(props){
         <div style={styles.main}>
             <div style={styles.container}>
                 <SectorsKey />
-                <GameMap handleClick={() => {}}/>
+                <GameMap />
                 <div style={styles.controls}>
                     {pendingNavigate[playerTeam] && <MovementPendingCard channel={channel}/>}
                     <div style={styles.navButtons}>
