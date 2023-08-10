@@ -2,10 +2,11 @@ import { Box } from "@mui/material";
 import { useGameContext } from "../../state/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
 import theme from "@/app/styles/theme";
+import { keyframes } from "@mui/material";
 
 export default function GameMap (props) {
     const { handleClick } = props;
-    const { gameMap, playerTeam } = useGameContext();
+    const { gameMap, playerTeam, pendingNavigate, subLocations } = useGameContext();
 
     const MAP_DIMENSION = 15;
     const SECTOR_DIMENSION = 5;
@@ -35,6 +36,9 @@ export default function GameMap (props) {
             "&:hover": {
                 backgroundColor: handleClick ? theme.green : theme.black,
             },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
         },
         blueSub: {
             width: "25px",
@@ -46,6 +50,26 @@ export default function GameMap (props) {
             height: "26px",
             backgroundColor: theme.red,
         },
+        pendingMoveCell: {
+            width: "25px",
+            height: "26px",
+            backgroundColor: theme.white,
+            animation: "blink 1s infinite",
+            "@keyframes blink": {
+                "0%": { opacity: 1 },
+                "49.99%": { opacity: 1 },
+                "50%": { opacity: 0 },
+                "99.99%": { opacity: 0 },
+                "100%": { opacity: 1 },
+            },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        visitedCell: {
+            color: theme.white,
+            fontSize: "24px",
+        }
     };
 
     const getSectorStyle = (row, column) => {
@@ -95,10 +119,16 @@ export default function GameMap (props) {
                                         cell.type === "island" ? styles.island :
                                         cell.subPresent[playerTeam] && playerTeam === "blue" ? styles.blueSub :
                                         cell.subPresent[playerTeam] && playerTeam === "red" ? styles.redSub :
+                                        pendingNavigate[playerTeam] === "north" && rowIndex === subLocations[playerTeam][0] - 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
+                                        pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
+                                        pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
+                                        pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
                                         styles.water
                                     }
                                     onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
-                                />
+                                >
+                                    {cell.visited && cell.visited[playerTeam] && <span style={styles.visitedCell}>X</span>}
+                                </Box>
                             </td>
                         ))}
                     </tr>
