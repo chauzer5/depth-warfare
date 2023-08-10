@@ -79,6 +79,7 @@ export function engineerChooseSystemDamage(context, message){
 
     // reset the pending state
     setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
+    setPendingSystemDamage({ ...pendingSystemDamage, [team]: null });
     setPendingNavigate({ ...pendingNavigate, [team]: null });
   }
 }
@@ -126,6 +127,7 @@ export function firstMateChooseSystemCharge(context, message){
 
     // reset the pending state
     setPendingSystemDamage({ ...pendingSystemDamage, [team]: null });
+    setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
     setPendingNavigate({ ...pendingNavigate, [team]: null });
   }
 }

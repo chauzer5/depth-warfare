@@ -7,7 +7,7 @@ import { maps } from "../maps";
 import { columnToIndex, rowToIndex } from "../utils";
 
 const selfClientId = uuidv4();
-configureAbly({ key: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", clientId: selfClientId });
+configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
 
 const GameContext = createContext();
 
@@ -68,13 +68,23 @@ export function GameWrapper({children}) {
         // remove the old position and make it visited
         if(subLocations[team]){
             const prevContents = gameMap[subLocations[team][0]][subLocations[team][1]];
-            const newContents = { ...prevContents, [`${team}Sub`]: false, [`${team}Visited`]: true };
+            const newContents = {
+                ...prevContents,
+                subPresent: {
+                    ...prevContents.subPresent,
+                    [team]: false,
+                },
+                visited: {
+                    ...prevContents.visited,
+                    [team]: true,
+                }
+            };
             mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
         }
 
         // add the new position
         const prevContents = gameMap[row][column];
-        const newContents = { ...prevContents, [`${team}Sub`]: true };
+        const newContents = { ...prevContents, subPresent: { ...prevContents.subPresent, [team]: true }};
         mapCopy[row][column] = newContents;
 
         setSubLocations({ ...subLocations, [team]: [row, column] });
@@ -106,12 +116,18 @@ export function GameWrapper({children}) {
         for(let i = 0; i < process.env.MAP_DIMENSION; i++){
             blankGameMap[i] = Array(process.env.MAP_DIMENSION).fill({
                 type: "water",
-                blueVisited: false,
-                redVisited: false,
-                redSub: false,
-                blueSub: false,
-                redMine: false,
-                blueMine: false,
+                visited: {
+                    blue: false,
+                    red: false,
+                },
+                subPresent: {
+                    blue: false,
+                    red: false,
+                },
+                minePresent: {
+                    blue: false,
+                    red: false,
+                },
             });
         }
 

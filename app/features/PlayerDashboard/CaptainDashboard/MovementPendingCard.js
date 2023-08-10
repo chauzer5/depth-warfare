@@ -1,6 +1,7 @@
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
 import theme from '@/app/styles/theme';
+import { useGameContext } from '@/app/state/game_state';
 
 export default function MovementPendingCard(props){
     const styles = {
@@ -67,7 +68,21 @@ export default function MovementPendingCard(props){
             bottom: "84px",
             left: "132px",
             color: theme.black,
+            cursor: "pointer",
         },
+    };
+
+    const {
+        pendingNavigate,
+        playerTeam,
+        pendingSystemDamage,
+        pendingSystemCharge
+    } = useGameContext();
+
+    const { channel } = props;
+
+    const handleCancelNavigate = () => {
+        channel.publish("captain-cancel-sub-navigate", {});
     };
 
     return (
@@ -75,23 +90,25 @@ export default function MovementPendingCard(props){
             <p style={styles.header}>Movement pending...</p>
             <div style={styles.bottom}>
                 <div style={styles.left}>
-                    <span style={styles.direction}>N</span>
+                    <span style={styles.direction}>{pendingNavigate[playerTeam].charAt(0).toUpperCase()}</span>
                 </div>
                 <div style={styles.right}>
                     <div style={styles.waitingOnPlayer}>
                         <div style={styles.checkbox}>
-                            <CheckIcon sx={{ fontSize: "20px" }}/>
+                            {pendingSystemCharge[playerTeam] && <CheckIcon sx={{ fontSize: "20px" }}/>}
                         </div>
                         <span style={styles.otherPlayer}>First Mate</span>
                     </div>
                     <div style={styles.waitingOnPlayer}>
-                        <div style={styles.checkbox}></div>
+                        <div style={styles.checkbox}>
+                            {pendingSystemDamage[playerTeam] && <CheckIcon sx={{ fontSize: "20px" }}/>}
+                        </div>
                         <span style={styles.otherPlayer}>Engineer</span>
                     </div>
                 </div>
             </div>
 
-            <CancelIcon sx={styles.closeButton}/>
+            <CancelIcon sx={styles.closeButton} onClick={handleCancelNavigate}/>
         </div>
     );
 }
