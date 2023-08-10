@@ -60,7 +60,7 @@ export default function Game() {
         currentStage === "teams" ? <TeamSelection presenceData={presenceData} updateStatus={updateStatus} channel={channel}/> :
         currentStage === "starting-spot" ? <StartingSpot channel={channel} /> :
         currentStage === "countdown" ? <Countdown /> :
-        currentStage === "main" ? <PlayerDashboard /> :
+        currentStage === "main" ? <PlayerDashboard channel={channel}/> :
         null
       }
     </>

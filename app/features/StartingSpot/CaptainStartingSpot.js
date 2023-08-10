@@ -40,8 +40,8 @@ export default function CaptainStartingSpot (props) {
 
     const handleClick = (cell, row, column) => {
         if(cell.type === "water"){
-            if(cell.blueSub === true && playerTeam === "blue"){ return; }
-            if(cell.redSub === true && playerTeam === "red"){ return; }
+            if(cell.subPresent[playerTeam] === true && playerTeam === "blue"){ return; }
+            if(cell.subPresent[playerTeam] === true && playerTeam === "red"){ return; }
 
             channel.publish("captain-set-starting-spot", {row, column});
         }

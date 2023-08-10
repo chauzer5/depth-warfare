@@ -93,8 +93,8 @@ export default function GameMap (props) {
                                 <Box
                                     sx={
                                         cell.type === "island" ? styles.island :
-                                        cell.blueSub && playerTeam === "blue" ? styles.blueSub :
-                                        cell.redSub && playerTeam === "red" ? styles.redSub :
+                                        cell.subPresent[playerTeam] && playerTeam === "blue" ? styles.blueSub :
+                                        cell.subPresent[playerTeam] && playerTeam === "red" ? styles.redSub :
                                         styles.water
                                     }
                                     onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
