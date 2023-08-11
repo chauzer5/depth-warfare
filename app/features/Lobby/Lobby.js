@@ -1,6 +1,6 @@
 "use client";
 
-import { useGameContext } from '@/app/context/game_state';
+import { useGameContext } from '@/app/state/game_state';
 import { useChannel, usePresence } from '@ably-labs/react-hooks'
 import { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,8 +27,6 @@ export default function Lobby() {
     }
   };
 
-  const NUM_REQUIRED_PLAYERS = 3;
-
   const { username, selfClientId, setGameId, setCurrentStage } = useGameContext();
   
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
@@ -41,7 +39,7 @@ export default function Lobby() {
   const [presenceData] = usePresence("depth-warfare-lobby", {name: username});
   
   useEffect(() => {
-    if(presenceData.length === NUM_REQUIRED_PLAYERS && selfClientId === presenceData[0].clientId){
+    if(presenceData.length === process.env.NUM_REQUIRED_PLAYERS && selfClientId === presenceData[0].clientId){
       channel.publish("start-game", {gameId: uuidv4()});
     }
   }, [presenceData]);

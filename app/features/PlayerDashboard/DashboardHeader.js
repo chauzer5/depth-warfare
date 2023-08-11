@@ -1,6 +1,7 @@
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 import dayjs from 'dayjs';
 import { useState } from "react";
+import { ROLE_MAP } from "@/app/utils";
 
 export default function DashboardHeader(){
     const { playerRole, playerTeam } = useGameContext();
@@ -35,17 +36,10 @@ export default function DashboardHeader(){
 
     const timeZone = new Date().toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2]
 
-    const roleMap = {
-        "captain": "Captain",
-        "first-mate": "First Mate",
-        "engineer": "Engineer",
-        "radio-operator": "Radio Operator",
-    };
-
     return (
         <div style={styles.main}>
             <h4 style={styles.role}><span style={styles.team}>{`${playerTeam.charAt(0).toUpperCase() + playerTeam.slice(1)} Team`}</span>
-             {` ${roleMap[playerRole]}`}</h4>
+             {` ${ROLE_MAP[playerRole]}`}</h4>
             <h4 style={styles.clock}>{`${clock} ${timeZone}`}</h4>
         </div>
     );

@@ -23,6 +23,13 @@ export const SYSTEMS_INFO = [
     }
 ];
 
+export const ROLE_MAP = {
+    "captain": "Captain",
+    "first-mate": "First Mate",
+    "engineer": "Engineer",
+    "radio-operator": "Radio Operator",
+};
+
 export function rowToIndex(row){
     return row - 1;
 }

@@ -2,7 +2,7 @@ import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import TeamRoleDescription from "./TeamRoleDescription";
 import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 
 export default function CaptainStartingSpot (props) {
     const styles = {
@@ -38,13 +38,10 @@ export default function CaptainStartingSpot (props) {
     const { channel } = props;
     const { playerTeam, gameMap } = useGameContext();
 
-    const SECONDS_TO_DECIDE = 1000;
-    const MAP_DIMENSION = 15;
-
     const handleClick = (cell, row, column) => {
         if(cell.type === "water"){
-            if(cell.blueSub === true && playerTeam === "blue"){ return; }
-            if(cell.redSub === true && playerTeam === "red"){ return; }
+            if(cell.subPresent[playerTeam] === true && playerTeam === "blue"){ return; }
+            if(cell.subPresent[playerTeam] === true && playerTeam === "red"){ return; }
 
             channel.publish("captain-set-starting-spot", {row, column});
         }
@@ -56,8 +53,8 @@ export default function CaptainStartingSpot (props) {
         let column;
         let validSpot = false;
         do {
-            row = Math.floor(Math.random() * MAP_DIMENSION);
-            column = Math.floor(Math.random() * MAP_DIMENSION);
+            row = Math.floor(Math.random() * process.env.MAP_DIMENSION);
+            column = Math.floor(Math.random() * process.env.MAP_DIMENSION);
             if(gameMap[row][column].type === "water"){
                 validSpot = true;
             }
@@ -72,7 +69,7 @@ export default function CaptainStartingSpot (props) {
                 <TeamRoleDescription />
                 <h3 style={styles.header}>{"Please choose a starting location\nfor your team's submarine:"}</h3>
                 <div style={styles.bottomSection}>
-                    <Timer text="Time left" seconds={SECONDS_TO_DECIDE} onFinish={handleTimeOut}/>
+                    <Timer text="Time left" seconds={process.env.STARTING_SPOT_TIMER_SECONDS} onFinish={handleTimeOut}/>
                     <GameMap handleClick={handleClick}/>
                     <SectorsKey />
                 </div>

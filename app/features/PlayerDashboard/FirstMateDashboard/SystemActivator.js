@@ -1,8 +1,10 @@
 import SystemChargeMeter from "@/app/components/SystemChargeMeter/SystemChargeMeter";
+import { useGameContext } from "@/app/state/game_state";
+import theme from "@/app/styles/theme";
 import { capitalizeFirstLetter } from "@/app/utils";
 
 export default function SystemActivator(props){
-    const { system } = props;
+    const { system, channel } = props;
 
     const styles = {
         main: {
@@ -24,13 +26,21 @@ export default function SystemActivator(props){
             alignItems: "center",
             margin: "10px",
         },
-        activateButton: {
-            border: "none",
-            backgroundColor: "black",
-            color: "white",
+        clickableCircle: {
+            width: "80px",
+            height: "80px",
+            border: `5px solid ${system.color}`,
+            borderRadius: "50%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            margin: "10px",
+            cursor: "pointer",
+            boxShadow: "0px 0px 8px 8px rgba(255,255,255,0.5)",
+        },
+        readyText: {
+            color: theme.white,
             fontSize: "24px",
-            textDecoration: "none",
-            fontFamily: "'VT323', monospace",
         },
         circleText: {
             color: system.color,
@@ -38,14 +48,30 @@ export default function SystemActivator(props){
         },
     }
 
+    const {
+        systemChargeLevels,
+        pendingNavigate,
+        pendingSystemCharge,
+        playerTeam,
+    } = useGameContext();
+
+    const clickable = pendingNavigate[playerTeam] &&
+        !pendingSystemCharge[playerTeam] &&
+        systemChargeLevels[playerTeam][system.name] < system.maxCharge;
+
+    const handleClick = () => {
+        channel.publish("first-mate-choose-system-charge", {system: system.name});
+    };
 
     return (
         <div style={styles.main}>
             <div style={{height: "30px"}}>
-                <button style={styles.activateButton}>Ready</button>
+                {systemChargeLevels[playerTeam][system.name] === system.maxCharge && <span style={styles.readyText}>Ready</span>}
             </div>
-            <div style={styles.circle}><span style={styles.circleText}>{capitalizeFirstLetter(system.name)}</span></div>
-            <SystemChargeMeter systemName={system.name} />
+            <div style={clickable ? styles.clickableCircle : styles.circle} onClick={clickable ? handleClick : null}>
+                <span style={styles.circleText}>{capitalizeFirstLetter(system.name)}</span>
+            </div>
+            <SystemChargeMeter systemName={system.name} showPendingCharge={pendingSystemCharge[playerTeam] === system.name}/>
         </div>
     );
 }

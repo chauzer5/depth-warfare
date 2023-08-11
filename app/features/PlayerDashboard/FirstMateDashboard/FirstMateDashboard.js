@@ -1,11 +1,11 @@
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
 import SystemActivator from "./SystemActivator";
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import GameMap from "@/app/components/GameMap/GameMap";
 import theme from "@/app/styles/theme";
 import { SYSTEMS_INFO } from "@/app/utils";
 
-export default function FirstMateDashboard(){
+export default function FirstMateDashboard(props){
     const styles = {
         main: {
             width: "100%",
@@ -23,7 +23,7 @@ export default function FirstMateDashboard(){
             alignItems: "center",
         },
         pendingText: {
-            color: "white",
+            color: theme.white,
             margin: 0,
             textAlign: "center",
             fontSize: "24px",
@@ -68,18 +68,35 @@ export default function FirstMateDashboard(){
         },
     };
 
+    const { channel } = props;
+
+    const {
+        pendingNavigate,
+        playerTeam,
+        pendingSystemCharge,
+        systemChargeLevels,
+    } = useGameContext();
+
     return (
         <div style={styles.main}>
             <div style={styles.systemsRow}>
                 {SYSTEMS_INFO.map((system, index) => {
                     return (
-                        <SystemActivator key={index} system={system} />
+                        <SystemActivator key={index} system={system} channel={channel}/>
                     );
                 })}
-                <div>
-                    <h6 style={styles.pendingText}>MOVING: NORTH</h6>
-                    <h6 style={styles.pendingText}>Choose a system to charge</h6>
-                </div>
+                { pendingNavigate[playerTeam] && !pendingSystemCharge[playerTeam] && (
+                    <div>
+                        <h6 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h6>
+                        <h6 style={styles.pendingText}>Choose a system to charge</h6>
+                    </div>
+                )}
+                { pendingNavigate[playerTeam] && pendingSystemCharge[playerTeam] && (
+                    <div>
+                        <h6 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h6>
+                        <h6 style={styles.pendingText}>Waiting for engineer...</h6>
+                    </div>
+                )}
             </div>
             <div style={styles.bottomSection}>
                 <SectorsKey />

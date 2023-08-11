@@ -3,8 +3,10 @@ import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import SystemChargeMeter from "@/app/components/SystemChargeMeter/SystemChargeMeter";
 import MovementPendingCard from "./MovementPendingCard";
 import theme from "@/app/styles/theme";
+import { useGameContext } from "@/app/state/game_state";
+import TriangleMoveButton from "./TriangleMoveButton";
 
-export default function CaptainDashboard(){
+export default function CaptainDashboard(props){
     const styles = {
         main: {
             width: "100%",
@@ -73,42 +75,33 @@ export default function CaptainDashboard(){
             fontFamily: "'VT323', monospace",
             fontSize: "24px",
         },
-    }
+    };
 
-    // Triangle that points in a given direction
-    const Triangle = ({ w = '30', h = '30', direction = 'right', color = theme.green }) => {
-        const points = {
-          top: [`${w / 2},0`, `0,${h}`, `${w},${h}`],
-          right: [`0,0`, `0,${h}`, `${w},${h / 2}`],
-          bottom: [`0,0`, `${w},0`, `${w / 2},${h}`],
-          left: [`${w},0`, `${w},${h}`, `0,${h / 2}`],
-        }
-      
-        return (
-          <svg width={w} height={h}>
-            <polygon points={points[direction].join(' ')} fill={color} />
-          </svg>
-        )
-      }
+    const {
+        playerTeam,
+        pendingNavigate,
+    } = useGameContext();
+
+    const { channel } = props;
 
     return (
         <div style={styles.main}>
             <div style={styles.container}>
                 <SectorsKey />
-                <GameMap handleClick={() => {}}/>
+                <GameMap />
                 <div style={styles.controls}>
-                    <MovementPendingCard />
+                    {pendingNavigate[playerTeam] && <MovementPendingCard channel={channel}/>}
                     <div style={styles.navButtons}>
                         <div style={styles.navRow}><span>North</span></div>
-                        <div style={styles.navRow}><Triangle direction="top" /></div>
+                        <div style={styles.navRow}><TriangleMoveButton direction="north" channel={channel}/></div>
                         <div style={styles.navRow}>
                             <span style={styles.directionText}>West</span>
-                            <Triangle direction="left" />
+                            <TriangleMoveButton direction="west" channel={channel}/>
                             <div style={{height: "100%", width: "50px"}} />
-                            <Triangle direction="right" />
+                            <TriangleMoveButton direction="east" channel={channel}/>
                             <span style={styles.directionText}>East</span>
                         </div>
-                        <div style={styles.navRow}><Triangle direction="bottom" /></div>
+                        <div style={styles.navRow}><TriangleMoveButton direction="south" channel={channel}/></div>
                         <div style={styles.navRow}><span>South</span></div>
                     </div>
                     <div style={styles.silenceControls}>

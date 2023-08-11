@@ -1,4 +1,4 @@
-import { useGameContext } from "../../context/game_state";
+import { useGameContext } from "../../state/game_state";
 import theme from "@/app/styles/theme";
 
 export default function Login() {
@@ -50,7 +50,7 @@ export default function Login() {
   return (
       <form style={styles.main} onSubmit={handleSubmit}>
         <label>Username</label>
-        <input style={styles.usernameInput} type="text" onChange={handleChangeUsername}/>
+        <input style={styles.usernameInput} type="text" onChange={handleChangeUsername} autoFocus/>
         <button style={styles.lobbyButton} type="submit">Enter Lobby</button>
       </form>
   );

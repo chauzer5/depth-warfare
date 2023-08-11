@@ -1,18 +1,13 @@
-import { useGameContext } from "@/app/context/game_state";
+import { useGameContext } from "@/app/state/game_state";
+import theme from "@/app/styles/theme";
+import { ROLE_MAP } from "@/app/utils";
 
 export default function TeamRoleDescription () {
     const { playerTeam, playerRole } = useGameContext();
 
-    const roleMap = {
-        "captain": "Captain",
-        "first-mate": "First Mate",
-        "engineer": "Engineer",
-        "radio-operator": "Radio Operator",
-    };
-
     const styles = {
         role: {
-            color: "white",
+            color: theme.white,
         },
         team: {
             color: playerTeam,
@@ -20,7 +15,7 @@ export default function TeamRoleDescription () {
     };
 
     return (
-        <h3>You are <span style={styles.role}>{roleMap[playerRole]}</span> for the
+        <h3>You are <span style={styles.role}>{ROLE_MAP[playerRole]}</span> for the
         <span style={styles.team}>{` ${playerTeam.charAt(0).toUpperCase() + playerTeam.slice(1)} Team`}</span></h3>
     );
 }
