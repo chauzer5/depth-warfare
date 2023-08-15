@@ -25,7 +25,7 @@ export default function Game() {
 
   useEffect(() => {
     resetMap();
-  }, []);
+  }, [resetMap]);
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
@@ -52,7 +52,7 @@ export default function Game() {
         console.log(`Unrecognized message type: ${newMessage?.name}}`);
     }
 
-  }, [messagesList])
+  }, [messagesList, gameContext])
 
   return (
     <>

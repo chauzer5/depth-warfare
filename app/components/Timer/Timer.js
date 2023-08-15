@@ -37,7 +37,7 @@ export default function Timer (props) {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [onFinish]);
 
     return (
         <div style={styles.main}>
