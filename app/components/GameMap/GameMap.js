@@ -2,13 +2,14 @@ import { Box } from "@mui/material";
 import { useGameContext } from "../../state/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
 import theme from "@/app/styles/theme";
+import { keyframes } from "@mui/material";
 
 export default function GameMap (props) {
     const { handleClick } = props;
     const { gameMap, playerTeam, pendingNavigate, subLocations } = useGameContext();
 
-    const MAP_DIMENSION = process.env.MAP_DIMENSION;
-    const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
+    const MAP_DIMENSION = 15;
+    const SECTOR_DIMENSION = 5;
 
     const styles = {
         table: {

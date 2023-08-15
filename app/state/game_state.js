@@ -56,7 +56,6 @@ export function GameWrapper({children}) {
             comms: process.env.MAX_SYSTEM_HEALTH,
         }
     });
-    const [radioMapNotes, setRadioMapNotes] = useState([]);
 
     const getMessagePlayer = (message) => {
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
@@ -158,7 +157,6 @@ export function GameWrapper({children}) {
             pendingSystemCharge,
             systemChargeLevels,
             systemHealthLevels,
-            radioMapNotes,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -178,7 +176,6 @@ export function GameWrapper({children}) {
             setSystemChargeLevels,
             setSystemHealthLevels,
             resetMap,
-            setRadioMapNotes,
         }}>
             {children}
         </GameContext.Provider>
