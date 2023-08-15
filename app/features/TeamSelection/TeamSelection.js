@@ -45,10 +45,8 @@ export default function TeamSelection(props) {
     setPlayerData,
   } = useGameContext();
 
-  const NUM_REQUIRED_PLAYERS = 3;
-
   useEffect(() => {
-    if(presenceData.length === NUM_REQUIRED_PLAYERS && !presenceData.find(player => !player.data.team)){
+    if(presenceData.length === process.env.NUM_REQUIRED_PLAYERS && !presenceData.find(player => !player.data.team)){
       setPlayerTeam(presenceData.find(player => player.clientId === selfClientId).data.team);
       setPlayerRole(presenceData.find(player => player.clientId === selfClientId).data.role);
 
