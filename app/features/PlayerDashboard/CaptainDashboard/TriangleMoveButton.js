@@ -76,7 +76,7 @@ export default function TriangleMoveButton(props){
             height={h}
             onClick={disabled ? null : handleClick}
         >
-            <polygon
+            <polygon 
                 points={points[direction].join(' ')}
                 fill={disabled ? disabledColor : color}
             />
