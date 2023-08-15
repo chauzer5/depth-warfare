@@ -1,11 +1,10 @@
 import { Box } from "@mui/material";
-import { useGameContext } from "../../state/game_state";
-import { indexToColumn, indexToRow } from "../../utils";
+import { useGameContext } from "@/app/state/game_state";
+import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
 
-export default function GameMap (props) {
-    const { handleClick } = props;
-    const { gameMap, playerTeam, pendingNavigate, subLocations } = useGameContext();
+export default function RadioMap () {
+    const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
 
     const MAP_DIMENSION = process.env.MAP_DIMENSION;
     const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -28,47 +27,27 @@ export default function GameMap (props) {
             width: "25px",
             height: "25px",
             backgroundColor: theme.darkGreen,
+            "&:hover": {
+                backgroundColor: theme.green,
+            },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
         },
         water: {
             width: "25px",
             height: "26px",
             "&:hover": {
-                backgroundColor: handleClick ? theme.green : theme.black,
+                backgroundColor: theme.green,
             },
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
         },
-        blueSub: {
-            width: "25px",
-            height: "26px",
-            backgroundColor: theme.blue,
-        },
-        redSub: {
-            width: "25px",
-            height: "26px",
-            backgroundColor: theme.red,
-        },
-        pendingMoveCell: {
-            width: "25px",
-            height: "26px",
-            backgroundColor: theme.white,
-            animation: "blink 1s infinite",
-            "@keyframes blink": {
-                "0%": { opacity: 1 },
-                "49.99%": { opacity: 1 },
-                "50%": { opacity: 0 },
-                "99.99%": { opacity: 0 },
-                "100%": { opacity: 1 },
-            },
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        visitedCell: {
+        note: {
             color: theme.white,
             fontSize: "24px",
-        }
+        },
     };
 
     const getSectorStyle = (row, column) => {
@@ -94,6 +73,17 @@ export default function GameMap (props) {
         return islandStyle;
     }
 
+    const handleClick = (row, column) => {
+        if(radioMapNotes.find((note) => note[0] === row && note[1] === column)){
+            // Remove note
+            setRadioMapNotes(radioMapNotes.filter((note) => note[0] !== row || note[1] !== column));
+        }
+        else {
+            // Add note
+            setRadioMapNotes([...radioMapNotes, [row, column]]);
+        }
+    };
+
     return (
         <table style={styles.table}>
             <tbody>
@@ -114,19 +104,10 @@ export default function GameMap (props) {
                                 ...getIslandBorders(rowIndex, columnIndex)
                             }}>
                                 <Box
-                                    sx={
-                                        cell.type === "island" ? styles.island :
-                                        cell.subPresent[playerTeam] && playerTeam === "blue" ? styles.blueSub :
-                                        cell.subPresent[playerTeam] && playerTeam === "red" ? styles.redSub :
-                                        pendingNavigate[playerTeam] === "north" && rowIndex === subLocations[playerTeam][0] - 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
-                                        styles.water
-                                    }
-                                    onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
+                                    sx={ cell.type === "island" ? styles.island : styles.water }
+                                    onClick={() => handleClick(rowIndex, columnIndex)}
                                 >
-                                    {cell.visited && cell.visited[playerTeam] && <span style={styles.visitedCell}>X</span>}
+                                    {radioMapNotes.find((note) => note[0] === rowIndex && note[1] === columnIndex) && <span style={styles.note}>X</span>}
                                 </Box>
                             </td>
                         ))}
