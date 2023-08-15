@@ -42,7 +42,7 @@ export default function Lobby() {
     if(presenceData.length === process.env.NUM_REQUIRED_PLAYERS && selfClientId === presenceData[0].clientId){
       channel.publish("start-game", {gameId: uuidv4()});
     }
-  }, [presenceData]);
+  }, [presenceData, channel, selfClientId]);
 
   // Disables the context menu on right click if not running locally
   useEffect(() => {
