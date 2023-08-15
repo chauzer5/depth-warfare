@@ -62,7 +62,7 @@ export default function TeamSelection(props) {
       setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
     }
-  }, [presenceData]);
+  }, [presenceData, selfClientId, setCurrentStage, setPlayerTeam, setPlayerRole, setPlayerData]);
 
   const handleClick = (selectedTeam, selectedRole) => {
     const playerSelected = presenceData.find((player) => {
