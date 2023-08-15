@@ -2,7 +2,6 @@ import React, { useState, useEffect} from 'react';
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
-import DamageLevels from "./DamageLevels"
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 const NUM_BUTTONS = 5;
