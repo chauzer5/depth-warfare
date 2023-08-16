@@ -1,10 +1,13 @@
 import React, { useState, useEffect} from 'react';
+import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
+import SystemDamage from "./SystemDamage";
+import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 const NUM_BUTTONS = 5;
 const ACTIVE_BUTTONS = 3;
 
-export default function EngineerDashboard(){
+export default function EngineerDashboard(props){
     const styles = {
         systemLabel: {
             fontSize : "100px"
@@ -12,7 +15,8 @@ export default function EngineerDashboard(){
         container: {
             display: "flex", /* Use flexbox to display children side by side */
             alignItems: "center", /* Align children vertically in the center */
-            width: "90%", /* Set a fixed width for all the containers */
+            flexDirection: "row",
+            width: "100%", /* Set a fixed width for all the containers */
             margin: "0 auto", /* Center the containers on the page */
             marginBottom: "5px" /* Add some margin between each section */
           },
@@ -24,7 +28,7 @@ export default function EngineerDashboard(){
           rectangle: {
             flex: 1,
             height: "30px",
-            backgroundColor: theme.green,       /*This will need to change later, so that it is a constant*/
+            backgroundColor: theme.green,      
             borderRadius: "15px",
             // border: "4px solid #0F0",
             marginRight: "10px",
@@ -33,16 +37,7 @@ export default function EngineerDashboard(){
           rectangleBorder: {
             flex: 1,
             height: "30px",
-            backgroundColor: theme.black,       /*This will need to change later, so that it is a constant*/
-            borderRadius: "18px",
-            // border: "4px solid #0F0",
-            marginRight: "10px",
-            transition: "width 1s ease",
-          },
-          rectangleBorder: {
-            flex: 1,
-            height: "30px",
-            backgroundColor: theme.black,       /*This will need to change later, so that it is a constant*/
+            backgroundColor: theme.black,      
             borderRadius: "18px",
             border: "4px solid #0F0",
             marginRight: "10px",
@@ -78,6 +73,15 @@ export default function EngineerDashboard(){
             borderWidth: "3px",
           }
     };
+
+    const { channel } = props;
+
+    const {
+      pendingNavigate,
+      playerTeam,
+      pendingSystemDamage,
+      systemChargeLevels,
+  } = useGameContext();
 
     const [buttonStates, setButtonStates] = useState(
         new Array(NUM_BUTTONS).fill(true) // Assuming you have 5 buttons, initialize all to true
@@ -180,6 +184,28 @@ export default function EngineerDashboard(){
     return (
         <>
 
+    <div>
+      { pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] && (
+              <div>
+                  <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
+                  <h4 style={styles.pendingText}>Choose a system to charge</h4>
+              </div>
+          )}
+          { pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && (
+              <div>
+                  <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
+                  <h4 style={styles.pendingText}>Waiting for first mate...</h4>
+              </div>
+          )}
+        
+        {ENGINEER_SYSTEMS_INFO.map((system, index) => {
+            return (
+                <SystemDamage key={index} system={system} channel={channel}/>
+            );
+        })}
+   
+    </div>
+{/* 
     <div style={styles.container}>
         <h5 style={styles.label}>Sonar</h5>
 
@@ -327,7 +353,7 @@ export default function EngineerDashboard(){
         <button style={styles.button2} onClick={() => startGrowing(4)} >
           Repair
         </button>
-      </div>
+      </div> */}
     </>
   );
 }

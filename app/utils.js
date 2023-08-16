@@ -23,6 +23,30 @@ export const SYSTEMS_INFO = [
     }
 ];
 
+export const ENGINEER_SYSTEMS_INFO = [
+    {
+        name: "sonar",
+        color: theme.green
+    },
+    {
+        name: "comms",
+        color: theme.blue
+    },
+    {
+        name: "torpedo",
+        color: theme.red
+    },
+    {
+        name: "mine",
+        color: theme.orange
+    },
+    {
+        name: "engine",
+        color: theme.purple
+    },
+
+];
+
 export const ROLE_MAP = {
     "captain": "Captain",
     "first-mate": "First Mate",

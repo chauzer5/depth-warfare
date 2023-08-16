@@ -46,8 +46,12 @@ export function engineerChooseSystemDamage(context, message){
     setPendingSystemDamage,
     pendingSystemCharge,
     setPendingSystemCharge,
+    systemChargeLevels,
+    setSystemChargeLevels,
     getMessagePlayer,
     moveSubDirection,
+    setSystemHealthLevels,
+    systemHealthLevels,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -94,8 +98,12 @@ export function firstMateChooseSystemCharge(context, message){
     setPendingSystemDamage,
     pendingSystemCharge,
     setPendingSystemCharge,
+    systemChargeLevels,
+    setSystemChargeLevels,
     getMessagePlayer,
     moveSubDirection,
+    setSystemHealthLevels,
+    systemHealthLevels,
   } = context;
 
   const team = getMessagePlayer(message).team;
