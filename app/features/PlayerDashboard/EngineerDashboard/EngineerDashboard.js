@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
+import RepairMatrix from "./RepairMatrix";
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 const NUM_BUTTONS = 5;
@@ -203,6 +204,8 @@ export default function EngineerDashboard(props){
                 <SystemDamage key={index} system={system} channel={channel}/>
             );
         })}
+
+        <RepairMatrix channel={channel} />
    
     </div>
 {/* 
