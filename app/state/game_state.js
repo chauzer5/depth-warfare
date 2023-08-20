@@ -57,6 +57,7 @@ export function GameWrapper({children}) {
         }
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
+    const [enemyMovements, setEnemyMovements] = useState([]);
 
     const getMessagePlayer = (message) => {
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
@@ -159,6 +160,7 @@ export function GameWrapper({children}) {
             systemChargeLevels,
             systemHealthLevels,
             radioMapNotes,
+            enemyMovements,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -179,6 +181,7 @@ export function GameWrapper({children}) {
             setSystemHealthLevels,
             resetMap,
             setRadioMapNotes,
+            setEnemyMovements,
         }}>
             {children}
         </GameContext.Provider>
