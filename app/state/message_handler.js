@@ -136,6 +136,9 @@ export function engineerPlaceSystemBlock(context, message){
 
     // move the sub in the specified direction
     moveSubDirection(team, pendingNavigate[team]);
+    if(playerTeam !== team){
+      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
+    }
 
     // reset the pending state
     setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
