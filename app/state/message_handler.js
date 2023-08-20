@@ -52,6 +52,9 @@ export function engineerChooseSystemDamage(context, message){
     moveSubDirection,
     setSystemHealthLevels,
     systemHealthLevels,
+    enemyMovements,
+    setEnemyMovements,
+    playerTeam,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -80,6 +83,9 @@ export function engineerChooseSystemDamage(context, message){
 
     // move the sub in the specified direction
     moveSubDirection(team, pendingNavigate[team]);
+    if(playerTeam !== team){
+      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
+    }
 
     // reset the pending state
     setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
@@ -154,6 +160,9 @@ export function firstMateChooseSystemCharge(context, message){
     moveSubDirection,
     setSystemHealthLevels,
     systemHealthLevels,
+    enemyMovements,
+    setEnemyMovements,
+    playerTeam,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -182,6 +191,9 @@ export function firstMateChooseSystemCharge(context, message){
 
     // move the sub in the specified direction
     moveSubDirection(team, pendingNavigate[team]);
+    if(playerTeam !== team){
+      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
+    }
 
     // reset the pending state
     setPendingSystemDamage({ ...pendingSystemDamage, [team]: null });

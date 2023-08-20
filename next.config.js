@@ -5,7 +5,7 @@ const nextConfig = {
         GAME_COUNTDOWN_SECONDS: 3,
         MAP_DIMENSION: 15,
         SECTOR_DIMENSION: 5,
-        NUM_REQUIRED_PLAYERS: 4,
+        NUM_REQUIRED_PLAYERS: 5,
         STARTING_SPOT_TIMER_SECONDS: 999,
         STARTING_HIT_POINTS: 4,
         ISLAND_MAP: "map1",
