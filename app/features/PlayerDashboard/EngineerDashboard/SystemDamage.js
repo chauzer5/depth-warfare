@@ -1,7 +1,10 @@
-import { useState } from 'react'; // Import useState
+import React, { useState } from 'react'; // Import useState
+import Modal from 'react-modal'
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import { capitalizeFirstLetter } from "@/app/utils";
+import RepairGame from "./RepairGame";
+
 
 export default function SystemDamage(props){
     const { system, channel } = props;
@@ -79,6 +82,7 @@ export default function SystemDamage(props){
         playerTeam,
     } = useGameContext();
 
+    // THIS IS CODE FOR CHANGING THE LENGTH AND WIDTH OF THE RECTANGLE
     const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
 
     const clickable = pendingNavigate[playerTeam] &&
@@ -88,8 +92,21 @@ export default function SystemDamage(props){
         const currentWidth = parseFloat(innerRectangleWidth);
         const newWidth = Math.max(currentWidth -20, 0);
         console.log(newWidth);
-        setInnerRectangleWidth('${newWidth}%'); 
+        setInnerRectangleWidth(`${newWidth}%`); 
         channel.publish("engineer-choose-system-damage", {system: system.name});
+    };
+
+
+   // THIS IS THE CODE FOR THE POP UP MINI GAME WINDOW
+//    Modal.setAppElement(el)
+    const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
+
+    const handleRepairClick = () => {
+        setIsRepairModalOpen(true);
+    };
+
+    const closeRepairModal = () => {
+        setIsRepairModalOpen(false);
     };
 
     return (
@@ -98,9 +115,25 @@ export default function SystemDamage(props){
                 <div style={clickable ? styles.clickableRectangleBorder : styles.rectangleBorder} onClick={clickable ? handleClick : null}>
                     <div style = {{...styles.rectangle, width: innerRectangleWidth}}></div>
                 </div>
-                <button style = {styles.button}>
+                <button style = {styles.button} onClick={handleRepairClick}>
                     Repair
                 </button>
-            </div>
+
+            {/* Repair Modal */}
+            <Modal
+                isOpen={isRepairModalOpen}
+                onRequestClose={closeRepairModal}
+                contentLabel="Repair Modal"
+                style= {{
+                    content: {
+                        background: theme.black,
+                    }
+                }}
+            >
+                <RepairGame> </RepairGame>
+                {/* <h2>Lets repair this!</h2> */}
+                <button onClick={closeRepairModal}>Close</button>
+            </Modal>
+        </div>
     );
 }
