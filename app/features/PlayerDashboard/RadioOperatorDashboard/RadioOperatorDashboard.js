@@ -2,6 +2,10 @@ import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import RadioMap from "./RadioMap";
 import TriangleShiftButton from "./TriangleShiftButton";
 import { useGameContext } from "@/app/state/game_state";
+import { capitalizeFirstLetter } from "@/app/utils";
+import { Box } from "@mui/material";
+import theme from "@/app/styles/theme";
+import { useEffect, useRef } from "react";
 
 export default function RadioOperatorDashboard(){
     const styles = {
@@ -55,13 +59,25 @@ export default function RadioOperatorDashboard(){
             cursor: "pointer",
         },
         movementsList: {
+            backgroundColor: theme.black,
             border: "2px solid white",
             marginTop: "5px",
             height: "420px",
+            padding: "10px",
+            overflowY: "auto",
         },
     };
 
-    const { setRadioMapNotes } = useGameContext();
+    const { setRadioMapNotes, enemyMovements } = useGameContext();
+
+    const ref = useRef(null);
+    const scrollToBottom = () => {
+        ref.current.scrollIntoView({ behavior: "smooth" });
+    }
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [enemyMovements]);
 
     return (
         <div style={styles.main}>
@@ -88,9 +104,21 @@ export default function RadioOperatorDashboard(){
                 </div>
                 <div style={styles.rightColumn}>
                     <h3 style={styles.header}>Enemy Movements</h3>
-                    <div style={styles.movementsList}>
-
-                    </div>
+                    <Box style={styles.movementsList}>
+                        {enemyMovements.map((movement, index) => (
+                            <div
+                                key={index}
+                                style={{
+                                    fontSize: "24px",
+                                    color: movement === "silence" ? theme.purple : movement.includes("surface") ? theme.green : theme.white,
+                                    marginLeft: "5px"
+                                }}
+                            >
+                                {`${index + 1}. ${capitalizeFirstLetter(movement)}`}
+                            </div>
+                        ))}
+                        <div ref={ref} />
+                    </Box>
                 </div>
             </div>
         </div>
