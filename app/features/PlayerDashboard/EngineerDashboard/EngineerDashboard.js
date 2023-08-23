@@ -13,65 +13,43 @@ export default function EngineerDashboard(props){
         systemLabel: {
             fontSize : "100px"
         },
-        container: {
+        containerRow: {
             display: "flex", /* Use flexbox to display children side by side */
             alignItems: "center", /* Align children vertically in the center */
+            justifyContent: "center",
             flexDirection: "row",
             width: "100%", /* Set a fixed width for all the containers */
             margin: "0 auto", /* Center the containers on the page */
-            marginBottom: "5px" /* Add some margin between each section */
+            marginLeft: "20px", /* Add some margin between each section */
+            marginRight: "20px",
+          },
+          containerColumn: {
+            display: "flex", /* Use flexbox to display children side by side */
+            alignItems: "center", /* Align children vertically in the center */
+            flexDirection: "Column",
+            width: "100%", /* Set a fixed width for all the containers */
+            margin: "0 auto", /* Center the containers on the page */
+            marginBottom: "5px",  /* Add some margin between each section */
+            marginLeft: "5px",
           },
           label: {
             width: "100px", /* Set a fixed width for the labels */
             marginRight: "10px", /* Add some spacing between the label and the blue bar */
             fontSize: "30px",
           },
-          rectangle: {
-            flex: 1,
-            height: "30px",
-            backgroundColor: theme.green,      
-            borderRadius: "15px",
-            // border: "4px solid #0F0",
-            marginRight: "10px",
-            transition: "width 1s ease",
-          },
-          rectangleBorder: {
-            flex: 1,
-            height: "30px",
-            backgroundColor: theme.black,      
-            borderRadius: "18px",
-            border: "4px solid #0F0",
-            marginRight: "10px",
-            transition: "width 1s ease",
-          },
-          button2: {
-            padding: "20px 10px",
-            fontFamily: "'VT323', monospace",        /*This is also hard coded... potentially fix */
-            fontSize: "20px",
-            backgroundColor: theme.black,
-            borderColor: theme.white,
-            color: theme.white,
-            borderRadius: "10px",
-            cursor: "pointer",
-            marginLeft: "10px",
-            marginRight: "10px",
-            label: "Grey Button"
-          },
-          button: {
-            padding: "20px 10px",
-            fontFamily: "'VT323', monospace",        /*This is also hard coded... potentially fix */
-            fontSize: "20px",
+          placeHolderBox:{
+            height: "500px", 
+            width: "80%",
             backgroundColor: theme.green,
-            color: theme.green,
-            borderRadius: "10px",
-            cursor: "pointer",
-            marginLeft: "10px",
-            marginRight: "10px",
-            label: "Green Button"
+            color: theme.black,
+            border: "10px solid ${theme.blue}"
           },
-          darkButton: {
-            backgroundColor: theme.black, /* Change to a darker shade */
-            borderWidth: "3px",
+          trianglePlaceHolderBox:{
+            height:"200px",
+            width: "200px",
+            backgroundColor: theme.green,
+            color: theme.black,
+
           }
     };
 
@@ -183,27 +161,40 @@ export default function EngineerDashboard(props){
     return (
         <>
 
-    <div>
-      { pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] && (
-              <div>
-                  <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
-                  <h4 style={styles.pendingText}>Choose a system to charge</h4>
-              </div>
-          )}
-          { pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && (
-              <div>
-                  <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
-                  <h4 style={styles.pendingText}>Waiting for first mate...</h4>
-              </div>
-          )}
-        
-        {/* {ENGINEER_SYSTEMS_INFO.map((system, index) => {
-            return (
-                <SystemDamage key={index} system={system} channel={channel}/>
-            );
-        })} */}
+    <div style={styles.containerRow}>
 
-        <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
+          <div style = {styles.placeHolderBox}>
+            Jamison's stuff here
+          </div>
+         
+        <div style = {styles.containerColumn}>
+          <div style = {styles.containerColumn}> 
+            {ENGINEER_SYSTEMS_INFO.map((system, index) => {
+                return (
+                    <SystemDamage key={index} system={system} channel={channel}/>
+                );
+            })}
+          
+          </div>
+            <div style = {styles.containerRow}>
+            
+            { pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] && (
+                <div>
+                    <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
+                    <h4 style={styles.pendingText}>Choose a system to damage</h4>
+                </div>
+            )}
+            { pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && (
+                <div>
+                    <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
+                    <h4 style={styles.pendingText}>Waiting for first mate...</h4>
+                </div>
+            )}
+            <div style = {styles.trianglePlaceHolderBox}>
+              Triangle stuff here
+            </div>
+            </div>
+        </div>
    
     </div>
 {/* 
