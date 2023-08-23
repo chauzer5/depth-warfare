@@ -5,7 +5,7 @@ import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
-import { captainCancelSubNavigate, captainSetStartingSpot, captainStartSubNavigate, engineerChooseSystemDamage, firstMateChooseSystemCharge } from "../../state/message_handler";
+import { captainCancelSubNavigate, captainSetStartingSpot, captainStartSubNavigate, engineerChooseSystemDamage, engineerPlaceSystemBlock, firstMateChooseSystemCharge } from "../../state/message_handler";
 
 export default function Game() {
   const {
@@ -13,6 +13,7 @@ export default function Game() {
     username,
     currentStage,
     resetMap,
+    resetRepairMatrix,
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -25,6 +26,7 @@ export default function Game() {
 
   useEffect(() => {
     resetMap();
+    resetRepairMatrix();
   }, []);
 
   useEffect(() => {
@@ -44,6 +46,9 @@ export default function Game() {
         break;
       case "engineer-choose-system-damage":
         engineerChooseSystemDamage(gameContext, newMessage);
+        break;
+      case "engineer-place-system-block":
+        engineerPlaceSystemBlock(gameContext, newMessage);
         break;
       case "first-mate-choose-system-charge":
         firstMateChooseSystemCharge(gameContext, newMessage);

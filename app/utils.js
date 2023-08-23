@@ -33,24 +33,24 @@ export const ENGINEER_SYSTEMS_MAP = {
 export const ENGINEER_SYSTEMS_INFO = [
     {
         name: "sonar",
-        color: theme.green
+        color: theme.darkGreen
     },
     {
         name: "comms",
         color: theme.blue
     },
     {
-        name: "torpedo",
+        name: "weapons",
         color: theme.red
-    },
-    {
-        name: "mine",
-        color: theme.orange
     },
     {
         name: "engine",
         color: theme.purple
     },
+    {
+        name: "life support",
+        color: theme.gray
+    }
 
 ];
 
