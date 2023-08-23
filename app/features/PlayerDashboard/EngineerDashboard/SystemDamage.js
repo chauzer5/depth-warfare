@@ -22,13 +22,14 @@ export default function SystemDamage(props){
         container: {
             display: "flex", /* Use flexbox to display children side by side */
             alignItems: "center", /* Align children vertically in the center */
+            justifyContent: "flex-start",
             width: "90%", /* Set a fixed width for all the containers */
             margin: "5px", /* Center the containers on the page */
             marginBottom: "10px" /* Add some margin between each section */
           },
         button: {
             width: "80px",
-            height: "60px",
+            height: "30px",
             border: `5px solid ${system.color}`,
             color: system.color,
             backgroundColor: theme.black,
@@ -44,7 +45,7 @@ export default function SystemDamage(props){
         },
         rectangle: {
             flex: 1,
-            height: "30px",
+            height: "15px",
             width: "100%",
             backgroundColor: system.color,      
             borderRadius: "15px",
@@ -54,7 +55,7 @@ export default function SystemDamage(props){
           },
           rectangleBorder: {
             flex: 1,
-            height: "30px",
+            height: "15px",
             backgroundColor: theme.black,      
             borderRadius: "18px",
             border: "4px solid ${system.color}",
@@ -63,7 +64,7 @@ export default function SystemDamage(props){
           },
           clickableRectangleBorder: {
             flex: 1,
-            height: "30px",
+            height: "15px",
             backgroundColor: theme.black,      
             borderRadius: "18px",
             border: "4px solid ${system.color}",
@@ -131,7 +132,6 @@ export default function SystemDamage(props){
                 }}
             >
                 <RepairGame> </RepairGame>
-                {/* <h2>Lets repair this!</h2> */}
                 <button onClick={closeRepairModal}>Close</button>
             </Modal>
         </div>
