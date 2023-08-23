@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
+import RepairMatrix from "./RepairMatrix";
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 const NUM_BUTTONS = 5;
@@ -164,9 +165,7 @@ export default function EngineerDashboard(props){
 
     <div style={styles.containerRow}>
 
-          <div style = {styles.placeHolderBox}>
-            Jamison's stuff here
-          </div>
+       <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
          
         <div style = {styles.containerColumn}>
           <div style = {styles.containerColumn}> 
