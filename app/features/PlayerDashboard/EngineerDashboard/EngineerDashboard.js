@@ -163,9 +163,7 @@ export default function EngineerDashboard(props){
 
     <div style={styles.containerRow}>
 
-          <div style = {styles.placeHolderBox}>
-            Jamison's stuff here
-          </div>
+       <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
          
         <div style = {styles.containerColumn}>
           <div style = {styles.containerColumn}> 
