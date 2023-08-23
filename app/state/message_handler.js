@@ -88,6 +88,56 @@ export function engineerChooseSystemDamage(context, message){
   }
 }
 
+export function engineerPlaceSystemBlock(context, message){
+  const {
+    pendingNavigate,
+    setPendingNavigate,
+    pendingSystemDamage,
+    setPendingSystemDamage,
+    pendingSystemCharge,
+    setPendingSystemCharge,
+    systemChargeLevels,
+    setSystemChargeLevels,
+    getMessagePlayer,
+    moveSubDirection,
+    setSystemHealthLevels,
+    systemHealthLevels,
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  if (!pendingSystemCharge[team]) {
+    setPendingSystemDamage({ ...pendingSystemDamage, [team]: message.data.system });
+  }
+  else {
+    // charge the specified system
+    // setSystemChargeLevels({
+    //   ...systemChargeLevels,
+    //   [team]: {
+    //     ...systemChargeLevels[team],
+    //     [pendingSystemCharge[team]]: systemChargeLevels[team][pendingSystemCharge[team]] + 1,
+    //   },
+    // });
+
+    // // damage the specified system
+    // setSystemHealthLevels({
+    //   ...systemHealthLevels,
+    //   [team]: {
+    //     ...systemHealthLevels[team],
+    //     [message.data.system]: systemHealthLevels[team][message.data.system] - process.env.SYSTEM_DAMAGE_AMOUNT,
+    //   },
+    // });
+
+    // move the sub in the specified direction
+    moveSubDirection(team, pendingNavigate[team]);
+
+    // reset the pending state
+    setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
+    setPendingSystemDamage({ ...pendingSystemDamage, [team]: null });
+    setPendingNavigate({ ...pendingNavigate, [team]: null });
+  }
+}
+
 // first make choses something to activate
 // MESSAGE: {system}
 export function firstMateChooseSystemCharge(context, message){

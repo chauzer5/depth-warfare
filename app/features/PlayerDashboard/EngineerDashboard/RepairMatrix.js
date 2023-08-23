@@ -1,95 +1,126 @@
 import React, { useState, useEffect } from 'react'; // Import useState
 import Modal from 'react-modal'
+import { Box } from "@mui/material";
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
-import { capitalizeFirstLetter } from "@/app/utils";
+import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
-export default function RepairMatrix(props) {
-    const { channel } = props;
 
-    const styles = {
-        text: {
-            fontSize: "25px",
-        },
-        gridContainer: {
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr 1fr",
-            gridTemplateRows: "auto 1fr auto",
-            gridGap: "10px",
-        },
-        tab: {
-            padding: "5px 10px",
-            border: "1px solid black",
-            textAlign: "center",
-            cursor: "pointer",
-        },
-    };
+export default function RepairMatrix(props){
+    const { channel, current_system } = props;
 
-    const colors = ['red', 'blue', 'green', 'yellow'];
+    const { repairMatrix, playerTeam, setRepairMatrix, pendingSystemDamage, pendingNavigate } = useGameContext();
 
-    // Create a 4x4 grid with tabs and colors
-    const [grid, setGrid] = useState([]);
+    console.log("current system:")
+    console.log(current_system)
+    console.log(getColorByName(current_system))
+    const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
+
+    const [hoverColor, setHoverColor] = useState(null); // State to store the hover color
 
     useEffect(() => {
-        generateGrid();
-    }, []);
+        // Update the hover color whenever the current_system changes
+        const color = getColorByName(current_system);
+        setHoverColor(color);
+    }, [current_system]);
 
-    const generateGrid = () => {
-        const newGrid = [];
+    const styles = {
+        table: {
+            borderCollapse: "collapse",
+            maxHeight: `${(MATRIX_SIZE + 2) * 25}px`,
+        },
+        cell: {
+            border: "none",
+            borderCollapse: "collapse",
+            width: "50px",
+            height: "50px",
+            padding: 0,
+        },
+        innerCell: {
+            width: "50px",
+            height: "50px",
+            border: `2px solid ${theme.green}`,
+            "&:hover": {
+                backgroundColor: hoverColor,
+            },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+        outerCell: {
+            width: "50px",
+            height: "50px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
+    }
 
-        for (let row = 0; row < 4; row++) {
-            const rowTabs = [];
-            for (let col = 0; col < 4; col++) {
-                rowTabs.push({
-                    color: null,
-                    isEmpty: true,
-                });
-            }
-            newGrid.push(rowTabs);
-        }
+    function getColorByName(systemName) {
+        const systemInfo = ENGINEER_SYSTEMS_INFO.find(system => system.name === systemName);
+        return systemInfo ? systemInfo.color : null;
+    }
 
-        // Randomly assign colors to tabs
-        const availableTabs = [...Array(16).keys()]; // [0, 1, ..., 15]
-        for (const color of colors) {
-            for (let i = 0; i < 2; i++) {
-                const randomIndex = Math.floor(Math.random() * availableTabs.length);
-                const tabIndex = availableTabs.splice(randomIndex, 1)[0];
-                const row = Math.floor(tabIndex / 4);
-                const col = tabIndex % 4;
-                newGrid[row][col] = {
-                    color: color,
-                    isEmpty: false,
-                };
-            }
-        }
+    const setBackgroundColor = (row, column) => {
+        const cellStyle = {};
 
-        setGrid(newGrid);
+        const cell = repairMatrix[row][column];
+    
+        cellStyle.backgroundColor = getColorByName(cell.system);
+
+        return cellStyle;
+    }
+
+    const cellIsClickable = (row, column) => {
+        const cell = repairMatrix[row][column];
+        return cell.system === "empty"
+
+    }
+
+    const handleClick = (row, column) => {
+        // Create a copy of the repairMatrix
+        const updatedMatrix = [...repairMatrix.map(row => [...row])];
+
+        // Update the specific cell's system value with the current_system
+        updatedMatrix[row][column] = {
+            ...updatedMatrix[row][column],
+            system: current_system,
+        };
+
+        setHoverColor(null)
+
+        // Update the state with the new matrix
+        setRepairMatrix(updatedMatrix);
+        channel.publish("engineer-place-system-block", {system: current_system});
     };
 
+    
+    const clickable = pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] ;   // Can add other statements to see if it can be clickable
+
+    console.log(repairMatrix)
+
+    // Functions for game goes here
     return (
-        <div style={styles.text}>
-            <div style={styles.gridContainer}>
-                <div style={{ gridRow: "1", gridColumn: "2 / span 2", ...styles.tab }}>Top</div>
-                <div style={{ gridRow: "4", gridColumn: "2 / span 2", ...styles.tab }}>Bottom</div>
-                <div style={{ gridRow: "2 / span 2", gridColumn: "1", ...styles.tab }}>Left</div>
-                <div style={{ gridRow: "2 / span 2", gridColumn: "4", ...styles.tab }}>Right</div>
-                {grid.map((row, rowIndex) => {
-                    return row.map((tab, colIndex) => {
-                        return (
-                            <div
-                                key={`${rowIndex}-${colIndex}`}
-                                style={{
-                                    backgroundColor: tab.isEmpty ? "white" : tab.color,
-                                    ...styles.tab,
-                                }}
-                            >
-                                {tab.color}
-                            </div>
-                        );
-                    });
-                })}
-            </div>
-        </div>
+        <table style={styles.table}>
+            <tbody>
+                {repairMatrix.map((row, rowIndex) => (
+                    <tr key={rowIndex} style={styles.row}>
+                        {row.map((cell, columnIndex) => (
+                            <td key={columnIndex} style={{
+                                ...styles.cell,
+                                ...setBackgroundColor(rowIndex, columnIndex),
+                            }}>
+                                <Box
+                                    sx={ cell.type === "outer" ? styles.outerCell : styles.innerCell }
+                                    onClick={clickable && cell.system === "empty" && cell.type === "inner" ? () => handleClick(rowIndex, columnIndex) : null}
+                                >
+                                </Box>
+                            </td>
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+        </table>
     );
-};
+    };
 

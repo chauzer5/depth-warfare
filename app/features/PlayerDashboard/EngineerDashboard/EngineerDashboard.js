@@ -3,7 +3,7 @@ import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
 import RepairMatrix from "./RepairMatrix";
-import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
+import { ENGINEER_SYSTEMS_INFO, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
 
 const NUM_BUTTONS = 5;
 const ACTIVE_BUTTONS = 3;
@@ -180,8 +180,6 @@ export default function EngineerDashboard(props){
   
     };
     
-    
-    
     return (
         <>
 
@@ -199,13 +197,13 @@ export default function EngineerDashboard(props){
               </div>
           )}
         
-        {ENGINEER_SYSTEMS_INFO.map((system, index) => {
+        {/* {ENGINEER_SYSTEMS_INFO.map((system, index) => {
             return (
                 <SystemDamage key={index} system={system} channel={channel}/>
             );
-        })}
+        })} */}
 
-        <RepairMatrix channel={channel} />
+        <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
    
     </div>
 {/* 
