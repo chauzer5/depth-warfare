@@ -44,13 +44,23 @@ export default function EngineerDashboard(props){
             color: theme.black,
             border: "10px solid ${theme.blue}"
           },
+          placeHolderBox:{
+            height: "500px", 
+            width: "80%",
+            backgroundColor: theme.green,
+            color: theme.black,
+            border: "10px solid ${theme.blue}"
+          },
+          trianglePlaceHolderBox:{
+            height:"200px",
+            width: "200px",
           trianglePlaceHolderBox:{
             height:"200px",
             width: "200px",
             backgroundColor: theme.green,
             color: theme.black,
-
           }
+        }
     };
 
     const { channel } = props;
