@@ -183,6 +183,9 @@ export function GameWrapper({children}) {
             }
             blankRepairMatrix.push(row);
         }
+
+        console.log("Finished Repair Matrix")
+        console.log(blankRepairMatrix)
         
         setRepairMatrix(blankRepairMatrix); // Return the initialized matrix
     };
