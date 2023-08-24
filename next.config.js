@@ -12,6 +12,7 @@ const nextConfig = {
         MAX_SYSTEM_HEALTH: 100,
         SYSTEM_DAMAGE_AMOUNT: 25,
         REPAIR_MATRIX_DIMENSION: 4,
+        REPAIR_MATRIX_CELL_SIZE: 50,
     }
 }
 
