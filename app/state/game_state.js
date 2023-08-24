@@ -151,7 +151,8 @@ export function GameWrapper({children}) {
             doubledSystems.push("empty");
         }
 
-        const shuffledSystems = shuffleArray(doubledSystems);
+        const shuffledSystems = shuffleArray(doubledSystems).sort();
+
     
         let blankRepairMatrix = [];
     

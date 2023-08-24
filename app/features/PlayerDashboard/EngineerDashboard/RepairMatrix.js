@@ -109,15 +109,17 @@ export default function RepairMatrix(props){
     
         const pathRowIndices = [];
         const pathColumnIndices = [];
+        let prevCellType;
     
-        const hasPath = (row, col) => {
+        const hasPath = (row, col, prevCellType) => {
             if (
                 row < 0 ||
                 row >= matrix.length ||
                 col < 0 ||
                 col >= matrix[0].length ||
                 visited[row][col] ||
-                matrix[row][col].system !== systemName
+                matrix[row][col].system !== systemName ||
+                matrix[row][col].type === "outer" && prevCellType === "outer"
             ) {
                 return false;
             }
@@ -125,6 +127,7 @@ export default function RepairMatrix(props){
             visited[row][col] = true;
             pathRowIndices.push(row);
             pathColumnIndices.push(col);
+            prevCellType = matrix[row][col].type;
     
             if (row === targetRow && col === targetCol) {
                 return true;
@@ -138,7 +141,7 @@ export default function RepairMatrix(props){
             ];
     
             for (const [nRow, nCol] of neighbors) {
-                if (hasPath(nRow, nCol)) {
+                if (hasPath(nRow, nCol, prevCellType)) {
                     return true;
                 }
             }
@@ -148,7 +151,7 @@ export default function RepairMatrix(props){
             return false;
         };
     
-        const isConnected = hasPath(startRow, startCol);
+        const isConnected = hasPath(startRow, startCol, null);
     
         if (!isConnected) {
             pathRowIndices.length = 0;
@@ -185,6 +188,13 @@ export default function RepairMatrix(props){
         }
     };
 
+    const isCorner = (matrix, row, column) => {
+        return (row === 0 && column === 0 
+            || row === 0 && column === matrix.length - 1
+            || row === matrix.length - 1 && column === 0
+            || row === matrix.length - 1 && column === matrix.length - 1)
+    }
+
     const pickNewOuterCells = (matrix) => {
         const emptyOuterCells = []; // Array to store coordinates of empty outer cells
     
@@ -192,7 +202,7 @@ export default function RepairMatrix(props){
         for (let row = 0; row < matrix.length; row++) {
             for (let col = 0; col < matrix[0].length; col++) {
                 const cell = matrix[row][col];
-                if (cell.type === "outer" && cell.system === "empty") {
+                if (cell.type === "outer" && cell.system === "empty" && !isCorner(matrix, row, col)) {
                     emptyOuterCells.push({ row, col });
                 }
             }
