@@ -6,9 +6,6 @@ import RepairMatrix from "./RepairMatrix";
 import { ENGINEER_SYSTEMS_INFO, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
 import TriangleKey from "./TriangleKey";
 
-const NUM_BUTTONS = 5;
-const ACTIVE_BUTTONS = 3;
-
 export default function EngineerDashboard(props){
     const styles = {
         systemLabel: {

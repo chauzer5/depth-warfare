@@ -96,6 +96,7 @@ export function engineerChooseSystemDamage(context, message){
 
 export function engineerPlaceSystemBlock(context, message){
   const {
+    playerTeam,
     pendingNavigate,
     setPendingNavigate,
     pendingSystemDamage,

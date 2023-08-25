@@ -90,12 +90,14 @@ export default function SystemDamage(props){
     // THIS IS CODE FOR CHANGING THE LENGTH AND WIDTH OF THE RECTANGLE
     const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
 
-
     useEffect(() => {
         if (shouldShrink && pendingNavigate[playerTeam]) {
             const intervalId = setInterval(() => {
                 setInnerRectangleWidth(prevWidth => {
-                    const newWidth = Math.max(parseFloat(prevWidth) - 2, 0);
+                    const newWidth = Math.max(parseFloat(prevWidth) - 20, 0);
+                    if (newWidth <= 80) {
+                        clearInterval(intervalId);
+                    }
                     return `${newWidth}%`;
                 });
             }, 100);
