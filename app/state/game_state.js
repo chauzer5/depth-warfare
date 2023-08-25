@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex } from "../utils";
+import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
@@ -19,6 +19,7 @@ export function GameWrapper({children}) {
     const [playerTeam, setPlayerTeam] = useState();
     const [playerRole, setPlayerRole] = useState();
     const [gameMap, setGameMap] = useState();
+    const [repairMatrix, setRepairMatrix] = useState([]);
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
@@ -138,7 +139,67 @@ export function GameWrapper({children}) {
         });
 
         setGameMap(blankGameMap);
+        
     };
+
+    const resetRepairMatrix = () => {
+        const dimension = process.env.REPAIR_MATRIX_DIMENSION;
+        const systems = ENGINEER_SYSTEMS_INFO.filter(system => system.name !== "life support").map(system => system.name);
+        const doubledSystems = systems.concat(systems.slice());
+        const extra_elements = dimension * 4
+
+        while (doubledSystems.length < extra_elements) {
+            doubledSystems.push("empty");
+        }
+
+        const shuffledSystems = shuffleArray(doubledSystems).sort();
+
+    
+        let blankRepairMatrix = [];
+    
+        for (let i = 0; i < dimension + 2; i++) {
+            let row = [];
+            for (let j = 0; j < dimension + 2; j++) {
+                if (i === 0 || i === dimension + 1 || j === 0 || j === dimension + 1) {
+                    // Cells in the first row, last row, first column, and last column are "outer" cells
+                    let system;
+
+                    if ((i === 0 && j === 0) || (i === 0 && j === dimension + 1) || 
+                    (i === dimension + 1 && j === 0) || (i === dimension + 1 && j === dimension + 1)) {
+                        system = "empty"
+                    } else {
+                        system = shuffledSystems.pop();
+                    }
+
+                    row.push({
+                        type: "outer",
+                        system: system,
+                    });
+                } else {
+                    row.push({
+                        type: "inner",
+                        system: "empty",
+                    });
+                }
+            }
+            blankRepairMatrix.push(row);
+        }
+
+        console.log("Finished Repair Matrix")
+        console.log(blankRepairMatrix)
+        
+        setRepairMatrix(blankRepairMatrix); // Return the initialized matrix
+    };
+    
+    // Function to shuffle an array using Fisher-Yates algorithm
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
 
     const getValidSilenceCells = () => {
         const [row, column] = subLocations[playerTeam];
@@ -196,6 +257,7 @@ export function GameWrapper({children}) {
             subLocations,
             hitPoints,
             gameMap,
+            repairMatrix,
             playerData,
             pendingNavigate,
             pendingSystemDamage,
@@ -214,6 +276,7 @@ export function GameWrapper({children}) {
             setSubLocations,
             setHitPoints,
             setGameMap,
+            setRepairMatrix,
             moveSub,
             moveSubDirection,
             setPlayerData,
@@ -224,6 +287,7 @@ export function GameWrapper({children}) {
             setSystemChargeLevels,
             setSystemHealthLevels,
             resetMap,
+            resetRepairMatrix,
             setRadioMapNotes,
             setEnemyMovements,
         }}>

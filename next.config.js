@@ -11,6 +11,8 @@ const nextConfig = {
         ISLAND_MAP: "map1",
         MAX_SYSTEM_HEALTH: 100,
         SYSTEM_DAMAGE_AMOUNT: 25,
+        REPAIR_MATRIX_DIMENSION: 5,
+        REPAIR_MATRIX_CELL_SIZE: 50,
     }
 }
 
