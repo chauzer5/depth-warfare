@@ -94,7 +94,7 @@ export function engineerChooseSystemDamage(context, message){
   }
 }
 
-// first make choses something to activate
+// first mate choses something to activate
 // MESSAGE: {system}
 export function firstMateChooseSystemCharge(context, message){
   const {
@@ -170,4 +170,37 @@ export function captainCancelSubNavigate(context, message){
   setPendingNavigate({ ...pendingNavigate, [team]: null });
   setPendingSystemDamage({ ...pendingSystemDamage, [team]: null });
   setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
+}
+
+// Captain uses the silence ability
+// MESSAGE: {row, column}
+export function captainSilence(context, message){
+  const {
+    setSystemChargeLevels,
+    systemChargeLevels,
+    getMessagePlayer,
+    moveSub,
+    enemyMovements,
+    setEnemyMovements,
+    playerTeam,
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  // Move the sub to the chosen location
+  moveSub(team, message.data.row, message.data.column);
+
+  // Reduce the charge level of the silence system to 0
+  setSystemChargeLevels({
+    ...systemChargeLevels,
+    [team]: {
+      ...systemChargeLevels[team],
+      silence: 0,
+    },
+  });
+
+  // Add "silence" to the enemy movements list
+  if(playerTeam !== team){
+    setEnemyMovements([...enemyMovements, "silence"]);
+  }
 }

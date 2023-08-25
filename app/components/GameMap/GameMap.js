@@ -2,10 +2,11 @@ import { Box } from "@mui/material";
 import { useGameContext } from "../../state/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
 import theme from "@/app/styles/theme";
+import { useEffect, useState } from "react";
 
 export default function GameMap (props) {
-    const { handleClick } = props;
-    const { gameMap, playerTeam, pendingNavigate, subLocations } = useGameContext();
+    const { channel, handleClick, silence } = props;
+    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells } = useGameContext();
 
     const MAP_DIMENSION = process.env.MAP_DIMENSION;
     const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -94,6 +95,19 @@ export default function GameMap (props) {
         return islandStyle;
     }
 
+    const [silenceCells, setSilenceCells] = useState([]);
+
+    useEffect(() => {
+        if(silence){
+            const newSilenceCells = getValidSilenceCells();
+            setSilenceCells(newSilenceCells);
+        }
+    }, [silence]);
+
+    const handleSilence = (row, column) => {
+        channel?.publish("captain-silence", { row, column });
+    };
+
     return (
         <table style={styles.table}>
             <tbody>
@@ -126,7 +140,26 @@ export default function GameMap (props) {
                                     }
                                     onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
                                 >
-                                    {cell.visited && cell.visited[playerTeam] && <span style={styles.visitedCell}>X</span>}
+                                    {
+                                        cell.visited && cell.visited[playerTeam] &&
+                                        <span style={styles.visitedCell}>X</span>
+                                    }
+                                    {
+                                        silence &&
+                                        silenceCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) && 
+                                        <Box
+                                            sx={{
+                                                minWidth: "25px",
+                                                minHeight: "25px",
+                                                backgroundColor: theme.purple,
+                                                cursor: "pointer",
+                                                "&:hover": {
+                                                    backgroundColor: "#4D0081",
+                                                },
+                                            }}
+                                            onClick={() => {handleSilence(rowIndex, columnIndex)}}
+                                        />
+                                    }
                                 </Box>
                             </td>
                         ))}

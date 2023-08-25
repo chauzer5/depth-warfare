@@ -109,7 +109,7 @@ export function GameWrapper({children}) {
                 moveSub(team, row, column + 1);
                 break;
             default:
-                console.log(`Unrecognized direction: ${direction}`);
+                console.error(`Unrecognized direction: ${direction}`);
         }
     };
 
@@ -140,6 +140,49 @@ export function GameWrapper({children}) {
         setGameMap(blankGameMap);
     };
 
+    const getValidSilenceCells = () => {
+        const [row, column] = subLocations[playerTeam];
+        const validCells = [];
+        
+        // Check 4 cells in the north direction
+        for(let i = 1; i <= 4; i++){
+            if(row - i < 0){ break; }
+            if(gameMap[row - i][column].type === "island"){ break; }
+            if(gameMap[row - i][column].visited[playerTeam]){ break; }
+
+            validCells.push([row - i, column]);
+        }
+
+        // Check 4 cells in the east direction
+        for(let i = 1; i <= 4; i++){
+            if(column + i >= process.env.MAP_DIMENSION){ break; }
+            if(gameMap[row][column + i].type === "island"){ break; }
+            if(gameMap[row][column + i].visited[playerTeam]){ break; }
+
+            validCells.push([row, column + i]);
+        }
+
+        // Check 4 cells in the south direction
+        for(let i = 1; i <= 4; i++){
+            if(row + i >= process.env.MAP_DIMENSION){ break; }
+            if(gameMap[row + i][column].type === "island"){ break; }
+            if(gameMap[row + i][column].visited[playerTeam]){ break; }
+
+            validCells.push([row + i, column]);
+        }
+
+        // Check 4 cells in the west direction
+        for(let i = 1; i <= 4; i++){
+            if(column - i < 0){ break; }
+            if(gameMap[row][column - i].type === "island"){ break; }
+            if(gameMap[row][column - i].visited[playerTeam]){ break; }
+
+            validCells.push([row, column - i]);
+        }
+
+        return validCells;
+    };
+
     return (
         <GameContext.Provider value={{
             selfClientId,
@@ -161,6 +204,7 @@ export function GameWrapper({children}) {
             systemHealthLevels,
             radioMapNotes,
             enemyMovements,
+            getValidSilenceCells,
             setCurrentStage,
             setUsername,
             setGameId,

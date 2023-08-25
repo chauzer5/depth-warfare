@@ -54,7 +54,7 @@ export default function TriangleMoveButton(props){
             }
             break;
         default:
-            console.log(`Unrecognized direction: ${direction}`);
+            console.error(`Unrecognized direction: ${direction}`);
     }
 
 

@@ -5,7 +5,7 @@ import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
-import { captainCancelSubNavigate, captainSetStartingSpot, captainStartSubNavigate, engineerChooseSystemDamage, firstMateChooseSystemCharge } from "../../state/message_handler";
+import { captainCancelSubNavigate, captainSetStartingSpot, captainSilence, captainStartSubNavigate, engineerChooseSystemDamage, firstMateChooseSystemCharge } from "../../state/message_handler";
 
 export default function Game() {
   const {
@@ -47,6 +47,9 @@ export default function Game() {
         break;
       case "first-mate-choose-system-charge":
         firstMateChooseSystemCharge(gameContext, newMessage);
+        break;
+      case "captain-silence":
+        captainSilence(gameContext, newMessage);
         break;
       default:
         console.log(`Unrecognized message type: ${newMessage?.name}}`);

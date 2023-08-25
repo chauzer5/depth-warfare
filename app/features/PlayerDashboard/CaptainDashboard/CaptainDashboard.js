@@ -5,8 +5,11 @@ import MovementPendingCard from "./MovementPendingCard";
 import theme from "@/app/styles/theme";
 import { useGameContext } from "@/app/state/game_state";
 import TriangleMoveButton from "./TriangleMoveButton";
+import { SYSTEMS_INFO } from "@/app/utils";
+import { useEffect, useState } from "react";
 
 export default function CaptainDashboard(props){
+
     const styles = {
         main: {
             width: "100%",
@@ -70,25 +73,47 @@ export default function CaptainDashboard(props){
         silenceButton: {
             backgroundColor: theme.black,
             border: "none",
-            color: theme.gray,
             textDecoration: "none",
             fontFamily: "'VT323', monospace",
             fontSize: "24px",
         },
     };
 
+    const { channel } = props;
+
     const {
         playerTeam,
         pendingNavigate,
+        systemChargeLevels,
     } = useGameContext();
 
-    const { channel } = props;
+    const [silenceActivated, setSilenceActivated] = useState(false);
+
+    const silenceCharged = systemChargeLevels[playerTeam].silence === SYSTEMS_INFO.find(system => system.name === "silence").maxCharge;
+
+    const silenceStateStyle = {
+        color: !silenceCharged ? theme.gray : (silenceActivated ? theme.purple : theme.white),
+        cursor: silenceCharged ? "pointer" : "default",
+    };
+
+    const handleClickSilence = () => {
+        if(silenceCharged){
+            setSilenceActivated(!silenceActivated);
+        }
+    };
+
+    useEffect(() => {
+        // If we've just used silence, turn off the cell selector
+        if(systemChargeLevels[playerTeam].silence === 0){
+            setSilenceActivated(false);
+        }
+    }, [systemChargeLevels[playerTeam].silence]);
 
     return (
         <div style={styles.main}>
             <div style={styles.container}>
                 <SectorsKey />
-                <GameMap />
+                <GameMap silence={silenceActivated} channel={channel}/>
                 <div style={styles.controls}>
                     {pendingNavigate[playerTeam] && <MovementPendingCard channel={channel}/>}
                     <div style={styles.navButtons}>
@@ -105,7 +130,12 @@ export default function CaptainDashboard(props){
                         <div style={styles.navRow}><span>South</span></div>
                     </div>
                     <div style={styles.silenceControls}>
-                        <button style={styles.silenceButton}>Activate Silence</button>
+                        <button
+                            style={{...styles.silenceButton, ...silenceStateStyle}}
+                            onClick={handleClickSilence}
+                        >
+                            {silenceActivated ? "Cancel" : "Activate Silence"}
+                        </button>
                         <SystemChargeMeter systemName="silence"/>
                     </div>
                     <button style={styles.surfaceButton}>Surface</button>
