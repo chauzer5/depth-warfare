@@ -11,9 +11,6 @@ export default function RepairMatrix(props){
 
     const { repairMatrix, playerTeam, setRepairMatrix, pendingSystemDamage, pendingNavigate } = useGameContext();
 
-    console.log("current system:")
-    console.log(current_system)
-    console.log(getColorByName(current_system))
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
     const tabSize = Math.round(MATRIX_CELL_SIZE * .4)

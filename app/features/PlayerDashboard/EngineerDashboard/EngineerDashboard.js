@@ -4,6 +4,7 @@ import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
 import RepairMatrix from "./RepairMatrix";
 import { ENGINEER_SYSTEMS_INFO, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
+import TriangleKey from "./TriangleKey";
 
 const NUM_BUTTONS = 5;
 const ACTIVE_BUTTONS = 3;
@@ -44,13 +45,46 @@ export default function EngineerDashboard(props){
             color: theme.black,
             border: "10px solid ${theme.blue}"
           },
-        
           trianglePlaceHolderBox:{
             height:"200px",
             width: "200px",
             backgroundColor: theme.green,
             color: theme.black,
-        }
+        },
+        navButtons: {
+          width: "100%",
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        },
+        navRow: {
+            width: "100%",
+            height: "40px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            whiteSpace: "nowrap",
+        },
+        navRowWithMargin: {
+          width: "100%",
+          height: "40px",
+          display: "flex",
+          marginLeft: "10px",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          whiteSpace: "nowrap",
+      },
+      pendingText: {
+        color: theme.white,
+        margin: 0,
+        textAlign: "center",
+        fontSize: "24px",
+        width: "100%",
+      },
     };
 
     const { channel } = props;
@@ -60,7 +94,15 @@ export default function EngineerDashboard(props){
       playerTeam,
       pendingSystemDamage,
       systemChargeLevels,
-  } = useGameContext();
+    } = useGameContext();
+
+    function capitalize(word) {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+
+    const findSystem = (direction) => {
+      return ENGINEER_SYSTEMS_INFO.find(system => system.name === ENGINEER_SYSTEMS_MAP[direction])
+    }
 
 
     
@@ -69,12 +111,29 @@ export default function EngineerDashboard(props){
 
     <div style={styles.containerRow}>
 
-       <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
+        <div style = {styles.containerColumn}>
+          { pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] && (
+              <div>
+                  <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
+                  <h4 style={styles.pendingText}>Choose a system to damage</h4>
+              </div>
+          )}
+          { pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && (
+              <div>
+                  <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
+                  <h4 style={styles.pendingText}>Waiting for first mate...</h4>
+              </div>
+          )}
+
+        <div style={{ marginTop: "20px" }}>
+          <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
+        </div>
+       </div>
          
         <div style = {styles.containerColumn}>
           <div style = {styles.containerColumn}> 
             {ENGINEER_SYSTEMS_INFO.map((system, index) => {
-              const shouldShrink = pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && system.name === ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]];
+                const shouldShrink = system.name === ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
                 return (
                     <SystemDamage key={index} system={system} channel={channel} shouldShrink={shouldShrink}/>
                 );
@@ -82,21 +141,47 @@ export default function EngineerDashboard(props){
           
           </div>
             <div style = {styles.containerRow}>
-            
-            { pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] && (
-                <div>
-                    <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
-                    <h4 style={styles.pendingText}>Choose a system to damage</h4>
+          
+              <div style={styles.navButtons}>
+                <div style={styles.navRow}>
+                    <span style={{ color: findSystem("north").color }}>   
+                        {capitalize(ENGINEER_SYSTEMS_MAP["north"])}
+                    </span>
                 </div>
-            )}
-            { pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && (
-                <div>
-                    <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
-                    <h4 style={styles.pendingText}>Waiting for first mate...</h4>
+                <div style={styles.navRow}>
+                    <TriangleKey
+                        direction="north"
+                        color={findSystem("north").color}
+                    />
                 </div>
-            )}
-            <div style = {styles.trianglePlaceHolderBox}>
-              Triangle stuff here
+                <div style={styles.navRowWithMargin}>
+                    <span style={{ color: findSystem("west").color, marginRight: "10px" }}>
+                        {capitalize(ENGINEER_SYSTEMS_MAP["west"]) }
+                    </span>
+                    <TriangleKey
+                        direction="west"
+                        color={findSystem("west").color}
+                    />
+                    <div style={{ height: "100%", width: "50px" }} />
+                    <TriangleKey
+                        direction="east"
+                        color={findSystem("east").color}
+                    />
+                    <span style={{ color: findSystem("east").color, marginLeft: "10px" }}>
+                        { capitalize(ENGINEER_SYSTEMS_MAP["east"])}
+                    </span>
+                </div>
+                <div style={styles.navRow}>
+                    <TriangleKey
+                        direction="south"
+                        color={findSystem("south").color}
+                    />
+                </div>
+                <div style={styles.navRow}>
+                    <span style={{ color: findSystem("south").color }}>
+                        {capitalize(ENGINEER_SYSTEMS_MAP["south"])}
+                    </span>
+                </div>
             </div>
             </div>
         </div>

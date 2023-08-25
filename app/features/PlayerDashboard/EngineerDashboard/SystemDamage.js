@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Import useState
+import React, { useState, useEffect, useRef } from 'react'; // Import useState
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import { capitalizeFirstLetter } from "@/app/utils";
@@ -71,6 +71,12 @@ export default function SystemDamage(props){
             cursor: "pointer",
             boxShadow: "0px 0px 8px 8px rgba(255,255,255,0.5)",
           },
+          textContainer: {
+            width: "100px", // Set a fixed width for the text container
+            overflow: "hidden", // Hide overflowing text
+            whiteSpace: "nowrap", // Prevent text wrapping
+            textOverflow: "ellipsis", // Add ellipsis if text overflows
+            },
 
     }
 
@@ -84,41 +90,33 @@ export default function SystemDamage(props){
     // THIS IS CODE FOR CHANGING THE LENGTH AND WIDTH OF THE RECTANGLE
     const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
 
-    const clickable = pendingNavigate[playerTeam] &&
-        !pendingSystemDamage[playerTeam] ;   // Can add other statements to see if it can be clickable
 
-    const handleClick = () => {
-        const currentWidth = parseFloat(innerRectangleWidth);
-        const newWidth = Math.max(currentWidth -20, 0);
-        setInnerRectangleWidth(`${newWidth}%`); 
-        channel.publish("engineer-choose-system-damage", {system: system.name});
-    };
-
-
-    //New code stuff
     useEffect(() => {
-        if (shouldShrink) {
+        if (shouldShrink && pendingNavigate[playerTeam]) {
             const intervalId = setInterval(() => {
                 setInnerRectangleWidth(prevWidth => {
-                    const newWidth = Math.max(parseFloat(prevWidth) - 2, 0); // Adjust the decrement value as needed
+                    const newWidth = Math.max(parseFloat(prevWidth) - 2, 0);
                     return `${newWidth}%`;
                 });
-            }, 100); // Adjust the interval as needed
+            }, 100);
 
             return () => {
                 clearInterval(intervalId);
             };
         }
-    }, [shouldShrink]);
+    }, [shouldShrink, pendingNavigate, playerTeam]);
 
 
     return (
         <div style={styles.container}>
-            <span style={styles.buttonText}>{capitalizeFirstLetter(system.name)}</span>
-                <div style={styles.rectangleBorder} >
-                    <div style = {{...styles.rectangle, width: innerRectangleWidth}}></div>
-                </div>
-
+            <div style={{ ...styles.textContainer, width: "120px"}}>
+                <span style={styles.buttonText}>
+                    {capitalizeFirstLetter(system.name)}
+                </span>
+            </div>
+            <div style={styles.rectangleBorder}>
+                <div style={{ ...styles.rectangle, width: innerRectangleWidth }}></div>
+            </div>
         </div>
     );
 }
