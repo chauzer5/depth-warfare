@@ -141,6 +141,52 @@ export function GameWrapper({children}) {
         setGameMap(blankGameMap);
     };
 
+    const isCornerRepairMatrix = (row, column) => {
+        return (row === 0 && column === 0 
+            || row === 0 && column === repairMatrix.length - 1
+            || row === repairMatrix.length - 1 && column === 0
+            || row === repairMatrix.length - 1 && column === repairMatrix.length - 1)
+    }
+
+    // Function to get random distinct indices
+    const getRandomIndices = (max, count) => {
+        const indices = Array.from({ length: max }, (_, index) => index);
+        const randomIndices = [];
+    
+        while (randomIndices.length < count && indices.length > 0) {
+            const randomIndex = Math.floor(Math.random() * indices.length);
+            randomIndices.push(indices.splice(randomIndex, 1)[0]);
+        }
+    
+        return randomIndices;
+    };
+
+    const pickNewOuterCells = () => {
+        const emptyOuterCells = []; // Array to store coordinates of empty outer cells
+    
+        // Find empty outer cells and store their coordinates
+        for (let row = 0; row < repairMatrix.length; row++) {
+            for (let col = 0; col < repairMatrix[0].length; col++) {
+                const cell = repairMatrix[row][col];
+                if (cell.type === "outer" && cell.system === "empty" && !isCornerRepairMatrix(row, col)) {
+                    emptyOuterCells.push({ row, col });
+                }
+            }
+        }
+    
+        // Check if there are at least two empty outer cells
+        if (emptyOuterCells.length < 2) {
+            console.log("Not enough empty outer cells to assign current_system.");
+            return;
+        }
+    
+        // Randomly select two empty outer cells
+        const randomIndices = getRandomIndices(emptyOuterCells.length, 2);
+        const selectedCells = randomIndices.map(index => emptyOuterCells[index]);
+
+        return selectedCells
+    };
+
     function findConnectedRepairMatrixPath(startRow, startCol, targetRow, targetCol){
         const visited = new Array(repairMatrix.length).fill(false).map(() => new Array(repairMatrix[0].length).fill(false));
         const systemName = repairMatrix[startRow][startCol].system;
@@ -235,8 +281,7 @@ export function GameWrapper({children}) {
             doubledSystems.push("empty");
         }
 
-        const shuffledSystems = shuffleArray(doubledSystems).sort();
-
+        const shuffledSystems = shuffleArray(doubledSystems);
     
         let blankRepairMatrix = [];
     
@@ -358,6 +403,7 @@ export function GameWrapper({children}) {
             systemHealthLevels,
             radioMapNotes,
             enemyMovements,
+            pickNewOuterCells,
             pendingRepairMatrixBlock,
             getValidSilenceCells,
             setCurrentStage,

@@ -59,6 +59,9 @@ export function engineerPlaceSystemBlock(context, message){
     playerTeam,
     healSystem,
     setPendingSystemCharge,
+    setRepairMatrix,
+    repairMatrix,
+    pickNewOuterCells,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -95,9 +98,7 @@ export function engineerPlaceSystemBlock(context, message){
     });
 
     // Check to see if two outer nodes have been connected
-    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, current_system);
-    console.log("path results");
-    console.log(isConnected, pathRowIndices, pathColumnIndices);
+    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
 
     if (isConnected) {
       // heal the system
@@ -119,7 +120,7 @@ export function engineerPlaceSystemBlock(context, message){
       for (const { row, col } of selectedCells) {
           updatedMatrix[row][col] = {
               type: "outer",
-              system: current_system,
+              system: blockSystem,
           };
       }
     }
@@ -161,6 +162,9 @@ export function firstMateChooseSystemCharge(context, message){
     playerTeam,
     healSystem,
     setPendingSystemCharge,
+    setRepairMatrix,
+    repairMatrix,
+    pickNewOuterCells,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -182,6 +186,10 @@ export function firstMateChooseSystemCharge(context, message){
     const blockSystem = ENGINEER_SYSTEMS_MAP[pendingNavigate[team]];
 
     const updatedMatrix = [...repairMatrix.map(row => [...row])];
+
+    console.log("pendingRepairMatrixBlock")
+    console.log(pendingRepairMatrixBlock)
+
     updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]] = {
       ...updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]],
       system: blockSystem,
@@ -197,7 +205,7 @@ export function firstMateChooseSystemCharge(context, message){
     });
 
     // check to see if two outer nodes have been connected
-    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, current_system);
+    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
     console.log("path results");
     console.log(isConnected, pathRowIndices, pathColumnIndices);
 
@@ -222,7 +230,7 @@ export function firstMateChooseSystemCharge(context, message){
       for (const { row, col } of selectedCells) {
           updatedMatrix[row][col] = {
               type: "outer",
-              system: current_system,
+              system: blockSystem,
           };
       }
     }
