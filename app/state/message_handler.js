@@ -185,16 +185,6 @@ export function firstMateChooseSystemCharge(context, message){
     // // place the pending matrix block
     const blockSystem = ENGINEER_SYSTEMS_MAP[pendingNavigate[team]];
 
-    const updatedMatrix = [...repairMatrix.map(row => [...row])];
-
-    console.log("pendingRepairMatrixBlock")
-    console.log(pendingRepairMatrixBlock)
-
-    updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]] = {
-      ...updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]],
-      system: blockSystem,
-    };
-
     // Damage the system corresponding to the block placed
     setSystemHealthLevels({
       ...systemHealthLevels,
@@ -204,10 +194,15 @@ export function firstMateChooseSystemCharge(context, message){
       },
     });
 
+    const updatedMatrix = [...repairMatrix.map(row => [...row])];
+
+    updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]] = {
+      ...updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]],
+      system: blockSystem,
+    };
+
     // check to see if two outer nodes have been connected
     const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
-    console.log("path results");
-    console.log(isConnected, pathRowIndices, pathColumnIndices);
 
     if (isConnected) {
       // heal the system

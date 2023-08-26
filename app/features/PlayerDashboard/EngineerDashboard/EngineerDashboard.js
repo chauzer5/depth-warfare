@@ -130,9 +130,9 @@ export default function EngineerDashboard(props){
         <div style = {styles.containerColumn}>
           <div style = {styles.containerColumn}> 
             {ENGINEER_SYSTEMS_INFO.map((system, index) => {
-                const shouldShrink = system.name === ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
+                // const shouldShrink = system.name === ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
                 return (
-                    <SystemDamage key={index} system={system} channel={channel} shouldShrink={shouldShrink}/>
+                    <SystemDamage key={index} system={system} channel={channel}/>
                 );
             })}
           

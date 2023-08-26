@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'; // Import useState
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
-import { capitalizeFirstLetter } from "@/app/utils";
+import { capitalizeFirstLetter, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
 
 
 export default function SystemDamage(props){
@@ -51,6 +51,16 @@ export default function SystemDamage(props){
             marginRight: "10px",
             transition: "width 1s ease",
           },
+          pendingRectangle: {
+            flex: 1,
+            height: "15px",
+            width: "100%",
+            backgroundColor: theme.white,      
+            borderRadius: "15px",
+            // border: "4px solid #0F0",
+            marginRight: "10px",
+            transition: "width 1s ease",
+          },
           rectangleBorder: {
             flex: 1,
             height: "15px",
@@ -85,40 +95,63 @@ export default function SystemDamage(props){
         pendingNavigate,
         pendingRepairMatrixBlock,
         playerTeam,
+        systemHealthLevels,
     } = useGameContext();
 
     // THIS IS CODE FOR CHANGING THE LENGTH AND WIDTH OF THE RECTANGLE
-    const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
+    // const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
 
-    useEffect(() => {
-        if (shouldShrink && pendingNavigate[playerTeam]) {
-            const intervalId = setInterval(() => {
-                setInnerRectangleWidth(prevWidth => {
-                    const newWidth = Math.max(parseFloat(prevWidth) - 20, 0);
-                    if (newWidth <= 80) {
-                        clearInterval(intervalId);
-                    }
-                    return `${newWidth}%`;
-                });
-            }, 100);
+    // useEffect(() => {
+    //     if (shouldShrink && pendingNavigate[playerTeam]) {
+    //         const intervalId = setInterval(() => {
+    //             setInnerRectangleWidth(prevWidth => {
+    //                 const newWidth = Math.max(parseFloat(prevWidth) - 20, 0);
+    //                 if (newWidth <= 80) {
+    //                     clearInterval(intervalId);
+    //                 }
+    //                 return `${newWidth}%`;
+    //             });
+    //         }, 100);
 
-            return () => {
-                clearInterval(intervalId);
-            };
+    //         return () => {
+    //             clearInterval(intervalId);
+    //         };
+    //     }
+    // }, [shouldShrink, pendingNavigate, playerTeam]);
+
+    console.log("system health levels", systemHealthLevels[playerTeam])
+
+    const pendingDamagedSystem = ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
+    console.log(pendingDamagedSystem)
+
+    function getPendingWidth(system) {
+        if (system.name === pendingDamagedSystem) {
+            return Math.max(systemHealthLevels[playerTeam][system.name] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
         }
-    }, [shouldShrink, pendingNavigate, playerTeam]);
-
+        return systemHealthLevels[playerTeam][system.name]
+    }
 
     return (
-        <div style={styles.container}>
-            <div style={{ ...styles.textContainer, width: "120px"}}>
-                <span style={styles.buttonText}>
-                    {capitalizeFirstLetter(system.name)}
-                </span>
-            </div>
-            <div style={styles.rectangleBorder}>
-                <div style={{ ...styles.rectangle, width: innerRectangleWidth }}></div>
-            </div>
+        <div style={{ ...styles.container, position: "relative" }}>
+            {/* Longer white rectangle */}
+            <div
+                style={{
+                    ...styles.rectangle,
+                    width: `${systemHealthLevels[playerTeam][system.name]}%`,
+                    backgroundColor: theme.white,
+                    position: "absolute",
+                    zIndex: 1,
+                }}
+            ></div>
+            
+            {/* Shorter colored rectangle */}
+            <div
+                style={{
+                    ...styles.rectangle,
+                    width: `${getPendingWidth(system)}%`,
+                    zIndex: 2,
+                }}
+            ></div>
         </div>
     );
 }

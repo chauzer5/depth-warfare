@@ -42,18 +42,18 @@ export function GameWrapper({children}) {
     });
     const [systemHealthLevels, setSystemHealthLevels] = useState({
         blue: {
-            mine: process.env.MAX_SYSTEM_HEALTH,
-            torpedo: process.env.MAX_SYSTEM_HEALTH,
+            weapons: process.env.MAX_SYSTEM_HEALTH,
             scan: process.env.MAX_SYSTEM_HEALTH,
             engine: process.env.MAX_SYSTEM_HEALTH,
             comms: process.env.MAX_SYSTEM_HEALTH,
+            "life support": process.env.MAX_SYSTEM_HEALTH,
         },
         red: {
-            mine: process.env.MAX_SYSTEM_HEALTH,
-            torpedo: process.env.MAX_SYSTEM_HEALTH,
+            weapons: process.env.MAX_SYSTEM_HEALTH,
             scan: process.env.MAX_SYSTEM_HEALTH,
             engine: process.env.MAX_SYSTEM_HEALTH,
             comms: process.env.MAX_SYSTEM_HEALTH,
+            "life support": process.env.MAX_SYSTEM_HEALTH,
         }
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
@@ -187,9 +187,9 @@ export function GameWrapper({children}) {
         return selectedCells
     };
 
-    function findConnectedRepairMatrixPath(startRow, startCol, targetRow, targetCol){
-        const visited = new Array(repairMatrix.length).fill(false).map(() => new Array(repairMatrix[0].length).fill(false));
-        const systemName = repairMatrix[startRow][startCol].system;
+    function findConnectedRepairMatrixPath(matrix, startRow, startCol, targetRow, targetCol){
+        const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
+        const systemName = matrix[startRow][startCol].system;
     
         const pathRowIndices = [];
         const pathColumnIndices = [];
@@ -198,12 +198,12 @@ export function GameWrapper({children}) {
         const hasPath = (row, col, prevCellType) => {
             if (
                 row < 0 ||
-                row >= repairMatrix.length ||
+                row >= matrix.length ||
                 col < 0 ||
-                col >= repairMatrix[0].length ||
+                col >= matrix[0].length ||
                 visited[row][col] ||
-                repairMatrix[row][col].system !== systemName ||
-                repairMatrix[row][col].type === "outer" && prevCellType === "outer"
+                matrix[row][col].system !== systemName ||
+                matrix[row][col].type === "outer" && prevCellType === "outer"
             ) {
                 return false;
             }
@@ -211,7 +211,7 @@ export function GameWrapper({children}) {
             visited[row][col] = true;
             pathRowIndices.push(row);
             pathColumnIndices.push(col);
-            prevCellType = repairMatrix[row][col].type;
+            prevCellType = matrix[row][col].type;
     
             if (row === targetRow && col === targetCol) {
                 return true;
@@ -245,13 +245,13 @@ export function GameWrapper({children}) {
         return { isConnected, pathRowIndices, pathColumnIndices };
     };
 
-    function checkConnectedRepairMatrixPath(system){
+    function checkConnectedRepairMatrixPath(matrix, system){
         const rowIndices = [];
         const columnIndices = [];
     
-        for (let row = 0; row < repairMatrix.length; row++) {
-            for (let col = 0; col < repairMatrix[0].length; col++) {
-                const cell = repairMatrix[row][col];
+        for (let row = 0; row < matrix.length; row++) {
+            for (let col = 0; col < matrix[0].length; col++) {
+                const cell = matrix[row][col];
                 if (cell.type === "outer" && cell.system === system) {
                     rowIndices.push(row);
                     columnIndices.push(col);
@@ -265,7 +265,7 @@ export function GameWrapper({children}) {
             const targetRow = rowIndices[1];
             const targetCol = columnIndices[1];
     
-            return findConnectedRepairMatrixPath(repairMatrix, startRow, startCol, targetRow, targetCol);
+            return findConnectedRepairMatrixPath(matrix, startRow, startCol, targetRow, targetCol);
         } else {
             return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
         }
@@ -281,7 +281,7 @@ export function GameWrapper({children}) {
             doubledSystems.push("empty");
         }
 
-        const shuffledSystems = shuffleArray(doubledSystems);
+        const shuffledSystems = shuffleArray(doubledSystems).sort();
     
         let blankRepairMatrix = [];
     
@@ -373,6 +373,7 @@ export function GameWrapper({children}) {
     };
 
     function healSystem(team, system){
+        console.log(systemHealthLevels[team], system, "before")
         setSystemHealthLevels({
             ...systemHealthLevels,
             [team]: {
@@ -380,6 +381,13 @@ export function GameWrapper({children}) {
                 [system]: process.env.MAX_SYSTEM_HEALTH,
             },
         });
+        console.log({
+            ...systemHealthLevels,
+            [team]: {
+                ...systemHealthLevels[team],
+                [system]: process.env.MAX_SYSTEM_HEALTH,
+            },
+        }[team], system, "after")
     };
 
     return (
