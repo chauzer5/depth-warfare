@@ -44,17 +44,35 @@ export default function Game() {
       case "captain-cancel-sub-navigate":
         captainCancelSubNavigate(gameContext, newMessage);
         break;
-      case "engineer-choose-system-damage":
-        engineerChooseSystemDamage(gameContext, newMessage);
-        break;
+      // case "engineer-choose-system-damage":
+      //   engineerChooseSystemDamage(gameContext, newMessage);
+      //   break;
       case "engineer-place-system-block":
         engineerPlaceSystemBlock(gameContext, newMessage);
+        break;
+      case "engineer-clear-systems":
+        engineerClearSystems(gameContext, newMessage);
         break;
       case "first-mate-choose-system-charge":
         firstMateChooseSystemCharge(gameContext, newMessage);
         break;
       case "captain-silence":
         captainSilence(gameContext, newMessage);
+        break;
+      case "captain-surface":
+        captainSurface(gameContext, newMessage);
+        break;
+      case "first-mate-fire-torpedo":
+        firstMateFireTorpedo(gameContext, newMessage);
+        break;
+      case "first-mate-drop-mine":
+        firstMateDropMine(gameContext, newMessage);
+        break;
+      case "first-mate-detonate-mine":
+        firstMateDetonateMine(gameContext, newMessage);
+        break;
+      case "first-mate-scan":
+        firstMateScan(gameContext, newMessage);
         break;
       default:
         console.log(`Unrecognized message type: ${newMessage?.name}}`);

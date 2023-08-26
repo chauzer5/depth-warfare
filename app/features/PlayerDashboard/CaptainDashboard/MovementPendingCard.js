@@ -75,7 +75,7 @@ export default function MovementPendingCard(props){
     const {
         pendingNavigate,
         playerTeam,
-        pendingSystemDamage,
+        pendingRepairMatrixBlock,
         pendingSystemCharge
     } = useGameContext();
 
@@ -101,7 +101,7 @@ export default function MovementPendingCard(props){
                     </div>
                     <div style={styles.waitingOnPlayer}>
                         <div style={styles.checkbox}>
-                            {pendingSystemDamage[playerTeam] && <CheckIcon sx={{ fontSize: "20px" }}/>}
+                            {pendingRepairMatrixBlock[playerTeam] && <CheckIcon sx={{ fontSize: "20px" }}/>}
                         </div>
                         <span style={styles.otherPlayer}>Engineer</span>
                     </div>

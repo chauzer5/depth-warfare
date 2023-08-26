@@ -83,7 +83,7 @@ export default function SystemDamage(props){
     const {
         systemChargeLevels,
         pendingNavigate,
-        pendingSystemDamage,
+        pendingRepairMatrixBlock,
         playerTeam,
     } = useGameContext();
 

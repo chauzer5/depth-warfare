@@ -9,7 +9,7 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 export default function RepairMatrix(props){
     const { channel, current_system } = props;
 
-    const { repairMatrix, playerTeam, setRepairMatrix, pendingSystemDamage, pendingNavigate } = useGameContext();
+    const { repairMatrix, playerTeam, setRepairMatrix, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
 
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
@@ -98,92 +98,7 @@ export default function RepairMatrix(props){
         return cellStyle;
     }
     
-    const clickable = pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] ;   // Can add other statements to see if it can be clickable
-
-    const findConnectedPath = (matrix, startRow, startCol, targetRow, targetCol) => {
-        const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
-        const systemName = matrix[startRow][startCol].system;
-    
-        const pathRowIndices = [];
-        const pathColumnIndices = [];
-        let prevCellType;
-    
-        const hasPath = (row, col, prevCellType) => {
-            if (
-                row < 0 ||
-                row >= matrix.length ||
-                col < 0 ||
-                col >= matrix[0].length ||
-                visited[row][col] ||
-                matrix[row][col].system !== systemName ||
-                matrix[row][col].type === "outer" && prevCellType === "outer"
-            ) {
-                return false;
-            }
-    
-            visited[row][col] = true;
-            pathRowIndices.push(row);
-            pathColumnIndices.push(col);
-            prevCellType = matrix[row][col].type;
-    
-            if (row === targetRow && col === targetCol) {
-                return true;
-            }
-    
-            const neighbors = [
-                [row - 1, col],
-                [row + 1, col],
-                [row, col - 1],
-                [row, col + 1],
-            ];
-    
-            for (const [nRow, nCol] of neighbors) {
-                if (hasPath(nRow, nCol, prevCellType)) {
-                    return true;
-                }
-            }
-    
-            pathRowIndices.pop();
-            pathColumnIndices.pop();
-            return false;
-        };
-    
-        const isConnected = hasPath(startRow, startCol, null);
-    
-        if (!isConnected) {
-            pathRowIndices.length = 0;
-            pathColumnIndices.length = 0;
-        }
-    
-        return { isConnected, pathRowIndices, pathColumnIndices };
-    };
-
-    // Loop through the matrix and check for connected paths
-    const checkConnectedPath = (matrix, system) => {
-        const rowIndices = [];
-        const columnIndices = [];
-    
-        for (let row = 0; row < matrix.length; row++) {
-            for (let col = 0; col < matrix[0].length; col++) {
-                const cell = matrix[row][col];
-                if (cell.type === "outer" && cell.system === system) {
-                    rowIndices.push(row);
-                    columnIndices.push(col);
-                }
-            }
-        }
-    
-        if (rowIndices.length >= 2) {
-            const startRow = rowIndices[0];
-            const startCol = columnIndices[0];
-            const targetRow = rowIndices[1];
-            const targetCol = columnIndices[1];
-    
-            return findConnectedPath(matrix, startRow, startCol, targetRow, targetCol);
-        } else {
-            return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
-        }
-    };
+    const clickable = pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
 
     const isCorner = (matrix, row, column) => {
         return (row === 0 && column === 0 
