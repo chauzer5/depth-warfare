@@ -25,7 +25,6 @@ export function GameWrapper({children}) {
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
-    const [pendingSystemDamage, setPendingSystemDamage] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
     const [systemChargeLevels, setSystemChargeLevels] = useState({ 
         blue: {
@@ -59,13 +58,14 @@ export function GameWrapper({children}) {
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
     const [enemyMovements, setEnemyMovements] = useState([]);
+    const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState({ blue: null, red: null });
 
-    const getMessagePlayer = (message) => {
+    function getMessagePlayer(message){
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
         return messageSender;
     };
 
-    const moveSub = (team, row, column) => {
+    function moveSub(team, row, column){
         const mapCopy = [...gameMap];
 
         // remove the old position and make it visited
@@ -94,7 +94,7 @@ export function GameWrapper({children}) {
         setGameMap(mapCopy);
     };
 
-    const moveSubDirection = (team, direction) => {
+    function moveSubDirection(team, direction){
         const [row, column] = subLocations[team];
         switch(direction){
             case "north":
@@ -110,11 +110,11 @@ export function GameWrapper({children}) {
                 moveSub(team, row, column + 1);
                 break;
             default:
-                console.log(`Unrecognized direction: ${direction}`);
+                console.error(`Unrecognized direction: ${direction}`);
         }
     };
 
-    const resetMap = () => {
+    function resetMap(){
         let blankGameMap = Array(process.env.MAP_DIMENSION);
         for(let i = 0; i < process.env.MAP_DIMENSION; i++){
             blankGameMap[i] = Array(process.env.MAP_DIMENSION).fill({
@@ -139,10 +139,93 @@ export function GameWrapper({children}) {
         });
 
         setGameMap(blankGameMap);
-        
     };
 
-    const resetRepairMatrix = () => {
+    function findConnectedRepairMatrixPath(startRow, startCol, targetRow, targetCol){
+        const visited = new Array(repairMatrix.length).fill(false).map(() => new Array(repairMatrix[0].length).fill(false));
+        const systemName = repairMatrix[startRow][startCol].system;
+    
+        const pathRowIndices = [];
+        const pathColumnIndices = [];
+        let prevCellType;
+    
+        const hasPath = (row, col, prevCellType) => {
+            if (
+                row < 0 ||
+                row >= repairMatrix.length ||
+                col < 0 ||
+                col >= repairMatrix[0].length ||
+                visited[row][col] ||
+                repairMatrix[row][col].system !== systemName ||
+                repairMatrix[row][col].type === "outer" && prevCellType === "outer"
+            ) {
+                return false;
+            }
+    
+            visited[row][col] = true;
+            pathRowIndices.push(row);
+            pathColumnIndices.push(col);
+            prevCellType = repairMatrix[row][col].type;
+    
+            if (row === targetRow && col === targetCol) {
+                return true;
+            }
+    
+            const neighbors = [
+                [row - 1, col],
+                [row + 1, col],
+                [row, col - 1],
+                [row, col + 1],
+            ];
+    
+            for (const [nRow, nCol] of neighbors) {
+                if (hasPath(nRow, nCol, prevCellType)) {
+                    return true;
+                }
+            }
+    
+            pathRowIndices.pop();
+            pathColumnIndices.pop();
+            return false;
+        };
+    
+        const isConnected = hasPath(startRow, startCol, null);
+    
+        if (!isConnected) {
+            pathRowIndices.length = 0;
+            pathColumnIndices.length = 0;
+        }
+    
+        return { isConnected, pathRowIndices, pathColumnIndices };
+    };
+
+    function checkConnectedRepairMatrixPath(system){
+        const rowIndices = [];
+        const columnIndices = [];
+    
+        for (let row = 0; row < repairMatrix.length; row++) {
+            for (let col = 0; col < repairMatrix[0].length; col++) {
+                const cell = repairMatrix[row][col];
+                if (cell.type === "outer" && cell.system === system) {
+                    rowIndices.push(row);
+                    columnIndices.push(col);
+                }
+            }
+        }
+    
+        if (rowIndices.length >= 2) {
+            const startRow = rowIndices[0];
+            const startCol = columnIndices[0];
+            const targetRow = rowIndices[1];
+            const targetCol = columnIndices[1];
+    
+            return findConnectedRepairMatrixPath(repairMatrix, startRow, startCol, targetRow, targetCol);
+        } else {
+            return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
+        }
+    }
+
+    function resetRepairMatrix(){
         const dimension = process.env.REPAIR_MATRIX_DIMENSION;
         const systems = ENGINEER_SYSTEMS_INFO.filter(system => system.name !== "life support").map(system => system.name);
         const doubledSystems = systems.concat(systems.slice());
@@ -201,6 +284,59 @@ export function GameWrapper({children}) {
         return shuffled;
     }
 
+    function getValidSilenceCells(){
+        const [row, column] = subLocations[playerTeam];
+        const validCells = [];
+        
+        // Check 4 cells in the north direction
+        for(let i = 1; i <= 4; i++){
+            if(row - i < 0){ break; }
+            if(gameMap[row - i][column].type === "island"){ break; }
+            if(gameMap[row - i][column].visited[playerTeam]){ break; }
+
+            validCells.push([row - i, column]);
+        }
+
+        // Check 4 cells in the east direction
+        for(let i = 1; i <= 4; i++){
+            if(column + i >= process.env.MAP_DIMENSION){ break; }
+            if(gameMap[row][column + i].type === "island"){ break; }
+            if(gameMap[row][column + i].visited[playerTeam]){ break; }
+
+            validCells.push([row, column + i]);
+        }
+
+        // Check 4 cells in the south direction
+        for(let i = 1; i <= 4; i++){
+            if(row + i >= process.env.MAP_DIMENSION){ break; }
+            if(gameMap[row + i][column].type === "island"){ break; }
+            if(gameMap[row + i][column].visited[playerTeam]){ break; }
+
+            validCells.push([row + i, column]);
+        }
+
+        // Check 4 cells in the west direction
+        for(let i = 1; i <= 4; i++){
+            if(column - i < 0){ break; }
+            if(gameMap[row][column - i].type === "island"){ break; }
+            if(gameMap[row][column - i].visited[playerTeam]){ break; }
+
+            validCells.push([row, column - i]);
+        }
+
+        return validCells;
+    };
+
+    function healSystem(team, system){
+        setSystemHealthLevels({
+            ...systemHealthLevels,
+            [team]: {
+                ...systemHealthLevels[team],
+                [system]: process.env.MAX_SYSTEM_HEALTH,
+            },
+        });
+    };
+
     return (
         <GameContext.Provider value={{
             selfClientId,
@@ -217,12 +353,13 @@ export function GameWrapper({children}) {
             repairMatrix,
             playerData,
             pendingNavigate,
-            pendingSystemDamage,
             pendingSystemCharge,
             systemChargeLevels,
             systemHealthLevels,
             radioMapNotes,
             enemyMovements,
+            pendingRepairMatrixBlock,
+            getValidSilenceCells,
             setCurrentStage,
             setUsername,
             setGameId,
@@ -238,7 +375,6 @@ export function GameWrapper({children}) {
             setPlayerData,
             getMessagePlayer,
             setPendingNavigate,
-            setPendingSystemDamage,
             setPendingSystemCharge,
             setSystemChargeLevels,
             setSystemHealthLevels,
@@ -246,6 +382,9 @@ export function GameWrapper({children}) {
             resetRepairMatrix,
             setRadioMapNotes,
             setEnemyMovements,
+            checkConnectedRepairMatrixPath,
+            setPendingRepairMatrixBlock,
+            healSystem,
         }}>
             {children}
         </GameContext.Provider>

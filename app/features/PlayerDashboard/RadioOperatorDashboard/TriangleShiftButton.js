@@ -35,7 +35,7 @@ export default function TriangleShiftButton(props){
             }
             break;
         default:
-            console.log(`Unrecognized direction: ${direction}`);
+            console.error(`Unrecognized direction: ${direction}`);
     }
 
     const handleClick = () => {
@@ -53,7 +53,7 @@ export default function TriangleShiftButton(props){
                 setRadioMapNotes(radioMapNotes.map(note => [note[0], note[1] + 1]));
                 break;
             default:
-                console.log(`Unrecognized direction: ${direction}`);
+                console.error(`Unrecognized direction: ${direction}`);
         }
     }
 

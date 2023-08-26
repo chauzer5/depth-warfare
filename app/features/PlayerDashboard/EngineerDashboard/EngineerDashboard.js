@@ -89,7 +89,7 @@ export default function EngineerDashboard(props){
     const {
       pendingNavigate,
       playerTeam,
-      pendingSystemDamage,
+      pendingRepairMatrixBlock,
       systemChargeLevels,
     } = useGameContext();
 
@@ -109,13 +109,13 @@ export default function EngineerDashboard(props){
     <div style={styles.containerRow}>
 
         <div style = {styles.containerColumn}>
-          { pendingNavigate[playerTeam] && !pendingSystemDamage[playerTeam] && (
+          { pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Choose a system to damage</h4>
               </div>
           )}
-          { pendingNavigate[playerTeam] && pendingSystemDamage[playerTeam] && (
+          { pendingNavigate[playerTeam] && pendingRepairMatrixBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Waiting for first mate...</h4>
