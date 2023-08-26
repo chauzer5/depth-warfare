@@ -44,7 +44,6 @@ export default function SystemDamage(props){
         rectangle: {
             flex: 1,
             height: "15px",
-            width: "100%",
             backgroundColor: system.color,      
             borderRadius: "15px",
             // border: "4px solid #0F0",
@@ -54,7 +53,6 @@ export default function SystemDamage(props){
           pendingRectangle: {
             flex: 1,
             height: "15px",
-            width: "100%",
             backgroundColor: theme.white,      
             borderRadius: "15px",
             // border: "4px solid #0F0",
@@ -131,27 +129,22 @@ export default function SystemDamage(props){
         return systemHealthLevels[playerTeam][system.name]
     }
 
+    function getRemainingWidth(system) {
+        if (system.name === pendingDamagedSystem) {
+            return Math.min(process.env.SYSTEM_DAMAGE_AMOUNT, systemHealthLevels[playerTeam][system.name])
+        }
+        return 0
+    }
+
     return (
-        <div style={{ ...styles.container, position: "relative" }}>
-            {/* Longer white rectangle */}
-            <div
-                style={{
-                    ...styles.rectangle,
-                    width: `${systemHealthLevels[playerTeam][system.name]}%`,
-                    backgroundColor: theme.white,
-                    position: "absolute",
-                    zIndex: 1,
-                }}
-            ></div>
-            
-            {/* Shorter colored rectangle */}
-            <div
-                style={{
-                    ...styles.rectangle,
-                    width: `${getPendingWidth(system)}%`,
-                    zIndex: 2,
-                }}
-            ></div>
+        <div style={styles.container}>
+            <div style={{ ...styles.textContainer, width: "120px"}}>
+                <span style={styles.buttonText}>
+                    {capitalizeFirstLetter(system.name)}
+                </span>
+            </div>
+            <div style={{ ...styles.rectangle, width: `${getPendingWidth(system)}%` }}></div>
+            <div style={{ ...styles.pendingRectangle, width: `${getRemainingWidth(system)}%` }}></div>
         </div>
     );
 }
