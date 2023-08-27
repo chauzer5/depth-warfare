@@ -117,28 +117,25 @@ export default function SystemDamage(props){
 
 
     function isPendingDamaged(system) {
-        
-        if (system.name === pendingDamagedSystem) {
-            console.log("check", system.name == pendingDamagedSystem)
-            return true
-        }
-        return false;
+        return system.name === pendingDamagedSystem;
     }
 
     return (
         <div style={styles.container}>
-            <div style={{ ...styles.textContainer, width: "120px"}}>
+            <div style={{ ...styles.textContainer, width: "150px"}}>
                 <span style={styles.buttonText}>
                     {capitalizeFirstLetter(system.name)}
                 </span>
             </div>
-            <div
-                style={{
-                    ...styles.rectangle,
-                    width: `${systemHealthLevels[playerTeam][system.name]}%`,
-                    animation: isPendingDamaged(system) ? 'blink 1s infinite' : 'none', // Corrected animation value
-                }}
-            ></div>
+            <div style={styles.container}>
+                <div
+                    style={{
+                        ...styles.rectangle,
+                        width: `${systemHealthLevels[playerTeam][system.name]}%`,
+                        animation: isPendingDamaged(system) ? 'blink 1s infinite' : 'none',
+                    }}
+                ></div>
+            </div>
         </div>
     );
 }
