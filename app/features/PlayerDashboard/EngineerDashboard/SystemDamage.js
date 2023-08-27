@@ -115,7 +115,6 @@ export default function SystemDamage(props){
 
     const pendingDamagedSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]
 
-
     function isPendingDamaged(system) {
         return system.name === pendingDamagedSystem;
     }

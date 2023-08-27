@@ -9,7 +9,7 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 export default function RepairMatrix(props){
     const { channel, current_system } = props;
 
-    const { repairMatrix, playerTeam, setRepairMatrix, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
+    const { repairMatrix, playerTeam, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
 
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
@@ -81,7 +81,7 @@ export default function RepairMatrix(props){
     const setBackgroundColor = (row, column) => {
         const cellStyle = {};
 
-        const cell = repairMatrix[row][column];
+        const cell = repairMatrix[playerTeam][row][column];
         const cellColor = getColorByName(cell.system)
 
         if (row === 0) {
@@ -139,7 +139,7 @@ export default function RepairMatrix(props){
     return (
         <table style={styles.table}>
             <tbody>
-                {repairMatrix.map((row, rowIndex) => (
+                {repairMatrix[playerTeam].map((row, rowIndex) => (
                     <tr key={rowIndex} style={styles.row}>
                         {row.map((cell, columnIndex) => (
                             <td key={columnIndex} style={{

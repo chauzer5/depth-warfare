@@ -7,6 +7,28 @@ import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 import TriangleKey from "./TriangleKey";
 
 export default function EngineerDashboard(props){
+
+    const { channel } = props;
+
+    const {
+      pendingNavigate,
+      playerTeam,
+      pendingRepairMatrixBlock,
+      systemChargeLevels,
+      engineerCompassMap,
+    } = useGameContext();
+
+    // Calculate the length difference between "west" and "east" words
+    const westWordLength = engineerCompassMap[playerTeam]["west"].length;
+    const eastWordLength = engineerCompassMap[playerTeam]["east"].length;
+    const lengthDifference = westWordLength - eastWordLength;
+
+    // Calculate the margins based on the length difference
+    const marginLeft = lengthDifference < 0 ? 10 * Math.abs(lengthDifference) : 0;
+    const marginRight = lengthDifference > 0 ? 10 * lengthDifference : 0;
+
+    console.log("margins", marginLeft, marginRight)
+
     const styles = {
         systemLabel: {
             fontSize : "100px"
@@ -69,11 +91,23 @@ export default function EngineerDashboard(props){
           width: "100%",
           height: "40px",
           display: "flex",
-          marginLeft: "10px",
+          marginRight: `${marginRight}px`,
+          marginLeft: `${marginLeft}px`,
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "center",
           whiteSpace: "nowrap",
+      },
+      systemButton: {
+        width: "100px",
+        height: "30px",
+        margin: "10px",
+        borderRadius: "5px",
+        fontSize: "20px",
+        fontWeight: "bold",
+        backgroundColor: "black",
+        color: "white",
+        fontFamily: "VT323, monospace",
       },
       pendingText: {
         color: theme.white,
@@ -84,16 +118,6 @@ export default function EngineerDashboard(props){
       },
     };
 
-    const { channel } = props;
-
-    const {
-      pendingNavigate,
-      playerTeam,
-      pendingRepairMatrixBlock,
-      systemChargeLevels,
-      engineerCompassMap,
-    } = useGameContext();
-
     function capitalize(word) {
         return word.charAt(0).toUpperCase() + word.slice(1);
     }
@@ -102,6 +126,11 @@ export default function EngineerDashboard(props){
       return ENGINEER_SYSTEMS_INFO.find(system => system.name === engineerCompassMap[playerTeam][direction])
     }
 
+    const handleClick = () => {
+      // Your logic for handling the button click goes here
+      channel.publish("engineer-clear-systems", {});
+      // You can perform any actions you need here
+    };
 
     
     return (
@@ -113,7 +142,7 @@ export default function EngineerDashboard(props){
           { pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
-                  <h4 style={styles.pendingText}>Choose a system to damage</h4>
+                  <h4 style={styles.pendingText}>Place a block</h4>
               </div>
           )}
           { pendingNavigate[playerTeam] && pendingRepairMatrixBlock[playerTeam] && (
@@ -123,8 +152,14 @@ export default function EngineerDashboard(props){
               </div>
           )}
 
-        <div style={{ marginTop: "20px" }}>
+        <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
           <RepairMatrix channel={channel} current_system={engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]} />
+          <button
+            style={{ ...styles.systemButton, border: `3px solid ${theme.white}`, marginTop: "10px" }}
+            onClick={handleClick} // Attach the handleClick function as an event handler
+          >
+            Clear
+        </button>
         </div>
        </div>
          
@@ -151,7 +186,7 @@ export default function EngineerDashboard(props){
                         color={findSystem("north").color}
                     />
                 </div>
-                <div style={styles.navRowWithMargin}>
+                <div style={{ ...styles.navRowWithMargin }}>
                     <span style={{ color: findSystem("west").color, marginRight: "10px" }}>
                         {capitalize(engineerCompassMap[playerTeam]["west"]) }
                     </span>

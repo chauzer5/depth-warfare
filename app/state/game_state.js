@@ -19,7 +19,7 @@ export function GameWrapper({children}) {
     const [playerTeam, setPlayerTeam] = useState();
     const [playerRole, setPlayerRole] = useState();
     const [gameMap, setGameMap] = useState();
-    const [repairMatrix, setRepairMatrix] = useState([]);
+    const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
@@ -75,14 +75,11 @@ export function GameWrapper({children}) {
     });
 
     function rotateEngineerCompassValues(compassMap) {
-        const rotatedMap = { ...compassMap };
-        for (const color in rotatedMap) {
-            const values = Object.values(rotatedMap[color]);
-            const rotatedValues = [values[values.length - 1], ...values.slice(0, values.length - 1)];
-            Object.keys(rotatedMap[color]).forEach((direction, index) => {
-                rotatedMap[color][direction] = rotatedValues[index];
-            });
-        }
+        let rotatedMap = { ...compassMap };
+        rotatedMap["north"] = compassMap["west"]
+        rotatedMap["east"] = compassMap["north"]
+        rotatedMap["south"] = compassMap["east"]
+        rotatedMap["west"] = compassMap["south"]
         return rotatedMap;
     }
 
@@ -169,9 +166,9 @@ export function GameWrapper({children}) {
 
     const isCornerRepairMatrix = (row, column) => {
         return (row === 0 && column === 0 
-            || row === 0 && column === repairMatrix.length - 1
-            || row === repairMatrix.length - 1 && column === 0
-            || row === repairMatrix.length - 1 && column === repairMatrix.length - 1)
+            || row === 0 && column === repairMatrix[playerTeam].length - 1
+            || row === repairMatrix[playerTeam].length - 1 && column === 0
+            || row === repairMatrix[playerTeam].length - 1 && column === repairMatrix[playerTeam].length - 1)
     }
 
     // Function to get random distinct indices
@@ -191,9 +188,9 @@ export function GameWrapper({children}) {
         const emptyOuterCells = []; // Array to store coordinates of empty outer cells
     
         // Find empty outer cells and store their coordinates
-        for (let row = 0; row < repairMatrix.length; row++) {
-            for (let col = 0; col < repairMatrix[0].length; col++) {
-                const cell = repairMatrix[row][col];
+        for (let row = 0; row < repairMatrix[playerTeam].length; row++) {
+            for (let col = 0; col < repairMatrix[playerTeam][0].length; col++) {
+                const cell = repairMatrix[playerTeam][row][col];
                 if (cell.type === "outer" && cell.system === "empty" && !isCornerRepairMatrix(row, col)) {
                     emptyOuterCells.push({ row, col });
                 }
@@ -297,7 +294,7 @@ export function GameWrapper({children}) {
         }
     }
 
-    function resetRepairMatrix(){
+    function getEmptyRepairMatrix(){
         const dimension = process.env.REPAIR_MATRIX_DIMENSION;
         const systems = ENGINEER_SYSTEMS_INFO.filter(system => system.name !== "life support").map(system => system.name);
         const doubledSystems = systems.concat(systems.slice());
@@ -338,11 +335,8 @@ export function GameWrapper({children}) {
             }
             blankRepairMatrix.push(row);
         }
-
-        console.log("Finished Repair Matrix")
-        console.log(blankRepairMatrix)
         
-        setRepairMatrix(blankRepairMatrix); // Return the initialized matrix
+        return blankRepairMatrix
     };
     
     // Function to shuffle an array using Fisher-Yates algorithm
@@ -399,7 +393,6 @@ export function GameWrapper({children}) {
     };
 
     function healSystem(team, system){
-        console.log(systemHealthLevels[team], system, "before")
         setSystemHealthLevels({
             ...systemHealthLevels,
             [team]: {
@@ -407,13 +400,6 @@ export function GameWrapper({children}) {
                 [system]: process.env.MAX_SYSTEM_HEALTH,
             },
         });
-        console.log({
-            ...systemHealthLevels,
-            [team]: {
-                ...systemHealthLevels[team],
-                [system]: process.env.MAX_SYSTEM_HEALTH,
-            },
-        }[team], system, "after")
     };
 
     return (
@@ -461,7 +447,7 @@ export function GameWrapper({children}) {
             setSystemHealthLevels,
             setEngineerCompassMap,
             resetMap,
-            resetRepairMatrix,
+            getEmptyRepairMatrix,
             setRadioMapNotes,
             setEnemyMovements,
             checkConnectedRepairMatrixPath,

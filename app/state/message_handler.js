@@ -1,3 +1,5 @@
+import { ENGINEER_SYSTEMS_INFO } from "../utils";
+
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
@@ -62,6 +64,7 @@ export function engineerPlaceSystemBlock(context, message){
     pickNewOuterCells,
     engineerCompassMap,
     setEngineerCompassMap,
+    rotateEngineerCompassValues,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -70,39 +73,38 @@ export function engineerPlaceSystemBlock(context, message){
     setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: [message.data.row, message.data.column]});
   }
   else {
-    // charge the pending system
+    // charge the specified system
     setSystemChargeLevels({
       ...systemChargeLevels,
       [team]: {
         ...systemChargeLevels[team],
-        [pendingSystemCharge[team]]: systemChargeLevels[team][pendingSystemCharge[team]] + 1,
+        [message.data.system]: systemChargeLevels[team][message.data.system] + 1,
       },
     });
 
-    // place the specified matrix block
+    // // place the pending matrix block
     const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
-
-    const updatedMatrix = [...repairMatrix.map(row => [...row])];
-    updatedMatrix[message.data.row][message.data.column] = {
-      ...updatedMatrix[message.data.row][message.data.column],
-      system: blockSystem,
-    };
 
     // Damage the system corresponding to the block placed
     setSystemHealthLevels({
       ...systemHealthLevels,
       [team]: {
         ...systemHealthLevels[team],
-        [blockSystem]: systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
+        [blockSystem]: Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0),
       },
     });
 
-    // Check to see if two outer nodes have been connected
+    const updatedMatrix = [...repairMatrix[team].map(row => [...row])];
+
+    updatedMatrix[message.data.row][message.data.column] = {
+      ...updatedMatrix[message.data.row][message.data.column],
+      system: blockSystem,
+    };
+
+    // check to see if two outer nodes have been connected
     const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
 
     if (isConnected) {
-      // heal the system
-      healSystem(team, blockSystem);
 
       // Reset the cells along the path to "empty"
       for (let i = 0; i < pathRowIndices.length; i++) {
@@ -115,6 +117,7 @@ export function engineerPlaceSystemBlock(context, message){
           };
       }
 
+      // Choose new random nodes along the outside
       const selectedCells = pickNewOuterCells(updatedMatrix)
 
       for (const { row, col } of selectedCells) {
@@ -126,7 +129,20 @@ export function engineerPlaceSystemBlock(context, message){
     }
 
     // Update the state with the new matrix containing reset cells
-    setRepairMatrix(updatedMatrix);
+    setRepairMatrix({...repairMatrix, [team]: updatedMatrix});
+
+    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
+
+    console.log(rotatedValues)
+
+    const updatedTeamMap = {
+        ...engineerCompassMap,
+        [team]: {
+            ...rotatedValues,
+        }
+    };
+
+    setEngineerCompassMap(updatedTeamMap);
 
     // move the sub in the specified direction
     moveSubDirection(team, pendingNavigate[team]);
@@ -167,6 +183,7 @@ export function firstMateChooseSystemCharge(context, message){
     pickNewOuterCells,
     engineerCompassMap,
     setEngineerCompassMap,
+    rotateEngineerCompassValues,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -192,11 +209,13 @@ export function firstMateChooseSystemCharge(context, message){
       ...systemHealthLevels,
       [team]: {
         ...systemHealthLevels[team],
-        [blockSystem]: systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
+        [blockSystem]: Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0),
       },
     });
 
-    const updatedMatrix = [...repairMatrix.map(row => [...row])];
+    const updatedMatrix = [...repairMatrix[team].map(row => [...row])];
+
+    console.log("null object?", pendingRepairMatrixBlock[team], team)
 
     updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]] = {
       ...updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]],
@@ -208,6 +227,7 @@ export function firstMateChooseSystemCharge(context, message){
 
     if (isConnected) {
       // heal the system
+      console.log("regular heal", team, blockSystem)
       healSystem(team, blockSystem);
 
       // Reset the cells along the path to "empty"
@@ -233,7 +253,20 @@ export function firstMateChooseSystemCharge(context, message){
     }
 
     // Update the state with the new matrix containing reset cells
-    setRepairMatrix(updatedMatrix);
+    setRepairMatrix({...repairMatrix, [team]: updatedMatrix});
+
+    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
+
+    console.log(rotatedValues)
+
+    const updatedTeamMap = {
+        ...engineerCompassMap,
+        [team]: {
+            ...rotatedValues,
+        }
+    };
+
+    setEngineerCompassMap(updatedTeamMap);
 
     // move the sub in the specified direction
     moveSubDirection(team, pendingNavigate[team]);
@@ -310,6 +343,38 @@ export function captainSurface(context, message){
 // Engineer clears the systems
 // MESSAGE: {}
 export function engineerClearSystems(context, message){
+  const {
+    playerTeam,
+    healSystem,
+    setSystemHealthLevels,
+    systemHealthLevels,
+    getMessagePlayer,
+    getEmptyRepairMatrix,
+    setRepairMatrix,
+    repairMatrix
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  const tempHealthLevels = {}
+  // Heal all systems
+  ENGINEER_SYSTEMS_INFO.forEach(systemInfo => {
+    if (systemInfo.name !== "life support") {
+        // Damage the life support
+        tempHealthLevels[systemInfo.name] = process.env.MAX_SYSTEM_HEALTH
+    }
+  });
+
+  tempHealthLevels["life support"] = Math.max(systemHealthLevels[team]["life support"] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
+
+  // Damage the life support
+  setSystemHealthLevels({
+    ...systemHealthLevels,
+    [team]: tempHealthLevels,
+  });
+
+  // reset the repair matrix
+  setRepairMatrix({...repairMatrix, [team]: getEmptyRepairMatrix()})
 
 }
 
