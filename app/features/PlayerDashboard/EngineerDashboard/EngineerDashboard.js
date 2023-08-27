@@ -3,7 +3,7 @@ import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
 import RepairMatrix from "./RepairMatrix";
-import { ENGINEER_SYSTEMS_INFO, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
+import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 import TriangleKey from "./TriangleKey";
 
 export default function EngineerDashboard(props){
@@ -91,6 +91,7 @@ export default function EngineerDashboard(props){
       playerTeam,
       pendingRepairMatrixBlock,
       systemChargeLevels,
+      engineerCompassMap,
     } = useGameContext();
 
     function capitalize(word) {
@@ -98,7 +99,7 @@ export default function EngineerDashboard(props){
     }
 
     const findSystem = (direction) => {
-      return ENGINEER_SYSTEMS_INFO.find(system => system.name === ENGINEER_SYSTEMS_MAP[direction])
+      return ENGINEER_SYSTEMS_INFO.find(system => system.name === engineerCompassMap[playerTeam][direction])
     }
 
 
@@ -123,14 +124,13 @@ export default function EngineerDashboard(props){
           )}
 
         <div style={{ marginTop: "20px" }}>
-          <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
+          <RepairMatrix channel={channel} current_system={engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]} />
         </div>
        </div>
          
         <div style = {styles.containerColumn}>
           <div style = {styles.containerColumn}> 
             {ENGINEER_SYSTEMS_INFO.map((system, index) => {
-                // const shouldShrink = system.name === ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
                 return (
                     <SystemDamage key={index} system={system} channel={channel}/>
                 );
@@ -142,7 +142,7 @@ export default function EngineerDashboard(props){
               <div style={styles.navButtons}>
                 <div style={styles.navRow}>
                     <span style={{ color: findSystem("north").color }}>   
-                        {capitalize(ENGINEER_SYSTEMS_MAP["north"])}
+                        {capitalize(engineerCompassMap[playerTeam]["north"])}
                     </span>
                 </div>
                 <div style={styles.navRow}>
@@ -153,7 +153,7 @@ export default function EngineerDashboard(props){
                 </div>
                 <div style={styles.navRowWithMargin}>
                     <span style={{ color: findSystem("west").color, marginRight: "10px" }}>
-                        {capitalize(ENGINEER_SYSTEMS_MAP["west"]) }
+                        {capitalize(engineerCompassMap[playerTeam]["west"]) }
                     </span>
                     <TriangleKey
                         direction="west"
@@ -165,7 +165,7 @@ export default function EngineerDashboard(props){
                         color={findSystem("east").color}
                     />
                     <span style={{ color: findSystem("east").color, marginLeft: "10px" }}>
-                        { capitalize(ENGINEER_SYSTEMS_MAP["east"])}
+                        { capitalize(engineerCompassMap[playerTeam]["east"])}
                     </span>
                 </div>
                 <div style={styles.navRow}>
@@ -176,7 +176,7 @@ export default function EngineerDashboard(props){
                 </div>
                 <div style={styles.navRow}>
                     <span style={{ color: findSystem("south").color }}>
-                        {capitalize(ENGINEER_SYSTEMS_MAP["south"])}
+                        {capitalize(engineerCompassMap[playerTeam]["south"])}
                     </span>
                 </div>
             </div>

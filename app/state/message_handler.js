@@ -1,5 +1,3 @@
-import { ENGINEER_SYSTEMS_MAP } from "../utils";
-
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
@@ -62,6 +60,8 @@ export function engineerPlaceSystemBlock(context, message){
     setRepairMatrix,
     repairMatrix,
     pickNewOuterCells,
+    engineerCompassMap,
+    setEngineerCompassMap,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -80,7 +80,7 @@ export function engineerPlaceSystemBlock(context, message){
     });
 
     // place the specified matrix block
-    const blockSystem = ENGINEER_SYSTEMS_MAP[pendingNavigate[team]];
+    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
 
     const updatedMatrix = [...repairMatrix.map(row => [...row])];
     updatedMatrix[message.data.row][message.data.column] = {
@@ -165,6 +165,8 @@ export function firstMateChooseSystemCharge(context, message){
     setRepairMatrix,
     repairMatrix,
     pickNewOuterCells,
+    engineerCompassMap,
+    setEngineerCompassMap,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -183,7 +185,7 @@ export function firstMateChooseSystemCharge(context, message){
     });
 
     // // place the pending matrix block
-    const blockSystem = ENGINEER_SYSTEMS_MAP[pendingNavigate[team]];
+    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
 
     // Damage the system corresponding to the block placed
     setSystemHealthLevels({

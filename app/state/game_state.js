@@ -59,6 +59,32 @@ export function GameWrapper({children}) {
     const [radioMapNotes, setRadioMapNotes] = useState([]);
     const [enemyMovements, setEnemyMovements] = useState([]);
     const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState({ blue: null, red: null });
+    const [engineerCompassMap, setEngineerCompassMap] = useState({
+        blue: {
+            "north": "scan",
+            "south": "comms",
+            "east": "weapons",
+            "west": "engine",
+        },
+        red: {
+            "north": "scan",
+            "south": "comms",
+            "east": "weapons",
+            "west": "engine",
+        }
+    });
+
+    function rotateEngineerCompassValues(compassMap) {
+        const rotatedMap = { ...compassMap };
+        for (const color in rotatedMap) {
+            const values = Object.values(rotatedMap[color]);
+            const rotatedValues = [values[values.length - 1], ...values.slice(0, values.length - 1)];
+            Object.keys(rotatedMap[color]).forEach((direction, index) => {
+                rotatedMap[color][direction] = rotatedValues[index];
+            });
+        }
+        return rotatedMap;
+    }
 
     function getMessagePlayer(message){
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
@@ -409,6 +435,7 @@ export function GameWrapper({children}) {
             pendingSystemCharge,
             systemChargeLevels,
             systemHealthLevels,
+            engineerCompassMap,
             radioMapNotes,
             enemyMovements,
             pickNewOuterCells,
@@ -432,6 +459,7 @@ export function GameWrapper({children}) {
             setPendingSystemCharge,
             setSystemChargeLevels,
             setSystemHealthLevels,
+            setEngineerCompassMap,
             resetMap,
             resetRepairMatrix,
             setRadioMapNotes,
@@ -439,6 +467,7 @@ export function GameWrapper({children}) {
             checkConnectedRepairMatrixPath,
             setPendingRepairMatrixBlock,
             healSystem,
+            rotateEngineerCompassValues,
         }}>
             {children}
         </GameContext.Provider>

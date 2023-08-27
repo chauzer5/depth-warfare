@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'; // Import useState
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
-import { capitalizeFirstLetter, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
+import { capitalizeFirstLetter} from "@/app/utils";
 
 
 export default function SystemDamage(props){
@@ -41,32 +41,42 @@ export default function SystemDamage(props){
             color: system.color,
             fontSize: "24px",
         },
+        "@keyframes blink": {
+            "0%": { opacity: 1 },
+            "49.99%": { opacity: 1 },
+            "50%": { opacity: 0 },
+            "99.99%": { opacity: 0 },
+            "100%": { opacity: 1 },
+        },
         rectangle: {
-            flex: 1,
             height: "15px",
             backgroundColor: system.color,      
             borderRadius: "15px",
             // border: "4px solid #0F0",
             marginRight: "10px",
             transition: "width 1s ease",
+            animation: "blink 1s infinite",
+            // backgroundColor: theme.white,
           },
-          pendingRectangle: {
-            flex: 1,
-            height: "15px",
-            backgroundColor: theme.white,      
-            borderRadius: "15px",
-            // border: "4px solid #0F0",
-            marginRight: "10px",
-            transition: "width 1s ease",
+          damageRectangle: {
+            animation: "blink 1s infinite",
+            backgroundColor: theme.white,
+            "@keyframes blink": {
+                "0%": { opacity: 1 },
+                "49.99%": { opacity: 1 },
+                "50%": { opacity: 0 },
+                "99.99%": { opacity: 0 },
+                "100%": { opacity: 1 },
+            },
           },
+          
           rectangleBorder: {
-            flex: 1,
             height: "15px",
             backgroundColor: theme.black,      
             borderRadius: "18px",
             border: "4px solid ${system.color}",
             marginRight: "10px",
-            transition: "width 1s ease",
+            // transition: "width 1s ease",
           },
           clickableRectangleBorder: {
             flex: 1,
@@ -94,46 +104,25 @@ export default function SystemDamage(props){
         pendingRepairMatrixBlock,
         playerTeam,
         systemHealthLevels,
+        engineerCompassMap,
     } = useGameContext();
 
-    // THIS IS CODE FOR CHANGING THE LENGTH AND WIDTH OF THE RECTANGLE
-    // const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
+    // const [pendingDamagedSystem, setPendingDamagedSystem] = useState(null)
 
     // useEffect(() => {
-    //     if (shouldShrink && pendingNavigate[playerTeam]) {
-    //         const intervalId = setInterval(() => {
-    //             setInnerRectangleWidth(prevWidth => {
-    //                 const newWidth = Math.max(parseFloat(prevWidth) - 20, 0);
-    //                 if (newWidth <= 80) {
-    //                     clearInterval(intervalId);
-    //                 }
-    //                 return `${newWidth}%`;
-    //             });
-    //         }, 100);
+    //     setPendingDamagedSystem(engineerCompassMap[playerTeam][pendingNavigate[playerTeam]])
+    // }, [pendingNavigate, playerTeam, engineerCompassMap]);
 
-    //         return () => {
-    //             clearInterval(intervalId);
-    //         };
-    //     }
-    // }, [shouldShrink, pendingNavigate, playerTeam]);
+    const pendingDamagedSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]
 
-    console.log("system health levels", systemHealthLevels[playerTeam])
 
-    const pendingDamagedSystem = ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
-    console.log(pendingDamagedSystem)
-
-    function getPendingWidth(system) {
+    function isPendingDamaged(system) {
+        
         if (system.name === pendingDamagedSystem) {
-            return Math.max(systemHealthLevels[playerTeam][system.name] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
+            console.log("check", system.name == pendingDamagedSystem)
+            return true
         }
-        return systemHealthLevels[playerTeam][system.name]
-    }
-
-    function getRemainingWidth(system) {
-        if (system.name === pendingDamagedSystem) {
-            return Math.min(process.env.SYSTEM_DAMAGE_AMOUNT, systemHealthLevels[playerTeam][system.name])
-        }
-        return 0
+        return false;
     }
 
     return (
@@ -143,8 +132,13 @@ export default function SystemDamage(props){
                     {capitalizeFirstLetter(system.name)}
                 </span>
             </div>
-            <div style={{ ...styles.rectangle, width: `${getPendingWidth(system)}%` }}></div>
-            <div style={{ ...styles.pendingRectangle, width: `${getRemainingWidth(system)}%` }}></div>
+            <div
+                style={{
+                    ...styles.rectangle,
+                    width: `${systemHealthLevels[playerTeam][system.name]}%`,
+                    animation: isPendingDamaged(system) ? 'blink 1s infinite' : 'none', // Corrected animation value
+                }}
+            ></div>
         </div>
     );
 }
