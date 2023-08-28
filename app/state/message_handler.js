@@ -105,6 +105,8 @@ export function engineerPlaceSystemBlock(context, message){
     const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
 
     if (isConnected) {
+      // heal the system
+      healSystem(team, blockSystem);
 
       // Reset the cells along the path to "empty"
       for (let i = 0; i < pathRowIndices.length; i++) {

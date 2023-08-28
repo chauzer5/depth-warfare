@@ -131,7 +131,6 @@ export default function SystemDamage(props){
                     style={{
                         ...styles.rectangle,
                         width: `${systemHealthLevels[playerTeam][system.name]}%`,
-                        animation: isPendingDamaged(system) ? 'blink 1s infinite' : 'none',
                     }}
                 ></div>
             </div>
