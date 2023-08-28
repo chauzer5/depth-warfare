@@ -9,19 +9,19 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 export default function RepairMatrix(props){
     const { channel, current_system } = props;
 
-    const { repairMatrix, playerTeam, setRepairMatrix, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
+    const { repairMatrix, playerTeam, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
 
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
     const tabSize = Math.round(MATRIX_CELL_SIZE * .4)
 
-    const [hoverColor, setHoverColor] = useState(null); // State to store the hover color
+    // const [hoverColor, setHoverColor] = useState(null); // State to store the hover color
 
-    useEffect(() => {
-        // Update the hover color whenever the current_system changes
-        const color = getColorByName(current_system);
-        setHoverColor(color);
-    }, [current_system]);
+    const hoverColor = getColorByName(current_system)
+    // useEffect(() => {
+    //     // Update the hover color whenever the current_system changes
+    //     hoverColor = getColorByName(current_system);
+    // }, [current_system]);
 
     const styles = {
         table: {
@@ -50,6 +50,22 @@ export default function RepairMatrix(props){
             justifyContent: "center",
             alignItems: "center",
         },
+        pendingBlockPlacement: {
+            width: `${MATRIX_CELL_SIZE}px`,
+            height: `${MATRIX_CELL_SIZE}px`,
+            backgroundColor: hoverColor,
+            animation: "blink 1s infinite",
+            "@keyframes blink": {
+                "0%": { opacity: 1 },
+                "49.99%": { opacity: 1 },
+                "50%": { opacity: 0 },
+                "99.99%": { opacity: 0 },
+                "100%": { opacity: 1 },
+            },
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+        },
         outerCell: {
             display: "flex",
             justifyContent: "center",
@@ -65,7 +81,7 @@ export default function RepairMatrix(props){
     const setBackgroundColor = (row, column) => {
         const cellStyle = {};
 
-        const cell = repairMatrix[row][column];
+        const cell = repairMatrix[playerTeam][row][column];
         const cellColor = getColorByName(cell.system)
 
         if (row === 0) {
@@ -77,6 +93,7 @@ export default function RepairMatrix(props){
         if ((cell.system === "empty" && cell.type === "inner") || (cell.system !== "empty")) {
             cellStyle.border = `2px solid ${theme.gray}`
         }
+
         return cellStyle;
     }
 
@@ -97,117 +114,44 @@ export default function RepairMatrix(props){
 
         return cellStyle;
     }
+
+    const isPendingCell = (row, column) => {
+        if (pendingRepairMatrixBlock === null) {
+            return false;
+        }
+    
+        const playerTeamPendingBlock = pendingRepairMatrixBlock[playerTeam];
+        
+        if (playerTeamPendingBlock && playerTeamPendingBlock[0] === row && playerTeamPendingBlock[1] === column) {
+            return true;
+        }
+        return false
+
+    }
     
     const clickable = pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
 
-    const isCorner = (matrix, row, column) => {
-        return (row === 0 && column === 0 
-            || row === 0 && column === matrix.length - 1
-            || row === matrix.length - 1 && column === 0
-            || row === matrix.length - 1 && column === matrix.length - 1)
-    }
-
-    const pickNewOuterCells = (matrix) => {
-        const emptyOuterCells = []; // Array to store coordinates of empty outer cells
-    
-        // Find empty outer cells and store their coordinates
-        for (let row = 0; row < matrix.length; row++) {
-            for (let col = 0; col < matrix[0].length; col++) {
-                const cell = matrix[row][col];
-                if (cell.type === "outer" && cell.system === "empty" && !isCorner(matrix, row, col)) {
-                    emptyOuterCells.push({ row, col });
-                }
-            }
-        }
-    
-        // Check if there are at least two empty outer cells
-        if (emptyOuterCells.length < 2) {
-            console.log("Not enough empty outer cells to assign current_system.");
-            return;
-        }
-    
-        // Randomly select two empty outer cells
-        const randomIndices = getRandomIndices(emptyOuterCells.length, 2);
-        const selectedCells = randomIndices.map(index => emptyOuterCells[index]);
-
-        return selectedCells
-    };
-    
-    // Function to get random distinct indices
-    const getRandomIndices = (max, count) => {
-        const indices = Array.from({ length: max }, (_, index) => index);
-        const randomIndices = [];
-    
-        while (randomIndices.length < count && indices.length > 0) {
-            const randomIndex = Math.floor(Math.random() * indices.length);
-            randomIndices.push(indices.splice(randomIndex, 1)[0]);
-        }
-    
-        return randomIndices;
-    };
-
     const handleClick = (row, column) => {
-        // Create a copy of the repairMatrix
-        const updatedMatrix = [...repairMatrix.map(row => [...row])];
-
-        // Update the specific cell's system value with the current_system
-        updatedMatrix[row][column] = {
-            ...updatedMatrix[row][column],
-            system: current_system,
-        };
-
-        setRepairMatrix(updatedMatrix);
-
-        setHoverColor(null)
-
-        const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedPath(updatedMatrix, current_system);
-
-        console.log("path results")
-        console.log(isConnected, pathRowIndices, pathColumnIndices)
-        if (isConnected) {
-    
-            // Reset the cells along the path to "empty"
-            for (let i = 0; i < pathRowIndices.length; i++) {
-                const pathRow = pathRowIndices[i];
-                const pathCol = pathColumnIndices[i];
-    
-                updatedMatrix[pathRow][pathCol] = {
-                    ...updatedMatrix[pathRow][pathCol],
-                    system: "empty",
-                };
-            }
-
-            const selectedCells = pickNewOuterCells(updatedMatrix)
-
-            for (const { row, col } of selectedCells) {
-                updatedMatrix[row][col] = {
-                    type: "outer",
-                    system: current_system,
-                };
-            }
-
-            // Update the state with the new matrix containing reset cells
-            setRepairMatrix(updatedMatrix);
-        }
-
-        channel.publish("engineer-place-system-block", {system: current_system});
+        channel.publish("engineer-place-system-block", { row, column });
     };
 
     // Functions for game goes here
     return (
         <table style={styles.table}>
             <tbody>
-                {repairMatrix.map((row, rowIndex) => (
+                {repairMatrix[playerTeam].map((row, rowIndex) => (
                     <tr key={rowIndex} style={styles.row}>
                         {row.map((cell, columnIndex) => (
                             <td key={columnIndex} style={{
                                 ...styles.cell,
                                 ...setBackgroundColor(rowIndex, columnIndex),
-                                ...setCellDims(rowIndex, columnIndex),
+                                ...setCellDims(rowIndex, columnIndex)
                             }}>
                                 <Box
                                     sx={ cell.type === "outer"
                                     ? styles.outerCell
+                                    : cell.system == "empty" && isPendingCell(rowIndex, columnIndex)
+                                    ? styles.pendingBlockPlacement
                                     : cell.system == "empty" && clickable
                                     ? styles.innerCellWithHover
                                     : styles.innerCell }

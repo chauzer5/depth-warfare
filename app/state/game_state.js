@@ -19,7 +19,7 @@ export function GameWrapper({children}) {
     const [playerTeam, setPlayerTeam] = useState();
     const [playerRole, setPlayerRole] = useState();
     const [gameMap, setGameMap] = useState();
-    const [repairMatrix, setRepairMatrix] = useState([]);
+    const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [minesList, setMinesList] = useState({ blue: [], red: [] });
@@ -42,23 +42,46 @@ export function GameWrapper({children}) {
     });
     const [systemHealthLevels, setSystemHealthLevels] = useState({
         blue: {
-            mine: process.env.MAX_SYSTEM_HEALTH,
-            torpedo: process.env.MAX_SYSTEM_HEALTH,
+            weapons: process.env.MAX_SYSTEM_HEALTH,
             scan: process.env.MAX_SYSTEM_HEALTH,
             engine: process.env.MAX_SYSTEM_HEALTH,
             comms: process.env.MAX_SYSTEM_HEALTH,
+            "life support": process.env.MAX_SYSTEM_HEALTH,
         },
         red: {
-            mine: process.env.MAX_SYSTEM_HEALTH,
-            torpedo: process.env.MAX_SYSTEM_HEALTH,
+            weapons: process.env.MAX_SYSTEM_HEALTH,
             scan: process.env.MAX_SYSTEM_HEALTH,
             engine: process.env.MAX_SYSTEM_HEALTH,
             comms: process.env.MAX_SYSTEM_HEALTH,
+            "life support": process.env.MAX_SYSTEM_HEALTH,
         }
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
     const [enemyMovements, setEnemyMovements] = useState([]);
     const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState({ blue: null, red: null });
+    const [engineerCompassMap, setEngineerCompassMap] = useState({
+        blue: {
+            "north": "scan",
+            "south": "comms",
+            "east": "weapons",
+            "west": "engine",
+        },
+        red: {
+            "north": "scan",
+            "south": "comms",
+            "east": "weapons",
+            "west": "engine",
+        }
+    });
+
+    function rotateEngineerCompassValues(compassMap) {
+        let rotatedMap = { ...compassMap };
+        rotatedMap["north"] = compassMap["west"]
+        rotatedMap["east"] = compassMap["north"]
+        rotatedMap["south"] = compassMap["east"]
+        rotatedMap["west"] = compassMap["south"]
+        return rotatedMap;
+    }
 
     function getMessagePlayer(message){
         const messageSender = playerData.find((player) => player.clientId === message.clientId);
@@ -141,9 +164,55 @@ export function GameWrapper({children}) {
         setGameMap(blankGameMap);
     };
 
-    function findConnectedRepairMatrixPath(startRow, startCol, targetRow, targetCol){
-        const visited = new Array(repairMatrix.length).fill(false).map(() => new Array(repairMatrix[0].length).fill(false));
-        const systemName = repairMatrix[startRow][startCol].system;
+    const isCornerRepairMatrix = (row, column) => {
+        return (row === 0 && column === 0 
+            || row === 0 && column === repairMatrix[playerTeam].length - 1
+            || row === repairMatrix[playerTeam].length - 1 && column === 0
+            || row === repairMatrix[playerTeam].length - 1 && column === repairMatrix[playerTeam].length - 1)
+    }
+
+    // Function to get random distinct indices
+    const getRandomIndices = (max, count) => {
+        const indices = Array.from({ length: max }, (_, index) => index);
+        const randomIndices = [];
+    
+        while (randomIndices.length < count && indices.length > 0) {
+            const randomIndex = Math.floor(Math.random() * indices.length);
+            randomIndices.push(indices.splice(randomIndex, 1)[0]);
+        }
+    
+        return randomIndices;
+    };
+
+    const pickNewOuterCells = () => {
+        const emptyOuterCells = []; // Array to store coordinates of empty outer cells
+    
+        // Find empty outer cells and store their coordinates
+        for (let row = 0; row < repairMatrix[playerTeam].length; row++) {
+            for (let col = 0; col < repairMatrix[playerTeam][0].length; col++) {
+                const cell = repairMatrix[playerTeam][row][col];
+                if (cell.type === "outer" && cell.system === "empty" && !isCornerRepairMatrix(row, col)) {
+                    emptyOuterCells.push({ row, col });
+                }
+            }
+        }
+    
+        // Check if there are at least two empty outer cells
+        if (emptyOuterCells.length < 2) {
+            console.log("Not enough empty outer cells to assign current_system.");
+            return;
+        }
+    
+        // Randomly select two empty outer cells
+        const randomIndices = getRandomIndices(emptyOuterCells.length, 2);
+        const selectedCells = randomIndices.map(index => emptyOuterCells[index]);
+
+        return selectedCells
+    };
+
+    function findConnectedRepairMatrixPath(matrix, startRow, startCol, targetRow, targetCol){
+        const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
+        const systemName = matrix[startRow][startCol].system;
     
         const pathRowIndices = [];
         const pathColumnIndices = [];
@@ -152,12 +221,12 @@ export function GameWrapper({children}) {
         const hasPath = (row, col, prevCellType) => {
             if (
                 row < 0 ||
-                row >= repairMatrix.length ||
+                row >= matrix.length ||
                 col < 0 ||
-                col >= repairMatrix[0].length ||
+                col >= matrix[0].length ||
                 visited[row][col] ||
-                repairMatrix[row][col].system !== systemName ||
-                repairMatrix[row][col].type === "outer" && prevCellType === "outer"
+                matrix[row][col].system !== systemName ||
+                matrix[row][col].type === "outer" && prevCellType === "outer"
             ) {
                 return false;
             }
@@ -165,7 +234,7 @@ export function GameWrapper({children}) {
             visited[row][col] = true;
             pathRowIndices.push(row);
             pathColumnIndices.push(col);
-            prevCellType = repairMatrix[row][col].type;
+            prevCellType = matrix[row][col].type;
     
             if (row === targetRow && col === targetCol) {
                 return true;
@@ -199,13 +268,13 @@ export function GameWrapper({children}) {
         return { isConnected, pathRowIndices, pathColumnIndices };
     };
 
-    function checkConnectedRepairMatrixPath(system){
+    function checkConnectedRepairMatrixPath(matrix, system){
         const rowIndices = [];
         const columnIndices = [];
     
-        for (let row = 0; row < repairMatrix.length; row++) {
-            for (let col = 0; col < repairMatrix[0].length; col++) {
-                const cell = repairMatrix[row][col];
+        for (let row = 0; row < matrix.length; row++) {
+            for (let col = 0; col < matrix[0].length; col++) {
+                const cell = matrix[row][col];
                 if (cell.type === "outer" && cell.system === system) {
                     rowIndices.push(row);
                     columnIndices.push(col);
@@ -219,13 +288,13 @@ export function GameWrapper({children}) {
             const targetRow = rowIndices[1];
             const targetCol = columnIndices[1];
     
-            return findConnectedRepairMatrixPath(repairMatrix, startRow, startCol, targetRow, targetCol);
+            return findConnectedRepairMatrixPath(matrix, startRow, startCol, targetRow, targetCol);
         } else {
             return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
         }
     }
 
-    function resetRepairMatrix(){
+    function getEmptyRepairMatrix(){
         const dimension = process.env.REPAIR_MATRIX_DIMENSION;
         const systems = ENGINEER_SYSTEMS_INFO.filter(system => system.name !== "life support").map(system => system.name);
         const doubledSystems = systems.concat(systems.slice());
@@ -235,8 +304,7 @@ export function GameWrapper({children}) {
             doubledSystems.push("empty");
         }
 
-        const shuffledSystems = shuffleArray(doubledSystems).sort();
-
+        const shuffledSystems = shuffleArray(doubledSystems);
     
         let blankRepairMatrix = [];
     
@@ -267,11 +335,8 @@ export function GameWrapper({children}) {
             }
             blankRepairMatrix.push(row);
         }
-
-        console.log("Finished Repair Matrix")
-        console.log(blankRepairMatrix)
         
-        setRepairMatrix(blankRepairMatrix); // Return the initialized matrix
+        return blankRepairMatrix
     };
     
     // Function to shuffle an array using Fisher-Yates algorithm
@@ -356,8 +421,10 @@ export function GameWrapper({children}) {
             pendingSystemCharge,
             systemChargeLevels,
             systemHealthLevels,
+            engineerCompassMap,
             radioMapNotes,
             enemyMovements,
+            pickNewOuterCells,
             pendingRepairMatrixBlock,
             getValidSilenceCells,
             setCurrentStage,
@@ -378,13 +445,15 @@ export function GameWrapper({children}) {
             setPendingSystemCharge,
             setSystemChargeLevels,
             setSystemHealthLevels,
+            setEngineerCompassMap,
             resetMap,
-            resetRepairMatrix,
+            getEmptyRepairMatrix,
             setRadioMapNotes,
             setEnemyMovements,
             checkConnectedRepairMatrixPath,
             setPendingRepairMatrixBlock,
             healSystem,
+            rotateEngineerCompassValues,
         }}>
             {children}
         </GameContext.Provider>

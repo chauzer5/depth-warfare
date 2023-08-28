@@ -3,10 +3,32 @@ import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
 import RepairMatrix from "./RepairMatrix";
-import { ENGINEER_SYSTEMS_INFO, ENGINEER_SYSTEMS_MAP } from "@/app/utils";
+import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 import TriangleKey from "./TriangleKey";
 
 export default function EngineerDashboard(props){
+
+    const { channel } = props;
+
+    const {
+      pendingNavigate,
+      playerTeam,
+      pendingRepairMatrixBlock,
+      systemChargeLevels,
+      engineerCompassMap,
+    } = useGameContext();
+
+    // Calculate the length difference between "west" and "east" words
+    const westWordLength = engineerCompassMap[playerTeam]["west"].length;
+    const eastWordLength = engineerCompassMap[playerTeam]["east"].length;
+    const lengthDifference = westWordLength - eastWordLength;
+
+    // Calculate the margins based on the length difference
+    const marginLeft = lengthDifference < 0 ? 10 * Math.abs(lengthDifference) : 0;
+    const marginRight = lengthDifference > 0 ? 10 * lengthDifference : 0;
+
+    console.log("margins", marginLeft, marginRight)
+
     const styles = {
         systemLabel: {
             fontSize : "100px"
@@ -69,11 +91,23 @@ export default function EngineerDashboard(props){
           width: "100%",
           height: "40px",
           display: "flex",
-          marginLeft: "10px",
+          marginRight: `${marginRight}px`,
+          marginLeft: `${marginLeft}px`,
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "center",
           whiteSpace: "nowrap",
+      },
+      systemButton: {
+        width: "100px",
+        height: "30px",
+        margin: "10px",
+        borderRadius: "5px",
+        fontSize: "20px",
+        fontWeight: "bold",
+        backgroundColor: "black",
+        color: "white",
+        fontFamily: "VT323, monospace",
       },
       pendingText: {
         color: theme.white,
@@ -84,23 +118,19 @@ export default function EngineerDashboard(props){
       },
     };
 
-    const { channel } = props;
-
-    const {
-      pendingNavigate,
-      playerTeam,
-      pendingRepairMatrixBlock,
-      systemChargeLevels,
-    } = useGameContext();
-
     function capitalize(word) {
         return word.charAt(0).toUpperCase() + word.slice(1);
     }
 
     const findSystem = (direction) => {
-      return ENGINEER_SYSTEMS_INFO.find(system => system.name === ENGINEER_SYSTEMS_MAP[direction])
+      return ENGINEER_SYSTEMS_INFO.find(system => system.name === engineerCompassMap[playerTeam][direction])
     }
 
+    const handleClick = () => {
+      // Your logic for handling the button click goes here
+      channel.publish("engineer-clear-systems", {});
+      // You can perform any actions you need here
+    };
 
     
     return (
@@ -112,7 +142,7 @@ export default function EngineerDashboard(props){
           { pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
-                  <h4 style={styles.pendingText}>Choose a system to damage</h4>
+                  <h4 style={styles.pendingText}>Place a block</h4>
               </div>
           )}
           { pendingNavigate[playerTeam] && pendingRepairMatrixBlock[playerTeam] && (
@@ -122,17 +152,22 @@ export default function EngineerDashboard(props){
               </div>
           )}
 
-        <div style={{ marginTop: "20px" }}>
-          <RepairMatrix channel={channel} current_system={ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]} />
+        <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <RepairMatrix channel={channel} current_system={engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]} />
+          <button
+            style={{ ...styles.systemButton, border: `3px solid ${theme.white}`, marginTop: "10px" }}
+            onClick={handleClick} // Attach the handleClick function as an event handler
+          >
+            Clear
+        </button>
         </div>
        </div>
          
         <div style = {styles.containerColumn}>
           <div style = {styles.containerColumn}> 
             {ENGINEER_SYSTEMS_INFO.map((system, index) => {
-                const shouldShrink = system.name === ENGINEER_SYSTEMS_MAP[pendingNavigate[playerTeam]]
                 return (
-                    <SystemDamage key={index} system={system} channel={channel} shouldShrink={shouldShrink}/>
+                    <SystemDamage key={index} system={system} channel={channel}/>
                 );
             })}
           
@@ -142,7 +177,7 @@ export default function EngineerDashboard(props){
               <div style={styles.navButtons}>
                 <div style={styles.navRow}>
                     <span style={{ color: findSystem("north").color }}>   
-                        {capitalize(ENGINEER_SYSTEMS_MAP["north"])}
+                        {capitalize(engineerCompassMap[playerTeam]["north"])}
                     </span>
                 </div>
                 <div style={styles.navRow}>
@@ -151,9 +186,9 @@ export default function EngineerDashboard(props){
                         color={findSystem("north").color}
                     />
                 </div>
-                <div style={styles.navRowWithMargin}>
+                <div style={{ ...styles.navRowWithMargin }}>
                     <span style={{ color: findSystem("west").color, marginRight: "10px" }}>
-                        {capitalize(ENGINEER_SYSTEMS_MAP["west"]) }
+                        {capitalize(engineerCompassMap[playerTeam]["west"]) }
                     </span>
                     <TriangleKey
                         direction="west"
@@ -165,7 +200,7 @@ export default function EngineerDashboard(props){
                         color={findSystem("east").color}
                     />
                     <span style={{ color: findSystem("east").color, marginLeft: "10px" }}>
-                        { capitalize(ENGINEER_SYSTEMS_MAP["east"])}
+                        { capitalize(engineerCompassMap[playerTeam]["east"])}
                     </span>
                 </div>
                 <div style={styles.navRow}>
@@ -176,7 +211,7 @@ export default function EngineerDashboard(props){
                 </div>
                 <div style={styles.navRow}>
                     <span style={{ color: findSystem("south").color }}>
-                        {capitalize(ENGINEER_SYSTEMS_MAP["south"])}
+                        {capitalize(engineerCompassMap[playerTeam]["south"])}
                     </span>
                 </div>
             </div>

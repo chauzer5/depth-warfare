@@ -23,16 +23,9 @@ export const SYSTEMS_INFO = [
     }
 ];
 
-export const ENGINEER_SYSTEMS_MAP = {
-    "north": "sonar",
-    "south": "comms",
-    "east": "weapons",
-    "west": "engine",
-}
-
 export const ENGINEER_SYSTEMS_INFO = [
     {
-        name: "sonar",
+        name: "scan",
         color: theme.darkGreen
     },
     {

@@ -5,7 +5,7 @@ import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
-import { captainCancelSubNavigate, captainSetStartingSpot, captainSilence, captainStartSubNavigate, engineerChooseSystemDamage, engineerPlaceSystemBlock, firstMateChooseSystemCharge } from "../../state/message_handler";
+import { captainCancelSubNavigate, captainSetStartingSpot, captainSilence, captainStartSubNavigate, engineerChooseSystemDamage, engineerPlaceSystemBlock, firstMateChooseSystemCharge, engineerClearSystems } from "../../state/message_handler";
 
 export default function Game() {
   const {
@@ -13,7 +13,8 @@ export default function Game() {
     username,
     currentStage,
     resetMap,
-    resetRepairMatrix,
+    getEmptyRepairMatrix,
+    setRepairMatrix,
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -26,7 +27,10 @@ export default function Game() {
 
   useEffect(() => {
     resetMap();
-    resetRepairMatrix();
+    const emptyRepairMatrixBlue = getEmptyRepairMatrix();
+    const emptyRepairMatrixRed = getEmptyRepairMatrix();
+    const newRepairMatrix = {blue: emptyRepairMatrixBlue, red: emptyRepairMatrixRed}
+    setRepairMatrix(newRepairMatrix)
   }, []);
 
   useEffect(() => {

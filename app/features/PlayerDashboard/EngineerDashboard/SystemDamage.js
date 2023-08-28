@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'; // Import useState
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
-import { capitalizeFirstLetter } from "@/app/utils";
+import { capitalizeFirstLetter} from "@/app/utils";
 
 
 export default function SystemDamage(props){
@@ -41,24 +41,42 @@ export default function SystemDamage(props){
             color: system.color,
             fontSize: "24px",
         },
+        "@keyframes blink": {
+            "0%": { opacity: 1 },
+            "49.99%": { opacity: 1 },
+            "50%": { opacity: 0 },
+            "99.99%": { opacity: 0 },
+            "100%": { opacity: 1 },
+        },
         rectangle: {
-            flex: 1,
             height: "15px",
-            width: "100%",
             backgroundColor: system.color,      
             borderRadius: "15px",
             // border: "4px solid #0F0",
             marginRight: "10px",
             transition: "width 1s ease",
+            animation: "blink 1s infinite",
+            // backgroundColor: theme.white,
           },
+          damageRectangle: {
+            animation: "blink 1s infinite",
+            backgroundColor: theme.white,
+            "@keyframes blink": {
+                "0%": { opacity: 1 },
+                "49.99%": { opacity: 1 },
+                "50%": { opacity: 0 },
+                "99.99%": { opacity: 0 },
+                "100%": { opacity: 1 },
+            },
+          },
+          
           rectangleBorder: {
-            flex: 1,
             height: "15px",
             backgroundColor: theme.black,      
             borderRadius: "18px",
             border: "4px solid ${system.color}",
             marginRight: "10px",
-            transition: "width 1s ease",
+            // transition: "width 1s ease",
           },
           clickableRectangleBorder: {
             flex: 1,
@@ -85,39 +103,36 @@ export default function SystemDamage(props){
         pendingNavigate,
         pendingRepairMatrixBlock,
         playerTeam,
+        systemHealthLevels,
+        engineerCompassMap,
     } = useGameContext();
 
-    // THIS IS CODE FOR CHANGING THE LENGTH AND WIDTH OF THE RECTANGLE
-    const [innerRectangleWidth, setInnerRectangleWidth] = useState('100%');
+    // const [pendingDamagedSystem, setPendingDamagedSystem] = useState(null)
 
-    useEffect(() => {
-        if (shouldShrink && pendingNavigate[playerTeam]) {
-            const intervalId = setInterval(() => {
-                setInnerRectangleWidth(prevWidth => {
-                    const newWidth = Math.max(parseFloat(prevWidth) - 20, 0);
-                    if (newWidth <= 80) {
-                        clearInterval(intervalId);
-                    }
-                    return `${newWidth}%`;
-                });
-            }, 100);
+    // useEffect(() => {
+    //     setPendingDamagedSystem(engineerCompassMap[playerTeam][pendingNavigate[playerTeam]])
+    // }, [pendingNavigate, playerTeam, engineerCompassMap]);
 
-            return () => {
-                clearInterval(intervalId);
-            };
-        }
-    }, [shouldShrink, pendingNavigate, playerTeam]);
+    const pendingDamagedSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]
 
+    function isPendingDamaged(system) {
+        return system.name === pendingDamagedSystem;
+    }
 
     return (
         <div style={styles.container}>
-            <div style={{ ...styles.textContainer, width: "120px"}}>
+            <div style={{ ...styles.textContainer, width: "150px"}}>
                 <span style={styles.buttonText}>
                     {capitalizeFirstLetter(system.name)}
                 </span>
             </div>
-            <div style={styles.rectangleBorder}>
-                <div style={{ ...styles.rectangle, width: innerRectangleWidth }}></div>
+            <div style={styles.container}>
+                <div
+                    style={{
+                        ...styles.rectangle,
+                        width: `${systemHealthLevels[playerTeam][system.name]}%`,
+                    }}
+                ></div>
             </div>
         </div>
     );
