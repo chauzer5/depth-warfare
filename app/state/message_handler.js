@@ -73,12 +73,13 @@ export function engineerPlaceSystemBlock(context, message){
     setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: [message.data.row, message.data.column]});
   }
   else {
+    const chargedSystem = pendingSystemCharge[team]
     // charge the specified system
     setSystemChargeLevels({
       ...systemChargeLevels,
       [team]: {
         ...systemChargeLevels[team],
-        [message.data.system]: systemChargeLevels[team][message.data.system] + 1,
+        [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
       },
     });
 
