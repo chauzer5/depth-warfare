@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO } from "../utils";
+import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
@@ -91,7 +91,7 @@ export function GameWrapper({children}) {
     function moveSub(team, row, column){
         const mapCopy = [...gameMap];
 
-        // remove the old position and make it visited
+        // remove the old position and make the path visited
         if(subLocations[team]){
             const prevContents = gameMap[subLocations[team][0]][subLocations[team][1]];
             const newContents = {
@@ -105,6 +105,30 @@ export function GameWrapper({children}) {
                     [team]: currentStage === "main" ? true : false,
                 }
             };
+
+            // Mark the entire path as visited
+            if(currentStage === "main"){
+                const oldLocation = [subLocations[team][0], subLocations[team][1]];
+                const newLocation = [row, column];
+                const movementVector = [newLocation[0] - oldLocation[0], newLocation[1] - oldLocation[1]];
+                const distance = movementVector[0] !== 0 ? Math.abs(movementVector[0]) : Math.abs(movementVector[1]);
+                const unitVector = getRightAngleUnitVector(movementVector);
+                
+                for(let i = 1; i < distance; i++){
+                    const visitedRow = oldLocation[0] + unitVector[0] * i;
+                    const visitedColumn = oldLocation[1] + unitVector[1] * i;
+                    const visitedContents = gameMap[visitedRow][visitedColumn];
+                    const newVisitedContents = {
+                        ...visitedContents,
+                        visited: {
+                            ...visitedContents.visited,
+                            [team]: true,
+                        }
+                    };
+                    mapCopy[visitedRow][visitedColumn] = newVisitedContents;
+                }
+            }
+
             mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
         }
 
