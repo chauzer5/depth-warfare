@@ -4,6 +4,7 @@ import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import GameMap from "@/app/components/GameMap/GameMap";
 import theme from "@/app/styles/theme";
 import { SYSTEMS_INFO } from "@/app/utils";
+import React, { useState} from 'react';
 
 export default function FirstMateDashboard(props){
     const styles = {
@@ -52,7 +53,6 @@ export default function FirstMateDashboard(props){
             borderRadius: "5px",
             fontSize: "20px",
             fontWeight: "bold",
-            backgroundColor: "black",
             color: "white",
             fontFamily: "VT323, monospace",
         },
@@ -77,6 +77,26 @@ export default function FirstMateDashboard(props){
         systemChargeLevels,
     } = useGameContext();
 
+    const [torpedoActive, setTorpedoActive] = useState(false);
+    const [mineActive, setMineActive] = useState(false);
+    const [scanActive, setScanActive] = useState(false);
+
+    const toggleButton = (buttonType) => {
+        switch (buttonType) {
+        case 'torpedo':
+            setTorpedoActive(!torpedoActive);
+            break;
+        case 'mine':
+            setMineActive(!mineActive);
+            break;
+        case 'scan':
+            setScanActive(!scanActive);
+            break;
+        default:
+            break;
+        }
+    };
+
     return (
         <div style={styles.main}>
             <div style={styles.systemsRow}>
@@ -99,16 +119,41 @@ export default function FirstMateDashboard(props){
                 )}
             </div>
             <div style={styles.bottomSection}>
-                <SectorsKey />
-                <GameMap handleClick={() => {}}/>
-                <div style={styles.controlsContainer}>
-                    <button style={{...styles.systemButton, border: `3px solid ${theme.red}`}}>Torpedo</button>
-                    <button style={{...styles.systemButton, border: `3px solid ${theme.orange}`}}>Mine</button>
-                    <button style={{...styles.systemButton, border: `3px solid ${theme.green}`}}>Scan</button>
+      <SectorsKey />
+      <GameMap handleClick={() => {}}/>
+      <div style={styles.controlsContainer}>
+                <button
+                style={{
+                    ...styles.systemButton,
+                    backgroundColor: torpedoActive ? theme.red : 'black',
+                }}
+                onClick={() => toggleButton('torpedo')}
+                >
+                Torpedo
+                </button>
+                <button
+                style={{
+                    ...styles.systemButton,
+                    backgroundColor: mineActive ? theme.orange : 'black',
+                }}
+                onClick={() => toggleButton('mine')}
+                >
+                Mine
+                </button>
+                <button
+                style={{
+                    ...styles.systemButton,
+                    border: scanActive ? theme.green : 'black',
+                }}
+                onClick={() => toggleButton('scan')}
+                >
+                Scan
+                </button>
 
-                    <button style={styles.bigButton}>Launch Torpedo</button>
-                </div>
+                <button style={styles.bigButton}>Launch Torpedo</button>
+            </div>
             </div>
         </div>
     );
 }
+
