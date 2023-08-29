@@ -8,7 +8,7 @@ export const SYSTEMS_INFO = [
     },
     {
         name: "scan",
-        color: theme.green,
+        color: theme.darkGreen,
         maxCharge: 4,
     },
     {

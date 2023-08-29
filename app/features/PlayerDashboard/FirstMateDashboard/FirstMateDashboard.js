@@ -81,6 +81,9 @@ export default function FirstMateDashboard(props){
     const [mineActive, setMineActive] = useState(false);
     const [scanActive, setScanActive] = useState(false);
 
+    const getSystemColor = (inputSystem) => {
+        return SYSTEMS_INFO.find(system => system.name === inputSystem).color}
+
     const toggleButton = (buttonType) => {
         switch (buttonType) {
         case 'torpedo':
@@ -126,12 +129,14 @@ export default function FirstMateDashboard(props){
             </div>
             <div style={styles.bottomSection}>
       <SectorsKey />
-      <GameMap handleClick={() => {}}/>
+      <GameMap torpedoActive={torpedoActive} mineActive={mineActive} scanActive={scanActive} handleClick={() => {}}/>
       <div style={styles.controlsContainer}>
                 <button
                 style={{
                     ...styles.systemButton,
-                    backgroundColor: torpedoActive ? theme.red : 'black',
+                    backgroundColor: torpedoActive ? getSystemColor('torpedo') : 'black',
+                    border: torpedoActive ? theme.white : `3px solid ${getSystemColor('torpedo')}`,
+                    // color: torpedoActive ? "black" : "white"
                 }}
                 onClick={() => toggleButton('torpedo')}
                 >
@@ -140,7 +145,9 @@ export default function FirstMateDashboard(props){
                 <button
                 style={{
                     ...styles.systemButton,
-                    backgroundColor: mineActive ? theme.orange : 'black',
+                    backgroundColor: mineActive ? getSystemColor('mine') : 'black',
+                    border: mineActive ? theme.white : `3px solid ${getSystemColor('mine')}`,
+                    // color: mineActive ? "black" : "white"
                 }}
                 onClick={() => toggleButton('mine')}
                 >
@@ -149,7 +156,9 @@ export default function FirstMateDashboard(props){
                 <button
                 style={{
                     ...styles.systemButton,
-                    backgroundColor: scanActive ? theme.green : 'black',
+                    backgroundColor: scanActive ? getSystemColor('scan') : 'black',
+                    border: scanActive ? theme.white : `3px solid ${getSystemColor('scan')}`,
+                    // color: scanActive ? "black" : "white"
                 }}
                 onClick={() => toggleButton('scan')}
                 >
