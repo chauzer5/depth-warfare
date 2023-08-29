@@ -77,3 +77,14 @@ export function capitalizeFirstLetter(string){
 export function getOpposingTeam(team){
     return team === "red" ? "blue" : "red";
 }
+
+export function getRightAngleUnitVector(array){
+    const [x, y] = array;
+    if(x != 0){
+        return [x/Math.abs(x), 0];
+    }
+    else {
+        return [0, y/Math.abs(y)];
+    }
+
+}

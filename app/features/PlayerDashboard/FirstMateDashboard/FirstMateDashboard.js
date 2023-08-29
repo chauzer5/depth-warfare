@@ -74,7 +74,6 @@ export default function FirstMateDashboard(props){
         pendingNavigate,
         playerTeam,
         pendingSystemCharge,
-        systemChargeLevels,
     } = useGameContext();
 
     const [torpedoActive, setTorpedoActive] = useState(false);
