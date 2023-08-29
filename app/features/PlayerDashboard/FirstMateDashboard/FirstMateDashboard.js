@@ -84,13 +84,19 @@ export default function FirstMateDashboard(props){
     const toggleButton = (buttonType) => {
         switch (buttonType) {
         case 'torpedo':
-            setTorpedoActive(!torpedoActive);
+            setTorpedoActive(true);
+            setMineActive(false);
+            setScanActive(false);
             break;
         case 'mine':
-            setMineActive(!mineActive);
+            setMineActive(true);
+            setTorpedoActive(false);
+            setScanActive(false);
             break;
         case 'scan':
-            setScanActive(!scanActive);
+            setScanActive(true);
+            setTorpedoActive(false);
+            setMineActive(false);
             break;
         default:
             break;
@@ -143,7 +149,7 @@ export default function FirstMateDashboard(props){
                 <button
                 style={{
                     ...styles.systemButton,
-                    border: scanActive ? theme.green : 'black',
+                    backgroundColor: scanActive ? theme.green : 'black',
                 }}
                 onClick={() => toggleButton('scan')}
                 >
