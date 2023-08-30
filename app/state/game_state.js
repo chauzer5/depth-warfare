@@ -74,8 +74,8 @@ export function GameWrapper({children}) {
         }
     });
 
-    const getFirstMateSystemColor = (inputSystem) => {
-        return SYSTEMS_INFO.find(system => system.name === inputSystem).color}
+    const getFirstMateSystem = (inputSystem) => {
+        return SYSTEMS_INFO.find(system => system.name === inputSystem)}
 
     function rotateEngineerCompassValues(compassMap) {
         let rotatedMap = { ...compassMap };
@@ -440,9 +440,7 @@ export function GameWrapper({children}) {
         visited[row][col] = false;
     }
 
-    function getCellsDistanceAway(maxDistance) {
-
-        const [startRow, startCol] = subLocations[playerTeam];
+    function getCellsDistanceAway(startRow, startCol, maxDistance, removeStart=true) {
 
         const rows = gameMap.length;
         const cols = gameMap[0].length;
@@ -454,12 +452,13 @@ export function GameWrapper({children}) {
         explorePaths(startRow, startCol, maxDistance, visited, validCells);
 
         // Find the index of the starting cell in validCells and remove it
-        const startingCellIndex = validCells.findIndex(([row, col]) => row === startRow && col === startCol);
-        if (startingCellIndex !== -1) {
-            validCells.splice(startingCellIndex, 1);
+        if (removeStart) {
+            const startingCellIndex = validCells.findIndex(([row, col]) => row === startRow && col === startCol);
+            if (startingCellIndex !== -1) {
+                validCells.splice(startingCellIndex, 1);
+            }
         }
-
-        return validCells
+        return validCells  
     }
 
     function healSystem(team, system){
@@ -471,6 +470,14 @@ export function GameWrapper({children}) {
             },
         });
     };
+
+    function manhattanDistance(row1, col1, row2, col2) {
+        return Math.abs(row1 - row2) + Math.abs(col1 - col2);
+    }
+
+    function updateLifeSupport(team, hits) {
+        return Math.max(systemHealthLevels[team]["life support"] - process.env.SYSTEM_DAMAGE_AMOUNT * hits, 0)
+    }
 
     return (
         <GameContext.Provider value={{
@@ -525,7 +532,9 @@ export function GameWrapper({children}) {
             setPendingRepairMatrixBlock,
             healSystem,
             rotateEngineerCompassValues,
-            getFirstMateSystemColor,
+            getFirstMateSystem,
+            updateLifeSupport,
+            manhattanDistance
         }}>
             {children}
         </GameContext.Provider>

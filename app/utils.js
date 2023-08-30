@@ -14,7 +14,7 @@ export const SYSTEMS_INFO = [
     {
         name: "torpedo",
         color: theme.red,
-        maxCharge: 4,
+        maxCharge: 1,
     },
     {
         name: "mine",
