@@ -13,6 +13,7 @@ const nextConfig = {
         SYSTEM_DAMAGE_AMOUNT: 25,
         REPAIR_MATRIX_DIMENSION: 5,
         REPAIR_MATRIX_CELL_SIZE: 50,
+        TORPEDO_RANGE: 4,
     }
 }
 

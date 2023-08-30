@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector } from "../utils";
+import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
@@ -73,6 +73,9 @@ export function GameWrapper({children}) {
             "west": "engine",
         }
     });
+
+    const getFirstMateSystemColor = (inputSystem) => {
+        return SYSTEMS_INFO.find(system => system.name === inputSystem).color}
 
     function rotateEngineerCompassValues(compassMap) {
         let rotatedMap = { ...compassMap };
@@ -416,6 +419,49 @@ export function GameWrapper({children}) {
         return validCells;
     };
 
+    function explorePaths(row, col, distance, visited, validCells, currentDistance = 0) {
+        if (
+            row < 0 || col < 0 || row >= gameMap.length || col >= gameMap[0].length ||
+            currentDistance > distance || visited[row][col] || gameMap[row][col].type === 'island'
+        ) {
+            // visited[row][col] = true;
+            return;
+        }
+
+        visited[row][col] = true;
+        validCells.push([ row, col ]);
+      
+        // Explore neighboring cells
+        explorePaths(row + 1, col, distance, visited, validCells, currentDistance + 1); // Down
+        explorePaths(row - 1, col, distance, visited, validCells, currentDistance + 1); // Up
+        explorePaths(row, col + 1, distance, visited, validCells, currentDistance + 1); // Right
+        explorePaths(row, col - 1, distance, visited, validCells, currentDistance + 1); // Left
+
+        visited[row][col] = false;
+    }
+
+    function getCellsDistanceAway(maxDistance) {
+
+        const [startRow, startCol] = subLocations[playerTeam];
+
+        const rows = gameMap.length;
+        const cols = gameMap[0].length;
+
+        // Create a visited array to keep track of visited cells
+        const visited = new Array(rows).fill(false).map(() => new Array(cols).fill(false));
+
+        const validCells = [];
+        explorePaths(startRow, startCol, maxDistance, visited, validCells);
+
+        // Find the index of the starting cell in validCells and remove it
+        const startingCellIndex = validCells.findIndex(([row, col]) => row === startRow && col === startCol);
+        if (startingCellIndex !== -1) {
+            validCells.splice(startingCellIndex, 1);
+        }
+
+        return validCells
+    }
+
     function healSystem(team, system){
         setSystemHealthLevels({
             ...systemHealthLevels,
@@ -472,12 +518,14 @@ export function GameWrapper({children}) {
             setEngineerCompassMap,
             resetMap,
             getEmptyRepairMatrix,
+            getCellsDistanceAway,
             setRadioMapNotes,
             setEnemyMovements,
             checkConnectedRepairMatrixPath,
             setPendingRepairMatrixBlock,
             healSystem,
             rotateEngineerCompassValues,
+            getFirstMateSystemColor,
         }}>
             {children}
         </GameContext.Provider>

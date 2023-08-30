@@ -74,14 +74,12 @@ export default function FirstMateDashboard(props){
         pendingNavigate,
         playerTeam,
         pendingSystemCharge,
+        getFirstMateSystemColor
     } = useGameContext();
 
-    const [torpedoActive, setTorpedoActive] = useState(false);
+    const [torpedoActive, setTorpedoActive] = useState(true);
     const [mineActive, setMineActive] = useState(false);
     const [scanActive, setScanActive] = useState(false);
-
-    const getSystemColor = (inputSystem) => {
-        return SYSTEMS_INFO.find(system => system.name === inputSystem).color}
 
     const toggleButton = (buttonType) => {
         switch (buttonType) {
@@ -133,8 +131,8 @@ export default function FirstMateDashboard(props){
                 <button
                 style={{
                     ...styles.systemButton,
-                    backgroundColor: torpedoActive ? getSystemColor('torpedo') : 'black',
-                    border: torpedoActive ? theme.white : `3px solid ${getSystemColor('torpedo')}`,
+                    backgroundColor: torpedoActive ? getFirstMateSystemColor('torpedo') : 'black',
+                    border: torpedoActive ? theme.white : `3px solid ${getFirstMateSystemColor('torpedo')}`,
                     // color: torpedoActive ? "black" : "white"
                 }}
                 onClick={() => toggleButton('torpedo')}
@@ -144,8 +142,8 @@ export default function FirstMateDashboard(props){
                 <button
                 style={{
                     ...styles.systemButton,
-                    backgroundColor: mineActive ? getSystemColor('mine') : 'black',
-                    border: mineActive ? theme.white : `3px solid ${getSystemColor('mine')}`,
+                    backgroundColor: mineActive ? getFirstMateSystemColor('mine') : 'black',
+                    border: mineActive ? theme.white : `3px solid ${getFirstMateSystemColor('mine')}`,
                     // color: mineActive ? "black" : "white"
                 }}
                 onClick={() => toggleButton('mine')}
@@ -155,8 +153,8 @@ export default function FirstMateDashboard(props){
                 <button
                 style={{
                     ...styles.systemButton,
-                    backgroundColor: scanActive ? getSystemColor('scan') : 'black',
-                    border: scanActive ? theme.white : `3px solid ${getSystemColor('scan')}`,
+                    backgroundColor: scanActive ? getFirstMateSystemColor('scan') : 'black',
+                    border: scanActive ? theme.white : `3px solid ${getFirstMateSystemColor('scan')}`,
                     // color: scanActive ? "black" : "white"
                 }}
                 onClick={() => toggleButton('scan')}

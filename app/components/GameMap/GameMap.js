@@ -5,8 +5,8 @@ import theme from "@/app/styles/theme";
 import { useEffect, useState } from "react";
 
 export default function GameMap (props) {
-    const { channel, handleClick, silence } = props;
-    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells } = useGameContext();
+    const { channel, handleClick, silence, torpedoActive, mineActive, scanActive } = props;
+    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells, getCellsDistanceAway, getFirstMateSystemColor } = useGameContext();
 
     const MAP_DIMENSION = process.env.MAP_DIMENSION;
     const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -96,6 +96,7 @@ export default function GameMap (props) {
     }
 
     const [silenceCells, setSilenceCells] = useState([]);
+    const [torpedoCells, setTorpedoCells] = useState([])
 
     useEffect(() => {
         if(silence){
@@ -104,9 +105,20 @@ export default function GameMap (props) {
         }
     }, [silence]);
 
+    useEffect(() => {
+        if(torpedoActive){
+            const newTorpedoCells = getCellsDistanceAway(process.env.TORPEDO_RANGE);
+            setTorpedoCells(newTorpedoCells);
+        }
+    }, [pendingNavigate[playerTeam]]);
+
+    console.log("torpedoCells", torpedoCells)
+
     const handleSilence = (row, column) => {
         channel?.publish("captain-silence", { row, column });
     };
+
+    const firstMateDashboard = torpedoActive || mineActive || scanActive
 
     return (
         <table style={styles.table}>
@@ -132,16 +144,16 @@ export default function GameMap (props) {
                                         cell.type === "island" ? styles.island :
                                         cell.subPresent[playerTeam] && playerTeam === "blue" ? styles.blueSub :
                                         cell.subPresent[playerTeam] && playerTeam === "red" ? styles.redSub :
-                                        pendingNavigate[playerTeam] === "north" && rowIndex === subLocations[playerTeam][0] - 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
+                                        !firstMateDashboard && pendingNavigate[playerTeam] === "north" && rowIndex === subLocations[playerTeam][0] - 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
+                                        !firstMateDashboard && pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
+                                        !firstMateDashboard && pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
+                                        !firstMateDashboard && pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
                                         styles.water
                                     }
                                     onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
                                 >
                                     {
-                                        cell.visited && cell.visited[playerTeam] &&
+                                        !firstMateDashboard && cell.visited && cell.visited[playerTeam] &&
                                         <span style={styles.visitedCell}>X</span>
                                     }
                                     {
@@ -152,6 +164,22 @@ export default function GameMap (props) {
                                                 minWidth: "25px",
                                                 minHeight: "25px",
                                                 backgroundColor: theme.purple,
+                                                cursor: "pointer",
+                                                "&:hover": {
+                                                    backgroundColor: "#4D0081",
+                                                },
+                                            }}
+                                            onClick={() => {handleSilence(rowIndex, columnIndex)}}
+                                        />
+                                    }
+                                    {
+                                        torpedoActive &&
+                                        torpedoCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) && 
+                                        <Box
+                                            sx={{
+                                                minWidth: "25px",
+                                                minHeight: "25px",
+                                                backgroundColor: theme.gray,
                                                 cursor: "pointer",
                                                 "&:hover": {
                                                     backgroundColor: "#4D0081",
