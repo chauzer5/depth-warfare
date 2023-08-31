@@ -557,7 +557,7 @@ export function GameWrapper({children}) {
             rotateEngineerCompassValues,
             getFirstMateSystem,
             updateLifeSupport,
-            manhattanDistance
+            manhattanDistance,
             setCurrentlySurfacing,
         }}>
             {children}
