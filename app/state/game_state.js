@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO } from "../utils";
+import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO, getCellSector } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
@@ -74,6 +74,19 @@ export function GameWrapper({children}) {
             "west": "engine",
         }
     });
+    const [notificationOpen, setNotificationOpen] = useState(false);
+    const [notificationSeverity, setNotificationSeverity] = useState("info");
+    const [notificationMessage, setNotificationMessage] = useState("");
+
+    const notify = (message, severity) => {
+        setNotificationMessage(message);
+        setNotificationSeverity(severity);
+        setNotificationOpen(true);
+    };
+
+    const closeNotify = () => {
+        setNotificationOpen(false);
+    }
 
     const getFirstMateSystem = (inputSystem) => {
         return SYSTEMS_INFO.find(system => system.name === inputSystem)}
@@ -500,6 +513,23 @@ export function GameWrapper({children}) {
         return Math.max(systemHealthLevels[team]["life support"] - process.env.SYSTEM_DAMAGE_AMOUNT * hits, 0)
     }
 
+    function scanForEnemySub(row, column, scanType){
+        const enemySubLocations = subLocations[playerTeam === "blue" ? "red" : "blue"];
+        const enemySubRow = enemySubLocations[0];
+        const enemySubColumn = enemySubLocations[1];
+
+        switch(scanType){
+            case "sector":
+                return getCellSector([row, column]) === getCellSector([enemySubRow, enemySubColumn]);
+            case "row":
+                return row === enemySubRow;
+            case "column":
+                return column === enemySubColumn;
+            default:
+                console.error(`Unrecognized scan type: ${scanType}`);
+        }
+    }
+
     return (
         <GameContext.Provider value={{
             selfClientId,
@@ -522,6 +552,9 @@ export function GameWrapper({children}) {
             engineerCompassMap,
             radioMapNotes,
             enemyMovements,
+            notificationOpen,
+            notificationSeverity,
+            notificationMessage,
             currentlySurfacing,
             pendingRepairMatrixBlock,
             clearVisitedPath,
@@ -558,7 +591,10 @@ export function GameWrapper({children}) {
             getFirstMateSystem,
             updateLifeSupport,
             manhattanDistance,
+            notify,
+            closeNotify,
             setCurrentlySurfacing,
+            scanForEnemySub,
         }}>
             {children}
         </GameContext.Provider>
