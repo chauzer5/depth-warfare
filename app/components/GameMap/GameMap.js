@@ -3,10 +3,12 @@ import { useGameContext } from "../../state/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
 import theme from "@/app/styles/theme";
 import { useEffect, useState } from "react";
+import targetImage from '../../target.png';
+import Image from 'next/image';
 
 export default function GameMap (props) {
-    const { channel, handleClick, silence } = props;
-    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells } = useGameContext();
+    const { channel, handleClick, silence, toggledSystem, clickedCell, torpedoCells } = props;
+    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells, getCellsDistanceAway, getFirstMateSystemColor } = useGameContext();
 
     const MAP_DIMENSION = process.env.MAP_DIMENSION;
     const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -65,6 +67,14 @@ export default function GameMap (props) {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+        },
+        inRangeCell: {
+            width: "25px",
+            height: "26px",
+            backgroundColor: theme.gray,
+            "&:hover": {
+                backgroundColor: theme.green,
+            },
         },
         visitedCell: {
             color: theme.white,
@@ -132,18 +142,20 @@ export default function GameMap (props) {
                                         cell.type === "island" ? styles.island :
                                         cell.subPresent[playerTeam] && playerTeam === "blue" ? styles.blueSub :
                                         cell.subPresent[playerTeam] && playerTeam === "red" ? styles.redSub :
-                                        pendingNavigate[playerTeam] === "north" && rowIndex === subLocations[playerTeam][0] - 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
-                                        pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
+                                        !toggledSystem && pendingNavigate[playerTeam] === "north" && rowIndex === subLocations[playerTeam][0] - 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
+                                        !toggledSystem && pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
+                                        !toggledSystem && pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
+                                        !toggledSystem && pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
+                                        toggledSystem === 'torpedo' && torpedoCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) ? styles.inRangeCell : 
                                         styles.water
                                     }
                                     onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
                                 >
                                     {
-                                        cell.visited && cell.visited[playerTeam] &&
+                                        !toggledSystem && cell.visited && cell.visited[playerTeam] &&
                                         <span style={styles.visitedCell}>X</span>
                                     }
+
                                     {
                                         silence &&
                                         silenceCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) && 
@@ -160,6 +172,24 @@ export default function GameMap (props) {
                                             onClick={() => {handleSilence(rowIndex, columnIndex)}}
                                         />
                                     }
+                                    {
+                                        toggledSystem &&
+                                        <Box>
+                                            {clickedCell &&
+                                            clickedCell.row === rowIndex &&
+                                            clickedCell.column === columnIndex && (
+                                            <div style={{ width: '25px', height: '25px', position: 'relative' }}>
+                                                <Image
+                                                src={targetImage}
+                                                alt="Target"
+                                                width={25}
+                                                height={25}
+                                                />
+                                            </div>)}
+                                        </Box>
+                                    }
+                                    
+                                    
                                 </Box>
                             </td>
                         ))}
