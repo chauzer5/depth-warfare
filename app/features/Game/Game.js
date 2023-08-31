@@ -6,16 +6,15 @@ import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
 import { captainCancelSubNavigate, 
-        captainSetStartingSpot, 
-  
+        captainSetStartingSpot,
         captainSilence, 
         captainStartSubNavigate,
-  
+        firstMateScan,
         engineerPlaceSystemBlock, 
-  
+        captainSurface,
         firstMateChooseSystemCharge, 
-        engineerClearSystems, firstMateFireTorpedo, 
-        captainSurface } from "../../state/message_handler";
+        engineerClearSystems, firstMateFireTorpedo,
+       } from "../../state/message_handler";
 
 export default function Game() {
   const {
@@ -58,9 +57,6 @@ export default function Game() {
       case "captain-cancel-sub-navigate":
         captainCancelSubNavigate(gameContext, newMessage);
         break;
-      // case "engineer-choose-system-damage":
-      //   engineerChooseSystemDamage(gameContext, newMessage);
-      //   break;
       case "engineer-place-system-block":
         engineerPlaceSystemBlock(gameContext, newMessage);
         break;

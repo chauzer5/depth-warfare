@@ -5,6 +5,7 @@ import GameMap from "@/app/components/GameMap/GameMap";
 import theme from "@/app/styles/theme";
 import { SYSTEMS_INFO, capitalizeFirstLetter } from "@/app/utils";
 import React, { useState, useEffect } from 'react';
+import { MenuItem, Select } from "@mui/material";
 
 export default function FirstMateDashboard(props){
     const styles = {
@@ -78,9 +79,12 @@ export default function FirstMateDashboard(props){
         systemChargeLevels,
         getCellsDistanceAway,
         subLocations,
+        notify,
+        scanForEnemySub,
     } = useGameContext();
 
     const [toggledSystem, setToggledSystem] = useState('torpedo');
+    const [scanType, setScanType] = useState('sector'); // ['sector', 'row', 'column']
     const [clickedCell, setClickedCell] = useState({});
     const [torpedoCells, setTorpedoCells] = useState([]);
 
@@ -105,15 +109,20 @@ export default function FirstMateDashboard(props){
         if (systemName === 'torpedo') {
             channel.publish("first-mate-fire-torpedo", clickedCell);
         }
-        
-        // You can perform any actions you need here
-      };
+
+        if (systemName === 'scan') {
+            channel.publish("first-mate-scan", {});
+            const scanResult = scanForEnemySub(clickedCell.row, clickedCell.column, scanType);
+            notify(scanResult ? "SCAN SUCCEEDED" : "SCAN FAILED", scanResult ? "success" : "error");
+        }
+    };
 
     const isSystemCharged = (systemName) => {
         return systemChargeLevels[playerTeam][systemName] === getFirstMateSystem(systemName).maxCharge
     }
 
     const validTorpedoSelection = clickedCell && torpedoCells.find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
+    const validScanSelection = clickedCell.row && clickedCell.column;
 
     return (
         <div style={styles.main}>
@@ -141,50 +150,68 @@ export default function FirstMateDashboard(props){
       <GameMap toggledSystem={toggledSystem} clickedCell={clickedCell} handleClick={handleMapSelector} torpedoCells={torpedoCells}/>
       <div style={styles.controlsContainer}>
                 <button
-                style={{
-                    ...styles.systemButton,
-                    backgroundColor: toggledSystem === 'torpedo' ? getFirstMateSystem('torpedo').color : 'black',
-                    border: toggledSystem === 'torpedo' ? theme.white : `3px solid ${getFirstMateSystem('torpedo').color}`,
-                }}
-                onClick={() => setToggledSystem('torpedo')}
+                    style={{
+                        ...styles.systemButton,
+                        backgroundColor: toggledSystem === 'torpedo' ? getFirstMateSystem('torpedo').color : 'black',
+                        border: toggledSystem === 'torpedo' ? theme.white : `3px solid ${getFirstMateSystem('torpedo').color}`,
+                    }}
+                    onClick={() => setToggledSystem('torpedo')}
                 >
-                Torpedo
-                </button>
-                <button
-                style={{
-                    ...styles.systemButton,
-                    backgroundColor: toggledSystem === 'mine' ? getFirstMateSystem('mine').color : 'black',
-                    border: toggledSystem === 'mine' ? theme.white : `3px solid ${getFirstMateSystem('mine').color}`,
-                }}
-                onClick={() => setToggledSystem('mine')}
-                >
-                Mine
-                </button>
-                <button
-                style={{
-                    ...styles.systemButton,
-                    backgroundColor: toggledSystem === 'scan' ? getFirstMateSystem('scan').color : 'black',
-                    border: toggledSystem === 'scan' ? theme.white : `3px solid ${getFirstMateSystem('scan').color}`,
-                }}
-                onClick={() => setToggledSystem('scan')}
-                >
-                Scan
+                    Torpedo
                 </button>
 
-                <button style={{
-                ...styles.bigButton,
-                backgroundColor: isSystemCharged('torpedo') && validTorpedoSelection && toggledSystem === 'torpedo'
-                    ? "red"
-                    : "gray",
-                }}
-                disabled={!isSystemCharged(toggledSystem) || (isSystemCharged('torpedo') && !validTorpedoSelection)}
-                onClick={() => launchSystem(toggledSystem)}
+                <button
+                    style={{
+                        ...styles.systemButton,
+                        backgroundColor: toggledSystem === 'mine' ? getFirstMateSystem('mine').color : 'black',
+                        border: toggledSystem === 'mine' ? theme.white : `3px solid ${getFirstMateSystem('mine').color}`,
+                    }}
+                    onClick={() => setToggledSystem('mine')}
                 >
-                {toggledSystem === 'torpedo' && validTorpedoSelection && isSystemCharged('torpedo')
-                    ? "Launch Torpedo"
-                    : toggledSystem === 'torpedo' && isSystemCharged('torpedo') && !validTorpedoSelection
-                    ? "Invalid Selection"
-                    : `Charge ${capitalizeFirstLetter(toggledSystem)}`}
+                    Mine
+                </button>
+
+                <div style={{display: "flex", flexDirection: "row", marginLeft: "68px"}}>
+                    <button
+                        style={{
+                            ...styles.systemButton,
+                            backgroundColor: toggledSystem === 'scan' ? getFirstMateSystem('scan').color : 'black',
+                            border: toggledSystem === 'scan' ? theme.white : `3px solid ${getFirstMateSystem('scan').color}`,
+                        }}
+                        onClick={() => setToggledSystem('scan')}
+                    >
+                        Scan
+                    </button>
+
+
+                    <select name="scanType" id="scanType" value={scanType} onChange={(e) => setScanType(e.target.value)}>
+                        <option value="sector">Sector</option>
+                        <option value="row">Row</option>
+                        <option value="column">Column</option>
+                    </select>
+                </div>
+
+                <button 
+                    style={{
+                        ...styles.bigButton,
+                        backgroundColor: isSystemCharged('torpedo') && validTorpedoSelection && toggledSystem === 'torpedo'
+                            ? "red"
+                            : isSystemCharged('scan') && validScanSelection && toggledSystem === 'scan'
+                            ? "green"
+                            : "gray",
+                    }}
+                    disabled={!isSystemCharged(toggledSystem) || (toggledSystem === 'torpedo' && !validTorpedoSelection) || (toggledSystem === 'scan' && !validScanSelection)}
+                    onClick={() => launchSystem(toggledSystem)}
+                >
+                    {toggledSystem === 'torpedo' && validTorpedoSelection && isSystemCharged('torpedo')
+                        ? "Launch Torpedo"
+                        : toggledSystem === 'torpedo' && isSystemCharged('torpedo') && !validTorpedoSelection
+                        ? "Invalid Selection"
+                        : toggledSystem === 'scan' && isSystemCharged('scan') && !validScanSelection
+                        ? "Invalid Selection"
+                        : toggledSystem === 'scan' && isSystemCharged('scan')
+                        ? "Scan"
+                        : `Charge ${capitalizeFirstLetter(toggledSystem)}`}
                 </button>
             </div>
             </div>

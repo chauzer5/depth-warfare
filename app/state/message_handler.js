@@ -483,8 +483,23 @@ export function firstMateDetonateMine(context, message){
   
 }
 
-// First mate scans a row, column, or sector
-// MESSAGE: {row, column, scanType}
+// First mate uses up their scan charge
+// MESSAGE: {}
 export function firstMateScan(context, message){
+  const {
+    getMessagePlayer,
+    setSystemChargeLevels,
+    systemChargeLevels,
+  } = context;
   
+  const team = getMessagePlayer(message).team;
+
+  // Reduce the charge of the scan system to 0
+  setSystemChargeLevels({
+    ...systemChargeLevels,
+    [team]: {
+      ...systemChargeLevels[team],
+      scan: 0,
+    },
+  });
 }
