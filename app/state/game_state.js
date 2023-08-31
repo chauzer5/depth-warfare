@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO } from "../utils";
+import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
@@ -75,6 +75,9 @@ export function GameWrapper({children}) {
         }
     });
 
+    const getFirstMateSystem = (inputSystem) => {
+        return SYSTEMS_INFO.find(system => system.name === inputSystem)}
+
     function rotateEngineerCompassValues(compassMap) {
         let rotatedMap = { ...compassMap };
         rotatedMap["north"] = compassMap["west"]
@@ -92,7 +95,7 @@ export function GameWrapper({children}) {
     function moveSub(team, row, column){
         const mapCopy = [...gameMap];
 
-        // remove the old position and make it visited
+        // remove the old position and make the path visited
         if(subLocations[team]){
             const prevContents = gameMap[subLocations[team][0]][subLocations[team][1]];
             const newContents = {
@@ -106,6 +109,30 @@ export function GameWrapper({children}) {
                     [team]: currentStage === "main" ? true : false,
                 }
             };
+
+            // Mark the entire path as visited
+            if(currentStage === "main"){
+                const oldLocation = [subLocations[team][0], subLocations[team][1]];
+                const newLocation = [row, column];
+                const movementVector = [newLocation[0] - oldLocation[0], newLocation[1] - oldLocation[1]];
+                const distance = movementVector[0] !== 0 ? Math.abs(movementVector[0]) : Math.abs(movementVector[1]);
+                const unitVector = getRightAngleUnitVector(movementVector);
+                
+                for(let i = 1; i < distance; i++){
+                    const visitedRow = oldLocation[0] + unitVector[0] * i;
+                    const visitedColumn = oldLocation[1] + unitVector[1] * i;
+                    const visitedContents = gameMap[visitedRow][visitedColumn];
+                    const newVisitedContents = {
+                        ...visitedContents,
+                        visited: {
+                            ...visitedContents.visited,
+                            [team]: true,
+                        }
+                    };
+                    mapCopy[visitedRow][visitedColumn] = newVisitedContents;
+                }
+            }
+
             mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
         }
 
@@ -413,6 +440,48 @@ export function GameWrapper({children}) {
         return validCells;
     };
 
+    function explorePaths(row, col, distance, visited, validCells, currentDistance = 0) {
+        if (
+            row < 0 || col < 0 || row >= gameMap.length || col >= gameMap[0].length ||
+            currentDistance > distance || visited[row][col] || gameMap[row][col].type === 'island'
+        ) {
+            // visited[row][col] = true;
+            return;
+        }
+
+        visited[row][col] = true;
+        validCells.push([ row, col ]);
+      
+        // Explore neighboring cells
+        explorePaths(row + 1, col, distance, visited, validCells, currentDistance + 1); // Down
+        explorePaths(row - 1, col, distance, visited, validCells, currentDistance + 1); // Up
+        explorePaths(row, col + 1, distance, visited, validCells, currentDistance + 1); // Right
+        explorePaths(row, col - 1, distance, visited, validCells, currentDistance + 1); // Left
+
+        visited[row][col] = false;
+    }
+
+    function getCellsDistanceAway(startRow, startCol, maxDistance, removeStart=true) {
+
+        const rows = gameMap.length;
+        const cols = gameMap[0].length;
+
+        // Create a visited array to keep track of visited cells
+        const visited = new Array(rows).fill(false).map(() => new Array(cols).fill(false));
+
+        const validCells = [];
+        explorePaths(startRow, startCol, maxDistance, visited, validCells);
+
+        // Find the index of the starting cell in validCells and remove it
+        if (removeStart) {
+            const startingCellIndex = validCells.findIndex(([row, col]) => row === startRow && col === startCol);
+            if (startingCellIndex !== -1) {
+                validCells.splice(startingCellIndex, 1);
+            }
+        }
+        return validCells  
+    }
+
     function healSystem(team, system){
         setSystemHealthLevels({
             ...systemHealthLevels,
@@ -422,6 +491,14 @@ export function GameWrapper({children}) {
             },
         });
     };
+
+    function manhattanDistance(row1, col1, row2, col2) {
+        return Math.abs(row1 - row2) + Math.abs(col1 - col2);
+    }
+
+    function updateLifeSupport(team, hits) {
+        return Math.max(systemHealthLevels[team]["life support"] - process.env.SYSTEM_DAMAGE_AMOUNT * hits, 0)
+    }
 
     return (
         <GameContext.Provider value={{
@@ -471,12 +548,16 @@ export function GameWrapper({children}) {
             setEngineerCompassMap,
             resetMap,
             getEmptyRepairMatrix,
+            getCellsDistanceAway,
             setRadioMapNotes,
             setEnemyMovements,
             checkConnectedRepairMatrixPath,
             setPendingRepairMatrixBlock,
             healSystem,
             rotateEngineerCompassValues,
+            getFirstMateSystem,
+            updateLifeSupport,
+            manhattanDistance
             setCurrentlySurfacing,
         }}>
             {children}

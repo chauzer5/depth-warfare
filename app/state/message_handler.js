@@ -73,12 +73,13 @@ export function engineerPlaceSystemBlock(context, message){
     setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: [message.data.row, message.data.column]});
   }
   else {
+    const chargedSystem = pendingSystemCharge[team]
     // charge the specified system
     setSystemChargeLevels({
       ...systemChargeLevels,
       [team]: {
         ...systemChargeLevels[team],
-        [message.data.system]: systemChargeLevels[team][message.data.system] + 1,
+        [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
       },
     });
 
@@ -427,7 +428,47 @@ export function engineerClearSystems(context, message){
 // First mate fires a torpedo
 // MESSAGE: {row, column}
 export function firstMateFireTorpedo(context, message){
+  const {
+    getMessagePlayer,
+    setSystemChargeLevels,
+    systemChargeLevels,
+    damageSubs,
+    updateLifeSupport,
+    getCellsDistanceAway,
+    manhattanDistance,
+    subLocations,
+    setSystemHealthLevels,
+    systemHealthLevels,
+  } = context;
 
+  const team = getMessagePlayer(message).team;
+
+  setSystemChargeLevels({
+    ...systemChargeLevels,
+    [team]: {
+      ...systemChargeLevels[team],
+      torpedo: 0,
+    },
+  });
+
+  const hitCells = getCellsDistanceAway(message.data.row, message.data.column, process.env.MAX_TORPEDO_DAMAGE-1, false)
+  const hits = hitCells.map(([row, col]) => {
+    return process.env.MAX_TORPEDO_DAMAGE - manhattanDistance(row, col, message.data.row, message.data.column);
+  });
+  const oppositeTeam = team === "blue" ? "red" : "blue"
+  const [oppRow, oppCol] = subLocations[oppositeTeam]
+  const hitCellsIndex = hitCells.findIndex(([row, col]) => row === oppRow && col === oppCol);  
+
+  if (hitCellsIndex !== -1) {
+    const updatedLifeSupport = updateLifeSupport(oppositeTeam, hits[hitCellsIndex]);
+    setSystemHealthLevels({
+      ...systemHealthLevels,
+      [oppositeTeam]: {
+        ...systemHealthLevels[oppositeTeam], // Spread the existing team properties
+        "life support": updatedLifeSupport, // Update the life support value
+      },
+    });
+  }
 }
 
 // First mate drops a mine
