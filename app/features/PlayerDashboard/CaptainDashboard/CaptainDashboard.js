@@ -102,6 +102,10 @@ export default function CaptainDashboard(props){
         }
     };
 
+    const handleClickSurface = () => {
+        channel.publish("captain-surface", {});   
+    }
+
     useEffect(() => {
         // If we've just used silence, turn off the cell selector
         if(systemChargeLevels[playerTeam].silence === 0){
@@ -138,7 +142,7 @@ export default function CaptainDashboard(props){
                         </button>
                         <SystemChargeMeter systemName="silence"/>
                     </div>
-                    <button style={styles.surfaceButton}>Surface</button>
+                    <button style={styles.surfaceButton} onClick={handleClickSurface}>Surface</button>
                 </div>
             </div>
         </div>

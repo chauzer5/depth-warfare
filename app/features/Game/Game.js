@@ -5,7 +5,14 @@ import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState } from "react";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
-import { captainCancelSubNavigate, captainSetStartingSpot, captainSilence, captainStartSubNavigate, engineerChooseSystemDamage, engineerPlaceSystemBlock, firstMateChooseSystemCharge, engineerClearSystems } from "../../state/message_handler";
+import { captainCancelSubNavigate, 
+        captainSetStartingSpot, 
+        captainSilence, 
+        captainStartSubNavigate, 
+        engineerPlaceSystemBlock, 
+        firstMateChooseSystemCharge, 
+        engineerClearSystems, 
+        captainSurface } from "../../state/message_handler";
 
 export default function Game() {
   const {
