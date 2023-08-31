@@ -88,3 +88,13 @@ export function getRightAngleUnitVector(array){
     }
 
 }
+
+export function getCellSector(index){
+    const row = index[0];
+    const col = index[1];
+    const SECTORS_IN_ROW = process.env.MAP_DIMENSION / process.env.SECTOR_DIMENSION;
+
+    const sector = (Math.floor(row/ process.env.SECTOR_DIMENSION) * SECTORS_IN_ROW ) + (Math.floor(col/process.env.SECTOR_DIMENSION))  +1 ;
+  
+    return sector;
+}

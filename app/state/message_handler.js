@@ -1,4 +1,4 @@
-import { ENGINEER_SYSTEMS_INFO } from "../utils";
+import { ENGINEER_SYSTEMS_INFO, getCellSector } from "../utils";
 
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
@@ -340,6 +340,50 @@ export function captainSilence(context, message){
 // Captain triggers a "surface" event
 // MESSAGE: {}
 export function captainSurface(context, message){
+  const {
+    playerTeam,
+    setRepairMatrix,
+    repairMatrix,
+    getEmptyRepairMatrix,
+    clearVisitedPath,
+    getMessagePlayer,
+    setCurrentlySurfacing,
+    systemHealthLevels,
+    setSystemHealthLevels,
+    subLocations,
+    setEnemyMovements,
+    enemyMovements,
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  if (team === playerTeam){
+    setCurrentlySurfacing(true);
+  }
+
+  // Clear path
+  clearVisitedPath(team);
+
+  // Repair systems
+  setSystemHealthLevels({
+    ...systemHealthLevels, 
+    [team]: {
+      weapons: process.env.MAX_SYSTEM_HEALTH,
+      scan: process.env.MAX_SYSTEM_HEALTH,
+      engine: process.env.MAX_SYSTEM_HEALTH,
+      comms: process.env.MAX_SYSTEM_HEALTH,
+      "life support": systemHealthLevels[team]["life support"],
+    }
+  });
+
+  // Clear matrix
+  setRepairMatrix({...repairMatrix, [team]: getEmptyRepairMatrix()});
+
+  // Send to enemy radio operator
+  if(playerTeam !== team){
+    const sector = getCellSector(subLocations[team]);
+    setEnemyMovements([...enemyMovements, `surface(${sector})`]);
+  }
 
 }
 
@@ -354,7 +398,7 @@ export function engineerClearSystems(context, message){
     getMessagePlayer,
     getEmptyRepairMatrix,
     setRepairMatrix,
-    repairMatrix
+    repairMatrix,
   } = context;
 
   const team = getMessagePlayer(message).team;

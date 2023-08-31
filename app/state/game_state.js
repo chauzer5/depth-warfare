@@ -26,6 +26,7 @@ export function GameWrapper({children}) {
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
+    const [currentlySurfacing, setCurrentlySurfacing] = useState(false);   
     const [systemChargeLevels, setSystemChargeLevels] = useState({ 
         blue: {
             mine: 0,
@@ -190,6 +191,26 @@ export function GameWrapper({children}) {
 
         setGameMap(blankGameMap);
     };
+
+    function clearVisitedPath(team) {
+        const mapCopy = [...gameMap];
+
+        for(let row =0; row < process.env.MAP_DIMENSION; row++){
+            for(let col=0; col< process.env.MAP_DIMENSION; col++){
+                const prevContents = gameMap[row][col];
+                const newContents = {
+                    ...prevContents,
+                    visited: {
+                        ...prevContents.visited,
+                        [team]: false,
+                    }
+                };
+                mapCopy[row][col] = newContents;
+            }
+        }
+
+        setGameMap(mapCopy);
+    }
 
     const isCornerRepairMatrix = (row, column) => {
         return (row === 0 && column === 0 
@@ -501,8 +522,10 @@ export function GameWrapper({children}) {
             engineerCompassMap,
             radioMapNotes,
             enemyMovements,
-            pickNewOuterCells,
+            currentlySurfacing,
             pendingRepairMatrixBlock,
+            clearVisitedPath,
+            pickNewOuterCells,
             getValidSilenceCells,
             setCurrentStage,
             setUsername,
@@ -534,7 +557,8 @@ export function GameWrapper({children}) {
             rotateEngineerCompassValues,
             getFirstMateSystem,
             updateLifeSupport,
-            manhattanDistance
+            manhattanDistance,
+            setCurrentlySurfacing,
         }}>
             {children}
         </GameContext.Provider>
