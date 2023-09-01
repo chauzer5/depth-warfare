@@ -474,13 +474,111 @@ export function firstMateFireTorpedo(context, message){
 // First mate drops a mine
 // MESSAGE: {row, column}
 export function firstMateDropMine(context, message){
-  
+  const {
+    getMessagePlayer,
+    setSystemChargeLevels,
+    systemChargeLevels,
+    minesList,
+    setMinesList,
+  } = context;
+
+  console.log("Dropped Mine")
+
+  const team = getMessagePlayer(message).team;
+
+  // setSystemChargeLevels({
+  //   ...systemChargeLevels,
+  //   [team]: {
+  //     ...systemChargeLevels[team],
+  //     mine: 0,
+  //   },
+  // });
+
+  setMinesList({...minesList,
+  [team]: [...minesList[team], [message.data.row, message.data.column]]})
+
 }
 
 // First mate detonates a mine
 // MESSAGE: {row, column}
 export function firstMateDetonateMine(context, message){
+  const {
+    getMessagePlayer,
+    setSystemChargeLevels,
+    systemChargeLevels,
+    updateLifeSupport,
+    getCellsDistanceAway,
+    manhattanDistance,
+    subLocations,
+    setSystemHealthLevels,
+    systemHealthLevels,
+    minesList,
+    detonateWeapon,
+  } = context;
+
+  // Define the teams
+  const team = getMessagePlayer(message).team;
+  const oppositeTeam = team === "blue" ? "red" : "blue"
   
+  let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
+  let updatedOwnMinesList = JSON.parse(JSON.stringify(minesList[team]));
+
+  let torpedoDetonated = []
+  let ownMinesDetonated = [[message.data.row, message.data.column]]
+  let oppMinesDetonated = []
+
+  let updatedDamageMap = {}
+  while (ownMinesDetonated.length > 0 || oppMinesDetonated.length > 0 || torpedoDetonated.length > 0) {
+    
+    // detonateWeapon(torpedoDetonated, [], updatedDamageMap, allHitCells, process.env.MAX_MINE_DAMAGE)
+    const ownMinesResult = detonateWeapon(ownMinesDetonated, updatedOwnMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
+    updatedOwnMinesList = ownMinesResult.listToUpdate
+    updatedDamageMap = ownMinesResult.updatedDamageMap
+
+    const oppMinesResult = detonateWeapon(oppMinesDetonated, updatedOppMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
+    updatedOppMinesList = oppMinesResult.listToUpdate
+    updatedDamageMap = ownMinesResult.updatedDamageMap
+
+    const combinedHitCells = [...ownMinesResult.allHitCells, ...oppMinesResult.allHitCells]
+
+    
+    console.log("combinedHitCells", combinedHitCells)
+    console.log("UpdatedDamageMap", updatedDamageMap)
+    console.log("updatedOwnMinesList", updatedOwnMinesList)
+
+    // Check if any other mineIndices were detonated
+    ownMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOwnMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    });
+
+    // Check if any other mineIndices were detonated
+    oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOppMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    });
+
+    console.log("mines detonated", ownMinesDetonated, oppMinesDetonated);
+    
+  }
+
+  console.log("FinalDamageMap", updatedDamageMap)
+
+  // const hitOppSubIndex = hitCells.findIndex(([row, col]) => row === subLocations[oppositeTeam][0] && col === subLocations[oppositeTeam][1]); 
+  // const hitOwnSubIndex = hitCells.findIndex(([row, col]) => row === subLocations[team][0] && col === subLocations[team][1]);
+
+
+//   if (hitCellsIndex !== -1) {
+//     const updatedLifeSupport = updateLifeSupport(oppositeTeam, hits[hitCellsIndex]);
+//     setSystemHealthLevels({
+//       ...systemHealthLevels,
+//       [oppositeTeam]: {
+//         ...systemHealthLevels[oppositeTeam], // Spread the existing team properties
+//         "life support": updatedLifeSupport, // Update the life support value
+//       },
+//     });
+//   }
+// }
 }
 
 // First mate uses up their scan charge

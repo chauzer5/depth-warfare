@@ -81,19 +81,30 @@ export default function FirstMateDashboard(props){
         subLocations,
         notify,
         scanForEnemySub,
+        minesList,
     } = useGameContext();
 
     const [toggledSystem, setToggledSystem] = useState('torpedo');
     const [scanType, setScanType] = useState('sector'); // ['sector', 'row', 'column']
     const [clickedCell, setClickedCell] = useState({});
     const [torpedoCells, setTorpedoCells] = useState([]);
+    const [dropMineCells, setDropMineCells] = useState([]);
+
 
     useEffect(() => {
-        if(toggledSystem === 'torpedo'){
-            const [startRow, startCol] = subLocations[playerTeam];
-            const newTorpedoCells = getCellsDistanceAway(startRow, startCol, process.env.TORPEDO_RANGE);
-            setTorpedoCells(newTorpedoCells);
+
+        const [startRow, startCol] = subLocations[playerTeam];
+        const newTorpedoCells = getCellsDistanceAway(startRow, startCol, process.env.TORPEDO_RANGE);
+        setTorpedoCells(newTorpedoCells);
+        const newDropMineCells = getCellsDistanceAway(startRow, startCol, process.env.DROP_MINE_RANGE);
+        const filteredDropMineCells = newDropMineCells.filter(cell => {
+        if (minesList[playerTeam].some(([row, col]) => row === cell[0] && col === cell[1])) {
+            return false; // Don't include the cell in filteredDropMineCells
         }
+        return true; // Include the cell in filteredDropMineCells
+        });
+        setDropMineCells(filteredDropMineCells);
+
     }, [pendingNavigate[playerTeam]]);
 
     const handleMapSelector = (cell, row, column) => {
@@ -101,7 +112,6 @@ export default function FirstMateDashboard(props){
             const newClickedCell = { row, column };
             setClickedCell(newClickedCell);
         }
-        
     };
 
     const launchSystem = (systemName) => {
@@ -115,6 +125,14 @@ export default function FirstMateDashboard(props){
             const scanResult = scanForEnemySub(clickedCell.row, clickedCell.column, scanType);
             notify(scanResult ? "SCAN SUCCEEDED" : "SCAN FAILED", scanResult ? "success" : "error");
         }
+
+        if (systemName === 'mine' && validDropMine) {
+            channel.publish("first-mate-drop-mine", clickedCell);
+        }
+        if (systemName === 'mine' && validDetonateMine) {
+            
+            channel.publish("first-mate-detonate-mine", clickedCell);
+        }
     };
 
     const isSystemCharged = (systemName) => {
@@ -123,6 +141,8 @@ export default function FirstMateDashboard(props){
 
     const validTorpedoSelection = clickedCell && torpedoCells.find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
     const validScanSelection = clickedCell.row && clickedCell.column;
+    const validDropMine = clickedCell && dropMineCells.find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
+    const validDetonateMine = clickedCell && minesList[playerTeam].find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
 
     return (
         <div style={styles.main}>
@@ -147,7 +167,7 @@ export default function FirstMateDashboard(props){
             </div>
             <div style={styles.bottomSection}>
       <SectorsKey />
-      <GameMap toggledSystem={toggledSystem} clickedCell={clickedCell} handleClick={handleMapSelector} torpedoCells={torpedoCells}/>
+      <GameMap toggledSystem={toggledSystem} clickedCell={clickedCell} handleClick={handleMapSelector} torpedoCells={torpedoCells} dropMineCells={dropMineCells}/>
       <div style={styles.controlsContainer}>
                 <button
                     style={{
@@ -196,11 +216,20 @@ export default function FirstMateDashboard(props){
                         ...styles.bigButton,
                         backgroundColor: isSystemCharged('torpedo') && validTorpedoSelection && toggledSystem === 'torpedo'
                             ? "red"
+                            : isSystemCharged('mine') && validDropMine && toggledSystem === 'mine'
+                            ? getFirstMateSystem('mine').color
+                            : validDetonateMine && toggledSystem === 'mine'
+                            ? getFirstMateSystem('mine').color
                             : isSystemCharged('scan') && validScanSelection && toggledSystem === 'scan'
                             ? "green"
                             : "gray",
                     }}
-                    disabled={!isSystemCharged(toggledSystem) || (toggledSystem === 'torpedo' && !validTorpedoSelection) || (toggledSystem === 'scan' && !validScanSelection)}
+                    disabled={(toggledSystem === 'mine' && !validDetonateMine && !isSystemCharged('torpedo')) || 
+                        (toggledSystem === 'mine' && !validDetonateMine && !validDropMine) ||
+                        (!isSystemCharged('torpedo') && toggledSystem === 'torpedo') ||
+                        (toggledSystem === 'torpedo' && !validTorpedoSelection) || 
+                        (!isSystemCharged('scan') && toggledSystem === 'scan') ||
+                        (toggledSystem === 'scan' && !validScanSelection)}
                     onClick={() => launchSystem(toggledSystem)}
                 >
                     {toggledSystem === 'torpedo' && validTorpedoSelection && isSystemCharged('torpedo')
@@ -211,6 +240,12 @@ export default function FirstMateDashboard(props){
                         ? "Invalid Selection"
                         : toggledSystem === 'scan' && isSystemCharged('scan')
                         ? "Scan"
+                        : toggledSystem === 'mine' && validDetonateMine // Detonate happens before drop
+                        ? "Detonate Mine"
+                        : toggledSystem === 'mine' && !validDetonateMine && !validDropMine
+                        ? "Invalid Selection"
+                        : toggledSystem === 'mine' && validDropMine && isSystemCharged('mine')
+                        ? "Drop Mine"
                         : `Charge ${capitalizeFirstLetter(toggledSystem)}`}
                 </button>
             </div>

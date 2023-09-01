@@ -14,7 +14,9 @@ const nextConfig = {
         REPAIR_MATRIX_DIMENSION: 5,
         REPAIR_MATRIX_CELL_SIZE: 50,
         TORPEDO_RANGE: 4,
+        DROP_MINE_RANGE: 1,
         MAX_TORPEDO_DAMAGE: 2,
+        MAX_MINE_DAMAGE: 2,
     }
 }
 

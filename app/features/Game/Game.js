@@ -14,6 +14,7 @@ import { captainCancelSubNavigate,
         captainSurface,
         firstMateChooseSystemCharge, 
         engineerClearSystems, firstMateFireTorpedo,
+        firstMateDropMine, firstMateDetonateMine
        } from "../../state/message_handler";
 
 export default function Game() {

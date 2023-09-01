@@ -22,7 +22,7 @@ export function GameWrapper({children}) {
     const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
-    const [minesList, setMinesList] = useState({ blue: [], red: [] });
+    const [minesList, setMinesList] = useState({ blue: [[5,5],[5,6]], red: [[5,7]] });
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
@@ -90,6 +90,48 @@ export function GameWrapper({children}) {
 
     const getFirstMateSystem = (inputSystem) => {
         return SYSTEMS_INFO.find(system => system.name === inputSystem)}
+
+    function detonateWeapon(listToDetonate, listToUpdate, updatedDamageMap, damage) {
+        let allHitCells = [];
+
+        console.log("listToDetonate", listToDetonate)
+        
+        for (let i = 0; i < listToDetonate.length; i++) {
+            const detonationCell = listToDetonate[i];
+            
+            console.log("own mines before", listToUpdate)
+            // Remove mine that is detonating, this will be empty if a torpedo
+            listToUpdate = listToUpdate.filter(item => {
+            return item[0] !== detonationCell[0] || item[1] !== detonationCell[1];
+            });
+            console.log("own mines after", listToUpdate)
+            
+            // Get the hit cells for the mine
+            const hitCells = getCellsDistanceAway(detonationCell[0], detonationCell[1], damage - 1, false);
+            
+            // Update all of the hits
+            allHitCells = [...allHitCells, ...hitCells];
+            
+            // Then create a damage map hit
+            const damageMap = hitCells.reduce((result, [row, col]) => {
+                const tempDamage = damage - manhattanDistance(row, col, detonationCell[0], detonationCell[1]);
+                result[`${row}-${col}`] = tempDamage;
+                return result;
+            }, {});
+            
+            // Update the overall damage map. This accumulates the damage values.
+            for (const key in damageMap) {
+                if (updatedDamageMap.hasOwnProperty(key)) {
+                    updatedDamageMap[key] += damageMap[key]; // Accumulate damage values
+                } else {
+                    updatedDamageMap[key] = damageMap[key];
+                }
+            }
+        }
+        
+    return { allHitCells: allHitCells, listToUpdate: listToUpdate, updatedDamageMap: updatedDamageMap }
+    }
+          
 
     function rotateEngineerCompassValues(compassMap) {
         let rotatedMap = { ...compassMap };
@@ -595,6 +637,7 @@ export function GameWrapper({children}) {
             closeNotify,
             setCurrentlySurfacing,
             scanForEnemySub,
+            detonateWeapon,
         }}>
             {children}
         </GameContext.Provider>
