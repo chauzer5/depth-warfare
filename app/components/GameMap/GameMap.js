@@ -7,7 +7,7 @@ import targetImage from '../../target.png';
 import Image from 'next/image';
 
 export default function GameMap (props) {
-    const { channel, handleClick, silence, toggledSystem, clickedCell, torpedoCells, dropMineCells } = props;
+    const { channel, handleClick, silence, toggledSystem, clickedCell, torpedoCells, dropMineCells} = props;
     const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells, getCellsDistanceAway, getFirstMateSystem, minesList } = useGameContext();
 
     const MAP_DIMENSION = process.env.MAP_DIMENSION;

@@ -4,7 +4,8 @@ import { useGameContext } from "./state/game_state";
 import Lobby from "./features/Lobby/Lobby";
 import Login from "./features/Login/Login";
 import Game from "./features/Game/Game";
-import { Alert, Snackbar } from "@mui/material";
+// import { Alert, Snackbar } from "@mui/material";
+import { SnackbarProvider } from 'notistack';
 
 export default function App() {
 
@@ -21,14 +22,10 @@ export default function App() {
       {
         currentStage === "login" ? <Login /> :
         currentStage === "lobby" ? <Lobby /> :
-        <Game />
+        <SnackbarProvider maxSnack={5} >
+          <Game />
+        </SnackbarProvider>
       }
-
-      <Snackbar open={notificationOpen} autoHideDuration={8000} onClose={closeNotify}>
-        <Alert severity={notificationSeverity}>
-          {notificationMessage}
-        </Alert>
-      </Snackbar>
     </>
   );
 }

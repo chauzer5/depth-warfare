@@ -1,4 +1,4 @@
-import { ENGINEER_SYSTEMS_INFO, getCellSector } from "../utils";
+import { ENGINEER_SYSTEMS_INFO, getCellSector, getCellName } from "../utils";
 
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
@@ -500,9 +500,9 @@ export function firstMateDropMine(context, message){
 
   const notificationMessage = {
     team,
-    sameTeamMessage: "Successfully Dropped Mine.",
+    sameTeamMessage: `Successfully Dropped Mine on ${getCellName(message.data.row, message.data.column)}`,
     oppTeamMessage: null,
-    intendedPlayer: "first-mate", // You can specify a player here if needed
+    intendedPlayer: "all", // You can specify a player here if needed
     severitySameTeam: "info",
     severityOppTeam: null,
     timestamp: messageTimestamp,
@@ -556,6 +556,35 @@ export function firstMateDetonateMine(context, message){
 
   let updatedDamageMap = {}
   while (ownMinesDetonated.length > 0 || oppMinesDetonated.length > 0 || torpedoDetonated.length > 0) {
+
+    // Create the notification messages
+    oppMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        oppositeTeam,
+        sameTeamMessage: `Detonated Mine at ${getCellName(row, col)})`,
+        oppTeamMessage: `Opponent's mine detonated at ${getCellName(row, col)}`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
+    });
+
+    ownMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `Detonated Mine at ${getCellName(row, col)}`,
+        oppTeamMessage: `Opponent's mine detonated at ${getCellName(row, col)}`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
+    });
     
     // detonateWeapon(torpedoDetonated, [], updatedDamageMap, allHitCells, process.env.MAX_MINE_DAMAGE)
     const ownMinesResult = detonateWeapon(ownMinesDetonated, updatedOwnMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
@@ -574,38 +603,13 @@ export function firstMateDetonateMine(context, message){
       return updatedOwnMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
     });
 
-    // Create the notification messages
-    oppMinesDetonated.forEach(([row, col]) => {
-      const notificationMessage = {
-        oppositeTeam,
-        sameTeamMessage: `Detonated Mine at [${row}, ${col}]`,
-        oppTeamMessage: `Opponent's mine detonated at [${row}, ${col}]`,
-        intendedPlayer: "all", // You can specify a player here if needed
-        severitySameTeam: "info",
-        severityOppTeam: "warning",
-        timestamp: tempTimestamp,
-      };
-      tempTimestamp += 1
-      tempMessages.push(notificationMessage)
-    });
-
-    ownMinesDetonated.forEach(([row, col]) => {
-      const notificationMessage = {
-        team,
-        sameTeamMessage: `Detonated Mine at [${row}, ${col}]`,
-        oppTeamMessage: `Opponent's mine detonated at [${row}, ${col}]`,
-        intendedPlayer: "all", // You can specify a player here if needed
-        severitySameTeam: "info",
-        severityOppTeam: "warning",
-        timestamp: tempTimestamp,
-      };
-      tempTimestamp += 1
-      tempMessages.push(notificationMessage)
+    // Check if any other mineIndices were detonated
+    oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOppMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
     });
     
   }
-
-  console.log("FinalDamageMap", updatedDamageMap)
 
   const ownHits = updatedDamageMap[`${subLocations[team][0]}-${subLocations[team][1]}`] ?? 0;
   const oppHits = updatedDamageMap[`${subLocations[oppositeTeam][0]}-${subLocations[oppositeTeam][1]}`] ?? 0;

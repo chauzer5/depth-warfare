@@ -79,16 +79,22 @@ export function GameWrapper({children}) {
     const [notificationOpen, setNotificationOpen] = useState(false);
     const [notificationSeverity, setNotificationSeverity] = useState("info");
     const [notificationMessage, setNotificationMessage] = useState("");
+    const [messagesQueue, setMessagesQueue] = useState([]);
 
-    const notify = (message, severity) => {
-        setNotificationMessage(message);
-        setNotificationSeverity(severity);
-        setNotificationOpen(true);
+    const notify = async (messages) => {
+        for (const message of messages) {
+            setNotificationMessage(message.message);
+            setNotificationSeverity(message.severity);
+            setNotificationOpen(true);
+    
+            // Wait for a moment before showing the next message (adjust the delay as needed)
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // 3-second delay (adjust as needed)
+        }
     };
-
+    
     const closeNotify = () => {
         setNotificationOpen(false);
-    }
+    };
 
     const getFirstMateSystem = (inputSystem) => {
         return SYSTEMS_INFO.find(system => system.name === inputSystem)}
