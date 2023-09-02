@@ -105,7 +105,7 @@ export default function FirstMateDashboard(props){
         });
         setDropMineCells(filteredDropMineCells);
 
-    }, [pendingNavigate[playerTeam]]);
+    }, [pendingNavigate[playerTeam], minesList[playerTeam]]);
 
     const handleMapSelector = (cell, row, column) => {
         if (cell.type != "island") {
@@ -224,7 +224,7 @@ export default function FirstMateDashboard(props){
                             ? "green"
                             : "gray",
                     }}
-                    disabled={(toggledSystem === 'mine' && !validDetonateMine && !isSystemCharged('torpedo')) || 
+                    disabled={(toggledSystem === 'mine' && !validDetonateMine && !isSystemCharged('mine')) || 
                         (toggledSystem === 'mine' && !validDetonateMine && !validDropMine) ||
                         (!isSystemCharged('torpedo') && toggledSystem === 'torpedo') ||
                         (toggledSystem === 'torpedo' && !validTorpedoSelection) || 

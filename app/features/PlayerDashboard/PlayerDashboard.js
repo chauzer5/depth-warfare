@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal';
 import SurfacingPage from './SurfacingPage';
 import theme from "@/app/styles/theme";
@@ -11,7 +11,7 @@ import FirstMateDashboard from "./FirstMateDashboard/FirstMateDashboard";
 import RadioOperatorDashboard from "./RadioOperatorDashboard/RadioOperatorDashboard";
 
 export default function PlayerDashboard(props){
-    const { playerRole, currentlySurfacing, setCurrentlySurfacing } = useGameContext();
+    const { playerRole, currentlySurfacing, setCurrentlySurfacing, playerTeam, notificationMessages, notify} = useGameContext();
     const { channel } = props;
 
     const styles={
@@ -54,6 +54,40 @@ export default function PlayerDashboard(props){
     const closeModal = () => {
         setCurrentlySurfacing(false);
     }
+
+    const [lastSeenMessage, setLastSeenMessage] = useState(null);
+
+    // When new messages are received, filter and update the state
+    useEffect(() => {
+        const filteredMessages = notificationMessages.filter((message) => {
+            // Check if the message is newer than the last seen message
+            return message.timestamp > lastSeenMessage;
+        });
+
+        // Update the last seen message to the highest timestamp among new messages
+        if (filteredMessages.length > 0) {
+            const highestTimestamp = Math.max(...filteredMessages.map((message) => message.timestamp));
+            setLastSeenMessage(highestTimestamp);
+        }
+        console.log("notificationMessages", notificationMessages)
+        console.log("filterdMessages", filteredMessages)
+
+        const transformedMessages = filteredMessages.map((message) => {
+            // Transform the message or perform an action
+            console.log("check", playerRole, playerTeam)
+            if (message.intendedPlayer === playerRole || message.intendedPlayer === "all") {
+                if (playerTeam === message.team) {
+                    console.log("should have notified")
+                    notify(`${message.sameTeamMessage}`, message.severitySameTeam)
+                } 
+                if (playerTeam !== message.team && message.oppTeamMessage) {
+                    notify(`${message.oppTeamMessage}`, message.severityOppTeam)
+                }
+            }
+            // You can replace this return statement with your custom logic
+        });
+
+    }, [notificationMessages]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100vh' }}>

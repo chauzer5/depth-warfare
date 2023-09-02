@@ -74,6 +74,8 @@ export function GameWrapper({children}) {
             "west": "engine",
         }
     });
+    const [notificationMessages, setNotificationMessages] = useState([]);
+    const [messageTimestamp, setMessageTimestamp] = useState(0);
     const [notificationOpen, setNotificationOpen] = useState(false);
     const [notificationSeverity, setNotificationSeverity] = useState("info");
     const [notificationMessage, setNotificationMessage] = useState("");
@@ -638,6 +640,10 @@ export function GameWrapper({children}) {
             setCurrentlySurfacing,
             scanForEnemySub,
             detonateWeapon,
+            setNotificationMessages,
+            notificationMessages,
+            messageTimestamp,
+            setMessageTimestamp
         }}>
             {children}
         </GameContext.Provider>

@@ -46,11 +46,17 @@ export default function GameMap (props) {
             width: "25px",
             height: "26px",
             backgroundColor: theme.blue,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
         },
         redSub: {
             width: "25px",
             height: "26px",
             backgroundColor: theme.red,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
         },
         pendingMoveCell: {
             width: "25px",

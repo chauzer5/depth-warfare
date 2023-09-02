@@ -480,6 +480,10 @@ export function firstMateDropMine(context, message){
     systemChargeLevels,
     minesList,
     setMinesList,
+    notificationMessages,
+    setNotificationMessages,
+    messageTimestamp,
+    setMessageTimestamp
   } = context;
 
   console.log("Dropped Mine")
@@ -493,6 +497,21 @@ export function firstMateDropMine(context, message){
   //     mine: 0,
   //   },
   // });
+
+  const notificationMessage = {
+    team,
+    sameTeamMessage: "Successfully Dropped Mine.",
+    oppTeamMessage: null,
+    intendedPlayer: "first-mate", // You can specify a player here if needed
+    severitySameTeam: "info",
+    severityOppTeam: null,
+    timestamp: messageTimestamp,
+  };
+
+  setMessageTimestamp(messageTimestamp + 1)
+
+  // Add a notification message
+  setNotificationMessages([...notificationMessages, notificationMessage]);
 
   setMinesList({...minesList,
   [team]: [...minesList[team], [message.data.row, message.data.column]]})
@@ -514,7 +533,15 @@ export function firstMateDetonateMine(context, message){
     systemHealthLevels,
     minesList,
     detonateWeapon,
+    setMinesList,
+    messageTimestamp,
+    setMessageTimestamp,
+    setNotificationMessages,
+    notificationMessages,
   } = context;
+
+  let tempMessages = []
+  let tempTimestamp = messageTimestamp
 
   // Define the teams
   const team = getMessagePlayer(message).team;
@@ -541,44 +568,76 @@ export function firstMateDetonateMine(context, message){
 
     const combinedHitCells = [...ownMinesResult.allHitCells, ...oppMinesResult.allHitCells]
 
-    
-    console.log("combinedHitCells", combinedHitCells)
-    console.log("UpdatedDamageMap", updatedDamageMap)
-    console.log("updatedOwnMinesList", updatedOwnMinesList)
-
     // Check if any other mineIndices were detonated
     ownMinesDetonated = combinedHitCells.filter(([row, col]) => {
       // Check if the cell [row, col] is present in updatedOwnMinesList
       return updatedOwnMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
     });
 
-    // Check if any other mineIndices were detonated
-    oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
-      // Check if the cell [row, col] is present in updatedOwnMinesList
-      return updatedOppMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    // Create the notification messages
+    oppMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        oppositeTeam,
+        sameTeamMessage: `Detonated Mine at [${row}, ${col}]`,
+        oppTeamMessage: `Opponent's mine detonated at [${row}, ${col}]`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
     });
 
-    console.log("mines detonated", ownMinesDetonated, oppMinesDetonated);
+    ownMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `Detonated Mine at [${row}, ${col}]`,
+        oppTeamMessage: `Opponent's mine detonated at [${row}, ${col}]`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
+    });
     
   }
 
   console.log("FinalDamageMap", updatedDamageMap)
 
-  // const hitOppSubIndex = hitCells.findIndex(([row, col]) => row === subLocations[oppositeTeam][0] && col === subLocations[oppositeTeam][1]); 
-  // const hitOwnSubIndex = hitCells.findIndex(([row, col]) => row === subLocations[team][0] && col === subLocations[team][1]);
+  const ownHits = updatedDamageMap[`${subLocations[team][0]}-${subLocations[team][1]}`] ?? 0;
+  const oppHits = updatedDamageMap[`${subLocations[oppositeTeam][0]}-${subLocations[oppositeTeam][1]}`] ?? 0;
 
+  const ownUpdatedLifeSupport = updateLifeSupport(team, ownHits);
+  const oppUpdatedLifeSupport = updateLifeSupport(oppositeTeam, oppHits);
 
-//   if (hitCellsIndex !== -1) {
-//     const updatedLifeSupport = updateLifeSupport(oppositeTeam, hits[hitCellsIndex]);
-//     setSystemHealthLevels({
-//       ...systemHealthLevels,
-//       [oppositeTeam]: {
-//         ...systemHealthLevels[oppositeTeam], // Spread the existing team properties
-//         "life support": updatedLifeSupport, // Update the life support value
-//       },
-//     });
-//   }
-// }
+  // Set the updated mines list
+  setMinesList({
+    [team]: updatedOwnMinesList,
+    [oppositeTeam]: updatedOppMinesList
+  })
+
+  // Update the life support after the craziness
+  setSystemHealthLevels({
+    ...systemHealthLevels,
+    [team]: {
+      ...systemHealthLevels[team],
+      "life support": ownUpdatedLifeSupport, // Update your team's life support
+    },
+    [oppositeTeam]: {
+      ...systemHealthLevels[oppositeTeam],
+      "life support": oppUpdatedLifeSupport, // Update the opposite team's life support
+    },
+  });
+
+  console.log("tempMessages", tempMessages)
+
+  // Add a notification message
+  setMessageTimestamp(messageTimestamp + tempTimestamp)
+  setNotificationMessages([...notificationMessages, ...tempMessages]);
+
 }
 
 // First mate uses up their scan charge
