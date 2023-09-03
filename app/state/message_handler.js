@@ -68,9 +68,9 @@ export function engineerPlaceSystemBlock(context, message){
     setNotificationMessages,
     setMessageTimestamp,
     messageTimestamp,
-    engineerPending,
+    engineerPendingBlock,
     engineerHealSystem,
-    setEngineerPending,
+    setEngineerPendingBlock,
     setEngineerHealSystem,
     finishTurn
   } = context;
@@ -78,7 +78,7 @@ export function engineerPlaceSystemBlock(context, message){
   const team = getMessagePlayer(message).team;
 
   if (!pendingSystemCharge[team]) {
-    setEngineerPending({...engineerPending, [team]: true})
+    setEngineerPendingBlock({...engineerPendingBlock, [team]: message.data.clickedCell})
     setEngineerHealSystem({...engineerHealSystem, [team]: message.data.healSystem})
   } else {
     finishTurn(message.data.healSystem, pendingSystemCharge[team], team)
@@ -115,14 +115,14 @@ export function firstMateChooseSystemCharge(context, message){
     notificationMessages,
     setMessageTimestamp,
     messageTimestamp,
-    engineerPending,
+    engineerPendingBlock,
     engineerHealSystem,
     finishTurn
   } = context;
 
   const team = getMessagePlayer(message).team;
 
-  if (!engineerPending[team]) {
+  if (!engineerPendingBlock[team]) {
     setPendingSystemCharge({ ...pendingSystemCharge, [team]: message.data.system });
   }
   else {
@@ -139,17 +139,17 @@ export function captainCancelSubNavigate(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setEngineerPending,
+    setEngineerPendingBlock,
     pendingSystemCharge,
     setPendingSystemCharge,
     getMessagePlayer,
-    engineerPending
+    engineerPendingBlock
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   setPendingNavigate({ ...pendingNavigate, [team]: null });
-  setEngineerPending({ ...engineerPending, [team]: false });
+  setEngineerPendingBlock({ ...engineerPendingBlock, [team]: null });
   setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
 }
 
@@ -268,9 +268,6 @@ export function engineerClearSystems(context, message){
     ...systemHealthLevels,
     [team]: tempHealthLevels,
   });
-
-  // reset the repair matrix
-  setRepairMatrix({...repairMatrix, [team]: getEmptyRepairMatrix()})
 
 }
 

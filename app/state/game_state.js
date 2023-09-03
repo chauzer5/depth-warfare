@@ -22,7 +22,7 @@ export function GameWrapper({children}) {
     const [repairMatrix, setRepairMatrix] = useState({blue: [], red: []});
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
-    const [engineerPending, setEngineerPending] = useState({ blue: false, red: false });
+    const [engineerPendingBlock, setEngineerPendingBlock] = useState({ blue: null, red: null });
     const [engineerHealSystem, setEngineerHealSystem] = useState({ blue: false, red: false });
     const [minesList, setMinesList] = useState({ blue: [[5,5],[5,6]], red: [[5,7]] });
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
@@ -290,7 +290,7 @@ export function GameWrapper({children}) {
         // reset the pending state
         setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
         setPendingNavigate({ ...pendingNavigate, [team]: null });
-        setEngineerPending({...engineerPending, [team]: false})
+        setEngineerPendingBlock({...engineerPendingBlock, [team]: null})
         setEngineerHealSystem({...engineerHealSystem, [team]: false})
 
         setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES));
@@ -695,7 +695,6 @@ export function GameWrapper({children}) {
             notificationSeverity,
             notificationMessage,
             currentlySurfacing,
-            pendingRepairMatrixBlock,
             clearVisitedPath,
             pickNewOuterCells,
             getValidSilenceCells,
@@ -739,9 +738,9 @@ export function GameWrapper({children}) {
             messageTimestamp,
             setMessageTimestamp,
             finishTurn,
-            engineerPending,
+            engineerPendingBlock,
             engineerHealSystem,
-            setEngineerPending,
+            setEngineerPendingBlock,
             setEngineerHealSystem
         }}>
             {children}

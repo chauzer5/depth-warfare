@@ -9,7 +9,7 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 export default function RepairMatrix(props){
     const { channel, current_system } = props;
 
-    const { playerTeam, pendingNavigate, pendingSystemCharge, getEmptyRepairMatrix, checkConnectedRepairMatrixPath, pickNewOuterCells, engineerPending, engineerCompassMap } = useGameContext();
+    const { playerTeam, pendingNavigate, pendingSystemCharge, subLocations, getEmptyRepairMatrix, checkConnectedRepairMatrixPath, pickNewOuterCells, engineerPendingBlock, engineerCompassMap } = useGameContext();
 
     // This creates an empty and random repair matrix
     const [repairMatrix, setRepairMatrix] = useState(getEmptyRepairMatrix());
@@ -122,14 +122,14 @@ export default function RepairMatrix(props){
     }
 
     const isPendingCell = (row, column) => {    
-        if (pendingRepairMatrixBlock && pendingRepairMatrixBlock[0] === row && pendingRepairMatrixBlock[1] === column) {
+        if (engineerPendingBlock[playerTeam] && engineerPendingBlock[playerTeam].row === row && engineerPendingBlock[playerTeam].column === column) {
             return true;
         }
         return false
     }
     
     
-    const clickable = pendingNavigate[playerTeam] && !engineerPending[playerTeam] ;   // Can add other statements to see if it can be clickable
+    const clickable = pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
 
     const handleClick = (row, column) => {
         const updatedMatrix = [...repairMatrix.map(row => [...row])];
@@ -140,57 +140,45 @@ export default function RepairMatrix(props){
             system: blockSystem,
         };
 
-        if (!pendingSystemCharge[playerTeam]) {
-            setPendingRepairMatrixBlock([ row, column ])
-            console.log("pending block", [ row, column ], !pendingSystemCharge[playerTeam])
-        }
-
-        setRepairMatrix(updatedMatrix)
-
         const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
         
         if (isConnected) {
-            const tempMatrix = [...updatedMatrix.map(row => [...row])];
             // Reset the cells along the path to "empty"
             for (let i = 0; i < pathRowIndices.length; i++) {
                 const pathRow = pathRowIndices[i];
                 const pathCol = pathColumnIndices[i];
 
-                tempMatrix[pathRow][pathCol] = {
-                    ...tempMatrix[pathRow][pathCol],
+                updatedMatrix[pathRow][pathCol] = {
+                    ...updatedMatrix[pathRow][pathCol],
                     system: "empty",
                 };
             }
 
             // Choose new random nodes along the outside
-            const selectedCells = pickNewOuterCells(tempMatrix)
+            const selectedCells = pickNewOuterCells(updatedMatrix)
 
             for (const { row, col } of selectedCells) {
-                tempMatrix[row][col] = {
+                updatedMatrix[row][col] = {
                     type: "outer",
                     system: blockSystem,
                 };
-            }
-
-            setResolvedMatrix(tempMatrix)
+            } 
         }
 
+        setResolvedMatrix(updatedMatrix)
+
         const healSystem = isConnected
+        const clickedCell = {row, column}
         
-        channel.publish("engineer-place-system-block", { healSystem });
+        channel.publish("engineer-place-system-block", { clickedCell, healSystem });
     };
 
     useEffect(() => {
-        console.log("pendingBlock", pendingRepairMatrixBlock)
-        if (!pendingNavigate[playerTeam]) {
-            if (resolvedMatrix.length > 0) {
-                setRepairMatrix(resolvedMatrix)
-                setResolvedMatrix([])
-            }
-            // setPendingRepairMatrixBlock(null)
-            console.log("entered repairMatrix useEffect")
+        if (resolvedMatrix.length > 0) {
+            setRepairMatrix(resolvedMatrix)
+            setResolvedMatrix([])
         }
-    }, [pendingNavigate[playerTeam]]);
+    }, [subLocations[playerTeam]]);
 
     // Functions for game goes here
     return (

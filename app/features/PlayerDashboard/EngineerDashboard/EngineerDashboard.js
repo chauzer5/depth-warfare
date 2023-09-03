@@ -17,7 +17,7 @@ export default function EngineerDashboard(props){
       systemChargeLevels,
       engineerCompassMap,
       getEmptyRepairMatrix,
-      engineerPending
+      engineerPendingBlock
     } = useGameContext();
 
     // Calculate the length difference between "west" and "east" words
@@ -142,13 +142,13 @@ export default function EngineerDashboard(props){
     <div style={styles.containerRow}>
 
         <div style = {styles.containerColumn}>
-          { pendingNavigate[playerTeam] && !engineerPending[playerTeam] && (
+          { pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Place a block</h4>
               </div>
           )}
-          { pendingNavigate[playerTeam] && engineerPending[playerTeam] && (
+          { pendingNavigate[playerTeam] && engineerPendingBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Waiting for first mate...</h4>
