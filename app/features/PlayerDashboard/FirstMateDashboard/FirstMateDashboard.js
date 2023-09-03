@@ -82,6 +82,7 @@ export default function FirstMateDashboard(props){
         notify,
         scanForEnemySub,
         minesList,
+        systemHealthLevels
     } = useGameContext();
 
     const [toggledSystem, setToggledSystem] = useState('torpedo');
@@ -89,6 +90,8 @@ export default function FirstMateDashboard(props){
     const [clickedCell, setClickedCell] = useState({});
     const [torpedoCells, setTorpedoCells] = useState([]);
     const [dropMineCells, setDropMineCells] = useState([]);
+    const [weaponsDisabled, setWeaponsDisabled] = useState(false);
+    const [scanDisabled, setScanDisabled] = useState(false);
 
 
     useEffect(() => {
@@ -107,6 +110,14 @@ export default function FirstMateDashboard(props){
 
     }, [pendingNavigate[playerTeam], minesList[playerTeam]]);
 
+    useEffect(() => {
+        setScanDisabled(systemHealthLevels[playerTeam]["scan"] === 0)
+    }, [systemHealthLevels[playerTeam]["scan"]]);
+
+    useEffect(() => {
+        setWeaponsDisabled(systemHealthLevels[playerTeam]["weapons"] === 0)
+    }, [systemHealthLevels[playerTeam]["weapons"]]);
+
     const handleMapSelector = (cell, row, column) => {
         if (cell.type != "island") {
             const newClickedCell = { row, column };
@@ -121,9 +132,8 @@ export default function FirstMateDashboard(props){
         }
 
         if (systemName === 'scan') {
-            channel.publish("first-mate-scan", {});
             const scanResult = scanForEnemySub(clickedCell.row, clickedCell.column, scanType);
-            notify(scanResult ? "SCAN SUCCEEDED" : "SCAN FAILED", scanResult ? "success" : "error");
+            channel.publish("first-mate-scan", { scanResult });
         }
 
         if (systemName === 'mine' && validDropMine) {
@@ -137,6 +147,16 @@ export default function FirstMateDashboard(props){
 
     const isSystemCharged = (systemName) => {
         return systemChargeLevels[playerTeam][systemName] === getFirstMateSystem(systemName).maxCharge
+    }
+
+    const isSystemDisabled = (systemName) => {
+        if ((systemName === "mine" || systemName === "torpedo") && weaponsDisabled) {
+            return true;
+        }
+        if (systemName === "scan" && scanDisabled) {
+            return true;
+        }
+        return false;
     }
 
     const validTorpedoSelection = clickedCell && torpedoCells.find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
@@ -214,14 +234,17 @@ export default function FirstMateDashboard(props){
                 <button 
                     style={{
                         ...styles.bigButton,
-                        backgroundColor: isSystemCharged('torpedo') && validTorpedoSelection && toggledSystem === 'torpedo'
+                        backgroundColor: 
+                            isSystemDisabled(toggledSystem)
+                            ? "gray"
+                            : isSystemCharged('torpedo') && validTorpedoSelection && toggledSystem === 'torpedo'
                             ? "red"
                             : isSystemCharged('mine') && validDropMine && toggledSystem === 'mine'
                             ? getFirstMateSystem('mine').color
                             : validDetonateMine && toggledSystem === 'mine'
                             ? getFirstMateSystem('mine').color
                             : isSystemCharged('scan') && validScanSelection && toggledSystem === 'scan'
-                            ? "green"
+                            ? getFirstMateSystem('scan').color
                             : "gray",
                     }}
                     disabled={(toggledSystem === 'mine' && !validDetonateMine && !isSystemCharged('mine')) || 
@@ -229,10 +252,13 @@ export default function FirstMateDashboard(props){
                         (!isSystemCharged('torpedo') && toggledSystem === 'torpedo') ||
                         (toggledSystem === 'torpedo' && !validTorpedoSelection) || 
                         (!isSystemCharged('scan') && toggledSystem === 'scan') ||
-                        (toggledSystem === 'scan' && !validScanSelection)}
+                        (toggledSystem === 'scan' && !validScanSelection) || 
+                        isSystemDisabled(toggledSystem)}
                     onClick={() => launchSystem(toggledSystem)}
                 >
-                    {toggledSystem === 'torpedo' && validTorpedoSelection && isSystemCharged('torpedo')
+                    {isSystemDisabled(toggledSystem)
+                        ? "Disabled"
+                        : toggledSystem === 'torpedo' && validTorpedoSelection && isSystemCharged('torpedo')
                         ? "Launch Torpedo"
                         : toggledSystem === 'torpedo' && isSystemCharged('torpedo') && !validTorpedoSelection
                         ? "Invalid Selection"

@@ -58,8 +58,6 @@ export default function PlayerDashboard(props){
         });
     };
 
-
-
     const openModal = () => {
         setCurrentlySurfacing(true);
     };
@@ -76,23 +74,18 @@ export default function PlayerDashboard(props){
             // Check if the message is newer than the last seen message
             return message.timestamp > lastSeenMessage;
         });
-
-        console.log("filteredMessages", filteredMessages, lastSeenMessage);
     
         // Update the last seen message to the highest timestamp among new messages
         if (filteredMessages.length > 0) {
             const highestTimestamp = Math.max(...filteredMessages.map((message) => message.timestamp));
             setLastSeenMessage(highestTimestamp);
-        }
-        console.log("notificationMessages", notificationMessages);
-        
+        }        
     
         // Accumulate filtered messages to display them all together
         const accumulatedMessages = [];
         
         for (const message of filteredMessages) {
             // Transform the message or perform an action
-            console.log("check", playerRole, playerTeam);
             if (message.intendedPlayer === playerRole || message.intendedPlayer === "all") {
                 if (playerTeam === message.team) {
                     console.log("should have notified");

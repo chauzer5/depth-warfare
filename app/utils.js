@@ -9,12 +9,12 @@ export const SYSTEMS_INFO = [
     {
         name: "scan",
         color: theme.darkGreen,
-        maxCharge: 4,
+        maxCharge: 1, //4
     },
     {
         name: "torpedo",
         color: theme.red,
-        maxCharge: 4,
+        maxCharge: 1,
     },
     {
         name: "mine",
@@ -111,3 +111,11 @@ export function getCellSector(cell){
   
     return sector;
 }
+
+export function keepLastNElements(arr, n) {
+    if (arr.length <= n) {
+      return arr; // If the array has less than or equal to n elements, return the original array
+    } else {
+      return arr.slice(arr.length - n); // Use slice to get the last n elements
+    }
+  }

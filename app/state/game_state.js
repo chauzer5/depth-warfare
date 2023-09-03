@@ -107,12 +107,10 @@ export function GameWrapper({children}) {
         for (let i = 0; i < listToDetonate.length; i++) {
             const detonationCell = listToDetonate[i];
             
-            console.log("own mines before", listToUpdate)
             // Remove mine that is detonating, this will be empty if a torpedo
             listToUpdate = listToUpdate.filter(item => {
             return item[0] !== detonationCell[0] || item[1] !== detonationCell[1];
             });
-            console.log("own mines after", listToUpdate)
             
             // Get the hit cells for the mine
             const hitCells = getCellsDistanceAway(detonationCell[0], detonationCell[1], damage - 1, false);

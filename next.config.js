@@ -9,7 +9,7 @@ const nextConfig = {
         STARTING_SPOT_TIMER_SECONDS: 999,
         STARTING_HIT_POINTS: 4,
         ISLAND_MAP: "map1",
-        MAX_SYSTEM_HEALTH: 100,
+        MAX_SYSTEM_HEALTH: 25,
         SYSTEM_DAMAGE_AMOUNT: 25,
         REPAIR_MATRIX_DIMENSION: 5,
         REPAIR_MATRIX_CELL_SIZE: 50,
@@ -17,6 +17,7 @@ const nextConfig = {
         DROP_MINE_RANGE: 1,
         MAX_TORPEDO_DAMAGE: 2,
         MAX_MINE_DAMAGE: 2,
+        MAX_MESSAGES: 15,
     }
 }
 
