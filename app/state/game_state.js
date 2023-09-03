@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO, getCellSector } from "../utils";
+import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO, getCellSector, keepLastNElements, capitalizeFirstLetter } from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
@@ -19,9 +19,11 @@ export function GameWrapper({children}) {
     const [playerTeam, setPlayerTeam] = useState();
     const [playerRole, setPlayerRole] = useState();
     const [gameMap, setGameMap] = useState();
-    const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
+    const [repairMatrix, setRepairMatrix] = useState({blue: [], red: []});
     const [playerData, setPlayerData] = useState();
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
+    const [engineerPending, setEngineerPending] = useState({ blue: false, red: false });
+    const [engineerHealSystem, setEngineerHealSystem] = useState({ blue: false, red: false });
     const [minesList, setMinesList] = useState({ blue: [[5,5],[5,6]], red: [[5,7]] });
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
@@ -59,7 +61,6 @@ export function GameWrapper({children}) {
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
     const [enemyMovements, setEnemyMovements] = useState([]);
-    const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState({ blue: null, red: null });
     const [engineerCompassMap, setEngineerCompassMap] = useState({
         blue: {
             "north": "scan",
@@ -206,6 +207,96 @@ export function GameWrapper({children}) {
         setGameMap(mapCopy);
     };
 
+    function finishTurn(systemHealed, chargedSystem, team) {
+
+        const tempMessages = []
+        let tempMessageTimestamp = messageTimestamp
+
+        // charge the specified system
+        setSystemChargeLevels({
+            ...systemChargeLevels,
+            [team]: {
+                ...systemChargeLevels[team],
+                [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
+            },
+        });
+
+        // place the pending matrix block and create an updated version of the repair matrix
+        const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
+
+        // set the updated health level for the system
+        const updatedHealthLevel = systemHealed ? process.env.MAX_SYSTEM_HEALTH : Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
+        
+        if (systemHealed) {
+            const notificationMessage = {
+                team,
+                sameTeamMessage: `${capitalizeFirstLetter(blockSystem)} repaired`,
+                oppTeamMessage: null,
+                intendedPlayer: "all", // You can specify a player here if needed
+                severitySameTeam: "success",
+                severityOppTeam: null,
+                timestamp: tempMessageTimestamp,
+            };
+            console.log("should have pushed message", notificationMessage)
+
+            tempMessages.push(notificationMessage)
+            tempMessageTimestamp += 1
+        }
+
+        if (systemHealthLevels[team][blockSystem] > 0 && updatedHealthLevel === 0) {
+            // Notify team that system is now disabled
+            const notificationMessage = {
+                team,
+                sameTeamMessage: `${capitalizeFirstLetter(blockSystem)} disabled`,
+                oppTeamMessage: null,
+                intendedPlayer: "all", // You can specify a player here if needed
+                severitySameTeam: "error",
+                severityOppTeam: null,
+                timestamp: tempMessageTimestamp,
+            };
+            console.log("should have pushed message", notificationMessage)
+            tempMessages.push(notificationMessage)
+            tempMessageTimestamp += 1
+        }
+
+        // Damage the system corresponding to the block placed
+        setSystemHealthLevels({
+            ...systemHealthLevels,
+            [team]: {
+                ...systemHealthLevels[team],
+                [blockSystem]: updatedHealthLevel,
+            },
+        });
+
+        // Update the state with the new matrix containing reset cells
+        const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
+
+        const updatedTeamMap = {
+            ...engineerCompassMap,
+            [team]: {
+                ...rotatedValues,
+            }
+        };
+
+        setEngineerCompassMap(updatedTeamMap);
+
+        // move the sub in the specified direction
+        moveSubDirection(team, pendingNavigate[team]);
+        if(playerTeam !== team){
+            console.log("plotting enemy movements...")
+            setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
+        }
+
+        // reset the pending state
+        setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
+        setPendingNavigate({ ...pendingNavigate, [team]: null });
+        setEngineerPending({...engineerPending, [team]: false})
+        setEngineerHealSystem({...engineerHealSystem, [team]: false})
+
+        setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES));
+        setMessageTimestamp(tempMessageTimestamp);
+    }
+
     function moveSubDirection(team, direction){
         const [row, column] = subLocations[team];
         switch(direction){
@@ -273,11 +364,11 @@ export function GameWrapper({children}) {
         setGameMap(mapCopy);
     }
 
-    const isCornerRepairMatrix = (row, column) => {
+    const isCornerRepairMatrix = (row, column, matrix) => {
         return (row === 0 && column === 0 
-            || row === 0 && column === repairMatrix[playerTeam].length - 1
-            || row === repairMatrix[playerTeam].length - 1 && column === 0
-            || row === repairMatrix[playerTeam].length - 1 && column === repairMatrix[playerTeam].length - 1)
+            || row === 0 && column === matrix.length - 1
+            || row === matrix.length - 1 && column === 0
+            || row === matrix.length - 1 && column === matrix.length - 1)
     }
 
     // Function to get random distinct indices
@@ -293,14 +384,14 @@ export function GameWrapper({children}) {
         return randomIndices;
     };
 
-    const pickNewOuterCells = () => {
+    const pickNewOuterCells = (matrix) => {
         const emptyOuterCells = []; // Array to store coordinates of empty outer cells
     
         // Find empty outer cells and store their coordinates
-        for (let row = 0; row < repairMatrix[playerTeam].length; row++) {
-            for (let col = 0; col < repairMatrix[playerTeam][0].length; col++) {
-                const cell = repairMatrix[playerTeam][row][col];
-                if (cell.type === "outer" && cell.system === "empty" && !isCornerRepairMatrix(row, col)) {
+        for (let row = 0; row < matrix.length; row++) {
+            for (let col = 0; col < matrix[0].length; col++) {
+                const cell = matrix[row][col];
+                if (cell.type === "outer" && cell.system === "empty" && !isCornerRepairMatrix(row, col, matrix)) {
                     emptyOuterCells.push({ row, col });
                 }
             }
@@ -633,7 +724,6 @@ export function GameWrapper({children}) {
             setRadioMapNotes,
             setEnemyMovements,
             checkConnectedRepairMatrixPath,
-            setPendingRepairMatrixBlock,
             healSystem,
             rotateEngineerCompassValues,
             getFirstMateSystem,
@@ -647,7 +737,12 @@ export function GameWrapper({children}) {
             setNotificationMessages,
             notificationMessages,
             messageTimestamp,
-            setMessageTimestamp
+            setMessageTimestamp,
+            finishTurn,
+            engineerPending,
+            engineerHealSystem,
+            setEngineerPending,
+            setEngineerHealSystem
         }}>
             {children}
         </GameContext.Provider>

@@ -74,6 +74,8 @@ export default function PlayerDashboard(props){
             // Check if the message is newer than the last seen message
             return message.timestamp > lastSeenMessage;
         });
+
+        console.log("allMessages", filteredMessages, notificationMessages)
     
         // Update the last seen message to the highest timestamp among new messages
         if (filteredMessages.length > 0) {
@@ -86,6 +88,7 @@ export default function PlayerDashboard(props){
         
         for (const message of filteredMessages) {
             // Transform the message or perform an action
+            console.log("specs", message.intendedPlayer, playerRole, playerTeam, message.team)
             if (message.intendedPlayer === playerRole || message.intendedPlayer === "all") {
                 if (playerTeam === message.team) {
                     console.log("should have notified");

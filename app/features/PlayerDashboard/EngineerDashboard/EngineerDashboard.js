@@ -16,6 +16,8 @@ export default function EngineerDashboard(props){
       pendingRepairMatrixBlock,
       systemChargeLevels,
       engineerCompassMap,
+      getEmptyRepairMatrix,
+      engineerPending
     } = useGameContext();
 
     // Calculate the length difference between "west" and "east" words
@@ -127,6 +129,7 @@ export default function EngineerDashboard(props){
     }
 
     const handleClick = () => {
+
       // Your logic for handling the button click goes here
       channel.publish("engineer-clear-systems", {});
       // You can perform any actions you need here
@@ -139,13 +142,13 @@ export default function EngineerDashboard(props){
     <div style={styles.containerRow}>
 
         <div style = {styles.containerColumn}>
-          { pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] && (
+          { pendingNavigate[playerTeam] && !engineerPending[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Place a block</h4>
               </div>
           )}
-          { pendingNavigate[playerTeam] && pendingRepairMatrixBlock[playerTeam] && (
+          { pendingNavigate[playerTeam] && engineerPending[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Waiting for first mate...</h4>

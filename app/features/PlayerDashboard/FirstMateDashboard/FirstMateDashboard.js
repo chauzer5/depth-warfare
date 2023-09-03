@@ -82,7 +82,8 @@ export default function FirstMateDashboard(props){
         notify,
         scanForEnemySub,
         minesList,
-        systemHealthLevels
+        systemHealthLevels,
+        getEmptyRepairMatrix,
     } = useGameContext();
 
     const [toggledSystem, setToggledSystem] = useState('torpedo');
@@ -92,7 +93,7 @@ export default function FirstMateDashboard(props){
     const [dropMineCells, setDropMineCells] = useState([]);
     const [weaponsDisabled, setWeaponsDisabled] = useState(false);
     const [scanDisabled, setScanDisabled] = useState(false);
-
+    
 
     useEffect(() => {
 

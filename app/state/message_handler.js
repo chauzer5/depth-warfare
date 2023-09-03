@@ -1,4 +1,4 @@
-import { ENGINEER_SYSTEMS_INFO, getCellSector, getCellName, keepLastNElements } from "../utils";
+import { ENGINEER_SYSTEMS_INFO, getCellSector, getCellName, keepLastNElements, capitalizeFirstLetter } from "../utils";
 
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
@@ -45,7 +45,6 @@ export function engineerPlaceSystemBlock(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setPendingRepairMatrixBlock,
     systemChargeLevels,
     setSystemChargeLevels,
     pendingSystemCharge,
@@ -65,98 +64,24 @@ export function engineerPlaceSystemBlock(context, message){
     engineerCompassMap,
     setEngineerCompassMap,
     rotateEngineerCompassValues,
+    notificationMessages,
+    setNotificationMessages,
+    setMessageTimestamp,
+    messageTimestamp,
+    engineerPending,
+    engineerHealSystem,
+    setEngineerPending,
+    setEngineerHealSystem,
+    finishTurn
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (!pendingSystemCharge[team]) {
-    setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: [message.data.row, message.data.column]});
-  }
-  else {
-    const chargedSystem = pendingSystemCharge[team]
-    // charge the specified system
-    setSystemChargeLevels({
-      ...systemChargeLevels,
-      [team]: {
-        ...systemChargeLevels[team],
-        [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
-      },
-    });
-
-    // // place the pending matrix block
-    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
-
-    // Damage the system corresponding to the block placed
-    setSystemHealthLevels({
-      ...systemHealthLevels,
-      [team]: {
-        ...systemHealthLevels[team],
-        [blockSystem]: Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0),
-      },
-    });
-
-    const updatedMatrix = [...repairMatrix[team].map(row => [...row])];
-
-    updatedMatrix[message.data.row][message.data.column] = {
-      ...updatedMatrix[message.data.row][message.data.column],
-      system: blockSystem,
-    };
-
-    // check to see if two outer nodes have been connected
-    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
-
-    if (isConnected) {
-      // heal the system
-      healSystem(team, blockSystem);
-
-      // Reset the cells along the path to "empty"
-      for (let i = 0; i < pathRowIndices.length; i++) {
-          const pathRow = pathRowIndices[i];
-          const pathCol = pathColumnIndices[i];
-
-          updatedMatrix[pathRow][pathCol] = {
-              ...updatedMatrix[pathRow][pathCol],
-              system: "empty",
-          };
-      }
-
-      // Choose new random nodes along the outside
-      const selectedCells = pickNewOuterCells(updatedMatrix)
-
-      for (const { row, col } of selectedCells) {
-          updatedMatrix[row][col] = {
-              type: "outer",
-              system: blockSystem,
-          };
-      }
-    }
-
-    // Update the state with the new matrix containing reset cells
-    setRepairMatrix({...repairMatrix, [team]: updatedMatrix});
-
-    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
-
-    console.log(rotatedValues)
-
-    const updatedTeamMap = {
-        ...engineerCompassMap,
-        [team]: {
-            ...rotatedValues,
-        }
-    };
-
-    setEngineerCompassMap(updatedTeamMap);
-
-    // move the sub in the specified direction
-    moveSubDirection(team, pendingNavigate[team]);
-    if(playerTeam !== team){
-      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
-    }
-
-    // reset the pending state
-    setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
-    setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: null });
-    setPendingNavigate({ ...pendingNavigate, [team]: null });
+    setEngineerPending({...engineerPending, [team]: true})
+    setEngineerHealSystem({...engineerHealSystem, [team]: message.data.healSystem})
+  } else {
+    finishTurn(message.data.healSystem, pendingSystemCharge[team], team)
   }
 }
 
@@ -167,7 +92,6 @@ export function firstMateChooseSystemCharge(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setPendingRepairMatrixBlock,
     systemChargeLevels,
     setSystemChargeLevels,
     pendingSystemCharge,
@@ -187,100 +111,24 @@ export function firstMateChooseSystemCharge(context, message){
     engineerCompassMap,
     setEngineerCompassMap,
     rotateEngineerCompassValues,
+    setNotificationMessages,
+    notificationMessages,
+    setMessageTimestamp,
+    messageTimestamp,
+    engineerPending,
+    engineerHealSystem,
+    finishTurn
   } = context;
 
   const team = getMessagePlayer(message).team;
 
-  if (!pendingRepairMatrixBlock[team]) {
+  if (!engineerPending[team]) {
     setPendingSystemCharge({ ...pendingSystemCharge, [team]: message.data.system });
   }
   else {
-    // charge the specified system
-    setSystemChargeLevels({
-      ...systemChargeLevels,
-      [team]: {
-        ...systemChargeLevels[team],
-        [message.data.system]: systemChargeLevels[team][message.data.system] + 1,
-      },
-    });
-
-    // // place the pending matrix block
-    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
-
-    // Damage the system corresponding to the block placed
-    setSystemHealthLevels({
-      ...systemHealthLevels,
-      [team]: {
-        ...systemHealthLevels[team],
-        [blockSystem]: Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0),
-      },
-    });
-
-    const updatedMatrix = [...repairMatrix[team].map(row => [...row])];
-
-    console.log("null object?", pendingRepairMatrixBlock[team], team)
-
-    updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]] = {
-      ...updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]],
-      system: blockSystem,
-    };
-
-    // check to see if two outer nodes have been connected
-    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
-
-    if (isConnected) {
-      // heal the system
-      console.log("regular heal", team, blockSystem)
-      healSystem(team, blockSystem);
-
-      // Reset the cells along the path to "empty"
-      for (let i = 0; i < pathRowIndices.length; i++) {
-          const pathRow = pathRowIndices[i];
-          const pathCol = pathColumnIndices[i];
-
-          updatedMatrix[pathRow][pathCol] = {
-              ...updatedMatrix[pathRow][pathCol],
-              system: "empty",
-          };
-      }
-
-      // Choose new random nodes along the outside
-      const selectedCells = pickNewOuterCells(updatedMatrix)
-
-      for (const { row, col } of selectedCells) {
-          updatedMatrix[row][col] = {
-              type: "outer",
-              system: blockSystem,
-          };
-      }
-    }
-
-    // Update the state with the new matrix containing reset cells
-    setRepairMatrix({...repairMatrix, [team]: updatedMatrix});
-
-    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
-
-    console.log(rotatedValues)
-
-    const updatedTeamMap = {
-        ...engineerCompassMap,
-        [team]: {
-            ...rotatedValues,
-        }
-    };
-
-    setEngineerCompassMap(updatedTeamMap);
-
-    // move the sub in the specified direction
-    moveSubDirection(team, pendingNavigate[team]);
-    if(playerTeam !== team){
-      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
-    }
-
-    // reset the pending state
-    setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
-    setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: null });
-    setPendingNavigate({ ...pendingNavigate, [team]: null });
+    // This means we are second to go this turn
+    // engineerHealSystem[team] should already be assigned
+    finishTurn(engineerHealSystem[team], message.data.system, team)
   }
 }
 
@@ -291,16 +139,17 @@ export function captainCancelSubNavigate(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setPendingRepairMatrixBlock,
+    setEngineerPending,
     pendingSystemCharge,
     setPendingSystemCharge,
     getMessagePlayer,
+    engineerPending
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   setPendingNavigate({ ...pendingNavigate, [team]: null });
-  setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: null });
+  setEngineerPending({ ...engineerPending, [team]: false });
   setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
 }
 
@@ -787,22 +636,9 @@ export function firstMateDetonateMine(context, message){
     },
   });
 
-  const notificationMessage = {
-    team,
-    sameTeamMessage: `Opponent sub received ${oppHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
-    oppTeamMessage: `Your sub recieved ${oppHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
-    intendedPlayer: "all", // You can specify a player here if needed
-    severitySameTeam: "success",
-    severityOppTeam: "error",
-    timestamp: tempTimestamp,
-  };
-  tempTimestamp += 1
-  tempMessages.push(notificationMessage)
-
   // Add a notification message
   setMessageTimestamp(tempTimestamp)
   setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES))
-
 }
 
 // First mate uses up their scan charge

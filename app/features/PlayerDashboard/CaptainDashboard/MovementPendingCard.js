@@ -76,7 +76,8 @@ export default function MovementPendingCard(props){
         pendingNavigate,
         playerTeam,
         pendingRepairMatrixBlock,
-        pendingSystemCharge
+        pendingSystemCharge,
+        engineerPending
     } = useGameContext();
 
     const { channel } = props;
@@ -101,7 +102,7 @@ export default function MovementPendingCard(props){
                     </div>
                     <div style={styles.waitingOnPlayer}>
                         <div style={styles.checkbox}>
-                            {pendingRepairMatrixBlock[playerTeam] && <CheckIcon sx={{ fontSize: "20px" }}/>}
+                            {engineerPending[playerTeam] && <CheckIcon sx={{ fontSize: "20px" }}/>}
                         </div>
                         <span style={styles.otherPlayer}>Engineer</span>
                     </div>

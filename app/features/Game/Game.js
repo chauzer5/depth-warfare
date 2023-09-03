@@ -37,10 +37,6 @@ export default function Game() {
 
   useEffect(() => {
     resetMap();
-    const emptyRepairMatrixBlue = getEmptyRepairMatrix();
-    const emptyRepairMatrixRed = getEmptyRepairMatrix();
-    const newRepairMatrix = {blue: emptyRepairMatrixBlue, red: emptyRepairMatrixRed}
-    setRepairMatrix(newRepairMatrix)
   }, []);
 
   useEffect(() => {

@@ -9,7 +9,13 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 export default function RepairMatrix(props){
     const { channel, current_system } = props;
 
-    const { repairMatrix, playerTeam, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
+    const { playerTeam, pendingNavigate, pendingSystemCharge, getEmptyRepairMatrix, checkConnectedRepairMatrixPath, pickNewOuterCells, engineerPending, engineerCompassMap } = useGameContext();
+
+    // This creates an empty and random repair matrix
+    const [repairMatrix, setRepairMatrix] = useState(getEmptyRepairMatrix());
+    const [resolvedMatrix, setResolvedMatrix] = useState([]);
+    const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState(null);
+
 
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
@@ -81,7 +87,7 @@ export default function RepairMatrix(props){
     const setBackgroundColor = (row, column) => {
         const cellStyle = {};
 
-        const cell = repairMatrix[playerTeam][row][column];
+        const cell = repairMatrix[row][column];
         const cellColor = getColorByName(cell.system)
 
         if (row === 0) {
@@ -115,31 +121,82 @@ export default function RepairMatrix(props){
         return cellStyle;
     }
 
-    const isPendingCell = (row, column) => {
-        if (pendingRepairMatrixBlock === null) {
-            return false;
-        }
-    
-        const playerTeamPendingBlock = pendingRepairMatrixBlock[playerTeam];
-        
-        if (playerTeamPendingBlock && playerTeamPendingBlock[0] === row && playerTeamPendingBlock[1] === column) {
+    const isPendingCell = (row, column) => {    
+        if (pendingRepairMatrixBlock && pendingRepairMatrixBlock[0] === row && pendingRepairMatrixBlock[1] === column) {
             return true;
         }
         return false
-
     }
     
-    const clickable = pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
+    
+    const clickable = pendingNavigate[playerTeam] && !engineerPending[playerTeam] ;   // Can add other statements to see if it can be clickable
 
     const handleClick = (row, column) => {
-        channel.publish("engineer-place-system-block", { row, column });
+        const updatedMatrix = [...repairMatrix.map(row => [...row])];
+        const blockSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
+
+        updatedMatrix[row][column] = {
+            ...updatedMatrix[row][column],
+            system: blockSystem,
+        };
+
+        if (!pendingSystemCharge[playerTeam]) {
+            setPendingRepairMatrixBlock([ row, column ])
+            console.log("pending block", [ row, column ], !pendingSystemCharge[playerTeam])
+        }
+
+        setRepairMatrix(updatedMatrix)
+
+        const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
+        
+        if (isConnected) {
+            const tempMatrix = [...updatedMatrix.map(row => [...row])];
+            // Reset the cells along the path to "empty"
+            for (let i = 0; i < pathRowIndices.length; i++) {
+                const pathRow = pathRowIndices[i];
+                const pathCol = pathColumnIndices[i];
+
+                tempMatrix[pathRow][pathCol] = {
+                    ...tempMatrix[pathRow][pathCol],
+                    system: "empty",
+                };
+            }
+
+            // Choose new random nodes along the outside
+            const selectedCells = pickNewOuterCells(tempMatrix)
+
+            for (const { row, col } of selectedCells) {
+                tempMatrix[row][col] = {
+                    type: "outer",
+                    system: blockSystem,
+                };
+            }
+
+            setResolvedMatrix(tempMatrix)
+        }
+
+        const healSystem = isConnected
+        
+        channel.publish("engineer-place-system-block", { healSystem });
     };
+
+    useEffect(() => {
+        console.log("pendingBlock", pendingRepairMatrixBlock)
+        if (!pendingNavigate[playerTeam]) {
+            if (resolvedMatrix.length > 0) {
+                setRepairMatrix(resolvedMatrix)
+                setResolvedMatrix([])
+            }
+            // setPendingRepairMatrixBlock(null)
+            console.log("entered repairMatrix useEffect")
+        }
+    }, [pendingNavigate[playerTeam]]);
 
     // Functions for game goes here
     return (
         <table style={styles.table}>
             <tbody>
-                {repairMatrix[playerTeam].map((row, rowIndex) => (
+                {repairMatrix.map((row, rowIndex) => (
                     <tr key={rowIndex} style={styles.row}>
                         {row.map((cell, columnIndex) => (
                             <td key={columnIndex} style={{
