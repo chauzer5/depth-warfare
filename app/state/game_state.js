@@ -24,7 +24,7 @@ export function GameWrapper({children}) {
     const [subLocations, setSubLocations] = useState({ blue: null, red: null });
     const [engineerPendingBlock, setEngineerPendingBlock] = useState({ blue: null, red: null });
     const [engineerHealSystem, setEngineerHealSystem] = useState({ blue: false, red: false });
-    const [minesList, setMinesList] = useState({ blue: [[5,5],[5,6]], red: [[5,7]] });
+    const [minesList, setMinesList] = useState({ blue: [], red: [] });
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });

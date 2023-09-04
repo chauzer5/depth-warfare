@@ -9,12 +9,12 @@ export const SYSTEMS_INFO = [
     {
         name: "scan",
         color: theme.darkGreen,
-        maxCharge: 1, //4
+        maxCharge: 4,
     },
     {
         name: "torpedo",
         color: theme.red,
-        maxCharge: 1,
+        maxCharge: 4,
     },
     {
         name: "mine",
