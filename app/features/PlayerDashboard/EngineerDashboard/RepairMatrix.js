@@ -7,7 +7,7 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 
 export default function RepairMatrix(props){
-    const { channel, current_system } = props;
+    const { channel, clearRepairMatrix } = props;
 
     const { playerTeam, pendingNavigate, pendingSystemCharge, subLocations, getEmptyRepairMatrix, checkConnectedRepairMatrixPath, pickNewOuterCells, engineerPendingBlock, engineerCompassMap } = useGameContext();
 
@@ -15,19 +15,14 @@ export default function RepairMatrix(props){
     const [repairMatrix, setRepairMatrix] = useState(getEmptyRepairMatrix());
     const [resolvedMatrix, setResolvedMatrix] = useState([]);
     const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState(null);
+    const blockSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
 
 
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
     const tabSize = Math.round(MATRIX_CELL_SIZE * .4)
+    const hoverColor = getColorByName(blockSystem)
 
-    // const [hoverColor, setHoverColor] = useState(null); // State to store the hover color
-
-    const hoverColor = getColorByName(current_system)
-    // useEffect(() => {
-    //     // Update the hover color whenever the current_system changes
-    //     hoverColor = getColorByName(current_system);
-    // }, [current_system]);
 
     const styles = {
         table: {
@@ -127,13 +122,28 @@ export default function RepairMatrix(props){
         }
         return false
     }
+
+    useEffect(() => {
+
+        if (clearRepairMatrix) {
+            const updatedMatrix = repairMatrix.map((row) =>
+                row.map((cell) => ({
+                    ...cell,
+                    system: cell.type === 'inner' ? 'empty' : cell.system,
+                }))
+            );
+            // Update the state with the repaired matrix
+            setRepairMatrix(updatedMatrix);
+        }
+        
+    }, [clearRepairMatrix]);
+
     
     
     const clickable = pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
 
     const handleClick = (row, column) => {
         const updatedMatrix = [...repairMatrix.map(row => [...row])];
-        const blockSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
 
         updatedMatrix[row][column] = {
             ...updatedMatrix[row][column],
