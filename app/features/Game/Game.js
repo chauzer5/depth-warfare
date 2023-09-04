@@ -14,6 +14,7 @@ import { captainCancelSubNavigate,
         captainSurface,
         firstMateChooseSystemCharge, 
         engineerClearSystems, firstMateFireTorpedo,
+        firstMateDropMine, firstMateDetonateMine
        } from "../../state/message_handler";
 
 export default function Game() {
@@ -36,10 +37,6 @@ export default function Game() {
 
   useEffect(() => {
     resetMap();
-    const emptyRepairMatrixBlue = getEmptyRepairMatrix();
-    const emptyRepairMatrixRed = getEmptyRepairMatrix();
-    const newRepairMatrix = {blue: emptyRepairMatrixBlue, red: emptyRepairMatrixRed}
-    setRepairMatrix(newRepairMatrix)
   }, []);
 
   useEffect(() => {

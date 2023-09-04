@@ -1,4 +1,4 @@
-import { ENGINEER_SYSTEMS_INFO, getCellSector } from "../utils";
+import { ENGINEER_SYSTEMS_INFO, getCellSector, getCellName, keepLastNElements, capitalizeFirstLetter } from "../utils";
 
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
@@ -45,7 +45,6 @@ export function engineerPlaceSystemBlock(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setPendingRepairMatrixBlock,
     systemChargeLevels,
     setSystemChargeLevels,
     pendingSystemCharge,
@@ -65,98 +64,24 @@ export function engineerPlaceSystemBlock(context, message){
     engineerCompassMap,
     setEngineerCompassMap,
     rotateEngineerCompassValues,
+    notificationMessages,
+    setNotificationMessages,
+    setMessageTimestamp,
+    messageTimestamp,
+    engineerPendingBlock,
+    engineerHealSystem,
+    setEngineerPendingBlock,
+    setEngineerHealSystem,
+    finishTurn
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (!pendingSystemCharge[team]) {
-    setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: [message.data.row, message.data.column]});
-  }
-  else {
-    const chargedSystem = pendingSystemCharge[team]
-    // charge the specified system
-    setSystemChargeLevels({
-      ...systemChargeLevels,
-      [team]: {
-        ...systemChargeLevels[team],
-        [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
-      },
-    });
-
-    // // place the pending matrix block
-    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
-
-    // Damage the system corresponding to the block placed
-    setSystemHealthLevels({
-      ...systemHealthLevels,
-      [team]: {
-        ...systemHealthLevels[team],
-        [blockSystem]: Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0),
-      },
-    });
-
-    const updatedMatrix = [...repairMatrix[team].map(row => [...row])];
-
-    updatedMatrix[message.data.row][message.data.column] = {
-      ...updatedMatrix[message.data.row][message.data.column],
-      system: blockSystem,
-    };
-
-    // check to see if two outer nodes have been connected
-    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
-
-    if (isConnected) {
-      // heal the system
-      healSystem(team, blockSystem);
-
-      // Reset the cells along the path to "empty"
-      for (let i = 0; i < pathRowIndices.length; i++) {
-          const pathRow = pathRowIndices[i];
-          const pathCol = pathColumnIndices[i];
-
-          updatedMatrix[pathRow][pathCol] = {
-              ...updatedMatrix[pathRow][pathCol],
-              system: "empty",
-          };
-      }
-
-      // Choose new random nodes along the outside
-      const selectedCells = pickNewOuterCells(updatedMatrix)
-
-      for (const { row, col } of selectedCells) {
-          updatedMatrix[row][col] = {
-              type: "outer",
-              system: blockSystem,
-          };
-      }
-    }
-
-    // Update the state with the new matrix containing reset cells
-    setRepairMatrix({...repairMatrix, [team]: updatedMatrix});
-
-    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
-
-    console.log(rotatedValues)
-
-    const updatedTeamMap = {
-        ...engineerCompassMap,
-        [team]: {
-            ...rotatedValues,
-        }
-    };
-
-    setEngineerCompassMap(updatedTeamMap);
-
-    // move the sub in the specified direction
-    moveSubDirection(team, pendingNavigate[team]);
-    if(playerTeam !== team){
-      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
-    }
-
-    // reset the pending state
-    setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
-    setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: null });
-    setPendingNavigate({ ...pendingNavigate, [team]: null });
+    setEngineerPendingBlock({...engineerPendingBlock, [team]: message.data.clickedCell})
+    setEngineerHealSystem({...engineerHealSystem, [team]: message.data.healSystem})
+  } else {
+    finishTurn(message.data.healSystem, pendingSystemCharge[team], team)
   }
 }
 
@@ -167,7 +92,6 @@ export function firstMateChooseSystemCharge(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setPendingRepairMatrixBlock,
     systemChargeLevels,
     setSystemChargeLevels,
     pendingSystemCharge,
@@ -187,100 +111,24 @@ export function firstMateChooseSystemCharge(context, message){
     engineerCompassMap,
     setEngineerCompassMap,
     rotateEngineerCompassValues,
+    setNotificationMessages,
+    notificationMessages,
+    setMessageTimestamp,
+    messageTimestamp,
+    engineerPendingBlock,
+    engineerHealSystem,
+    finishTurn
   } = context;
 
   const team = getMessagePlayer(message).team;
 
-  if (!pendingRepairMatrixBlock[team]) {
+  if (!engineerPendingBlock[team]) {
     setPendingSystemCharge({ ...pendingSystemCharge, [team]: message.data.system });
   }
   else {
-    // charge the specified system
-    setSystemChargeLevels({
-      ...systemChargeLevels,
-      [team]: {
-        ...systemChargeLevels[team],
-        [message.data.system]: systemChargeLevels[team][message.data.system] + 1,
-      },
-    });
-
-    // // place the pending matrix block
-    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
-
-    // Damage the system corresponding to the block placed
-    setSystemHealthLevels({
-      ...systemHealthLevels,
-      [team]: {
-        ...systemHealthLevels[team],
-        [blockSystem]: Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0),
-      },
-    });
-
-    const updatedMatrix = [...repairMatrix[team].map(row => [...row])];
-
-    console.log("null object?", pendingRepairMatrixBlock[team], team)
-
-    updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]] = {
-      ...updatedMatrix[pendingRepairMatrixBlock[team][0]][pendingRepairMatrixBlock[team][1]],
-      system: blockSystem,
-    };
-
-    // check to see if two outer nodes have been connected
-    const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
-
-    if (isConnected) {
-      // heal the system
-      console.log("regular heal", team, blockSystem)
-      healSystem(team, blockSystem);
-
-      // Reset the cells along the path to "empty"
-      for (let i = 0; i < pathRowIndices.length; i++) {
-          const pathRow = pathRowIndices[i];
-          const pathCol = pathColumnIndices[i];
-
-          updatedMatrix[pathRow][pathCol] = {
-              ...updatedMatrix[pathRow][pathCol],
-              system: "empty",
-          };
-      }
-
-      // Choose new random nodes along the outside
-      const selectedCells = pickNewOuterCells(updatedMatrix)
-
-      for (const { row, col } of selectedCells) {
-          updatedMatrix[row][col] = {
-              type: "outer",
-              system: blockSystem,
-          };
-      }
-    }
-
-    // Update the state with the new matrix containing reset cells
-    setRepairMatrix({...repairMatrix, [team]: updatedMatrix});
-
-    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
-
-    console.log(rotatedValues)
-
-    const updatedTeamMap = {
-        ...engineerCompassMap,
-        [team]: {
-            ...rotatedValues,
-        }
-    };
-
-    setEngineerCompassMap(updatedTeamMap);
-
-    // move the sub in the specified direction
-    moveSubDirection(team, pendingNavigate[team]);
-    if(playerTeam !== team){
-      setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
-    }
-
-    // reset the pending state
-    setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
-    setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: null });
-    setPendingNavigate({ ...pendingNavigate, [team]: null });
+    // This means we are second to go this turn
+    // engineerHealSystem[team] should already be assigned
+    finishTurn(engineerHealSystem[team], message.data.system, team)
   }
 }
 
@@ -291,16 +139,17 @@ export function captainCancelSubNavigate(context, message){
     pendingNavigate,
     setPendingNavigate,
     pendingRepairMatrixBlock,
-    setPendingRepairMatrixBlock,
+    setEngineerPendingBlock,
     pendingSystemCharge,
     setPendingSystemCharge,
     getMessagePlayer,
+    engineerPendingBlock
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   setPendingNavigate({ ...pendingNavigate, [team]: null });
-  setPendingRepairMatrixBlock({ ...pendingRepairMatrixBlock, [team]: null });
+  setEngineerPendingBlock({ ...engineerPendingBlock, [team]: null });
   setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
 }
 
@@ -420,9 +269,6 @@ export function engineerClearSystems(context, message){
     [team]: tempHealthLevels,
   });
 
-  // reset the repair matrix
-  setRepairMatrix({...repairMatrix, [team]: getEmptyRepairMatrix()})
-
 }
 
 // First mate fires a torpedo
@@ -430,18 +276,23 @@ export function engineerClearSystems(context, message){
 export function firstMateFireTorpedo(context, message){
   const {
     getMessagePlayer,
-    setSystemChargeLevels,
-    systemChargeLevels,
-    damageSubs,
     updateLifeSupport,
-    getCellsDistanceAway,
-    manhattanDistance,
     subLocations,
     setSystemHealthLevels,
     systemHealthLevels,
+    setSystemChargeLevels,
+    systemChargeLevels,
+    minesList,
+    detonateWeapon,
+    setMinesList,
+    messageTimestamp,
+    setMessageTimestamp,
+    setNotificationMessages,
+    notificationMessages,
   } = context;
 
   const team = getMessagePlayer(message).team;
+  const oppositeTeam = team === "blue" ? "red" : "blue"
 
   setSystemChargeLevels({
     ...systemChargeLevels,
@@ -451,36 +302,340 @@ export function firstMateFireTorpedo(context, message){
     },
   });
 
-  const hitCells = getCellsDistanceAway(message.data.row, message.data.column, process.env.MAX_TORPEDO_DAMAGE-1, false)
-  const hits = hitCells.map(([row, col]) => {
-    return process.env.MAX_TORPEDO_DAMAGE - manhattanDistance(row, col, message.data.row, message.data.column);
-  });
-  const oppositeTeam = team === "blue" ? "red" : "blue"
-  const [oppRow, oppCol] = subLocations[oppositeTeam]
-  const hitCellsIndex = hitCells.findIndex(([row, col]) => row === oppRow && col === oppCol);  
+  let tempMessages = []
+  let tempTimestamp = messageTimestamp
+  
+  let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
+  let updatedOwnMinesList = JSON.parse(JSON.stringify(minesList[team]));
 
-  if (hitCellsIndex !== -1) {
-    const updatedLifeSupport = updateLifeSupport(oppositeTeam, hits[hitCellsIndex]);
-    setSystemHealthLevels({
-      ...systemHealthLevels,
-      [oppositeTeam]: {
-        ...systemHealthLevels[oppositeTeam], // Spread the existing team properties
-        "life support": updatedLifeSupport, // Update the life support value
-      },
+  let ownTorpedoDetonated = [[message.data.row, message.data.column]]
+  let ownMinesDetonated = []
+  let oppMinesDetonated = []
+
+  let updatedDamageMap = {}
+
+  const notificationMessage = {
+    team,
+    sameTeamMessage: `Torpedo Launched at ${getCellName(message.data.row, message.data.column)}`,
+    oppTeamMessage: `Opponent torpedo launched at ${getCellName(message.data.row, message.data.column)}`,
+    intendedPlayer: "all", // You can specify a player here if needed
+    severitySameTeam: "info",
+    severityOppTeam: "warning",
+    timestamp: tempTimestamp,
+  };
+  tempTimestamp += 1
+  tempMessages.push(notificationMessage)
+
+  while (ownMinesDetonated.length > 0 || oppMinesDetonated.length > 0 || ownTorpedoDetonated.length > 0) {
+
+    // Create the notification messages
+    oppMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        oppositeTeam,
+        sameTeamMessage: `Detonated Mine at ${getCellName(row, col)}`,
+        oppTeamMessage: `Opponent's mine detonated at ${getCellName(row, col)}`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
     });
+
+    ownMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `Detonated Mine at ${getCellName(row, col)}`,
+        oppTeamMessage: `Opponent's mine detonated at ${getCellName(row, col)}`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
+    });
+
+    const ownTorpedoResult = detonateWeapon(ownTorpedoDetonated, [], updatedDamageMap, process.env.MAX_TORPEDO_DAMAGE)
+    updatedDamageMap = ownTorpedoResult.updatedDamageMap
+
+    const ownMinesResult = detonateWeapon(ownMinesDetonated, updatedOwnMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
+    updatedOwnMinesList = ownMinesResult.listToUpdate
+    updatedDamageMap = ownMinesResult.updatedDamageMap
+
+    const oppMinesResult = detonateWeapon(oppMinesDetonated, updatedOppMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
+    updatedOppMinesList = oppMinesResult.listToUpdate
+    updatedDamageMap = ownMinesResult.updatedDamageMap
+
+    const combinedHitCells = [...ownTorpedoResult.allHitCells, ...ownMinesResult.allHitCells, ...oppMinesResult.allHitCells]
+
+    // Check if any other mineIndices were detonated
+    ownMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOwnMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    });
+
+    // Check if any other mineIndices were detonated
+    oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOppMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    });
+
+    ownTorpedoDetonated = []
+    
   }
+
+  const ownHits = updatedDamageMap[`${subLocations[team][0]}-${subLocations[team][1]}`] ?? 0;
+  const oppHits = updatedDamageMap[`${subLocations[oppositeTeam][0]}-${subLocations[oppositeTeam][1]}`] ?? 0;
+
+  if (oppHits > 0) {
+    const notificationMessage = {
+      team,
+      sameTeamMessage: `Opponent sub received ${oppHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      oppTeamMessage: `Your sub recieved ${oppHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      intendedPlayer: "all", // You can specify a player here if needed
+      severitySameTeam: "success",
+      severityOppTeam: "error",
+      timestamp: tempTimestamp,
+    };
+    tempTimestamp += 1
+    tempMessages.push(notificationMessage)
+  }
+
+  if (ownHits > 0) {
+    const notificationMessage = {
+      team,
+      sameTeamMessage: `Your sub received ${ownHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      oppTeamMessage: `Opponent sub recieved ${ownHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      intendedPlayer: "all", // You can specify a player here if needed
+      severitySameTeam: "error",
+      severityOppTeam: "success",
+      timestamp: tempTimestamp,
+    };
+    tempTimestamp += 1
+    tempMessages.push(notificationMessage)
+  }
+
+  const ownUpdatedLifeSupport = updateLifeSupport(team, ownHits);
+  const oppUpdatedLifeSupport = updateLifeSupport(oppositeTeam, oppHits);
+
+  // Set the updated mines list
+  setMinesList({
+    [team]: updatedOwnMinesList,
+    [oppositeTeam]: updatedOppMinesList
+  })
+
+  // Update the life support after the craziness
+  setSystemHealthLevels({
+    ...systemHealthLevels,
+    [team]: {
+      ...systemHealthLevels[team],
+      "life support": ownUpdatedLifeSupport, // Update your team's life support
+    },
+    [oppositeTeam]: {
+      ...systemHealthLevels[oppositeTeam],
+      "life support": oppUpdatedLifeSupport, // Update the opposite team's life support
+    },
+  });
+
+  // Add a notification message
+  setMessageTimestamp(tempTimestamp)
+  setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES))
 }
 
 // First mate drops a mine
 // MESSAGE: {row, column}
 export function firstMateDropMine(context, message){
-  
+  const {
+    getMessagePlayer,
+    setSystemChargeLevels,
+    systemChargeLevels,
+    minesList,
+    setMinesList,
+    notificationMessages,
+    setNotificationMessages,
+    messageTimestamp,
+    setMessageTimestamp
+  } = context;
+
+  console.log("Dropped Mine")
+
+  const team = getMessagePlayer(message).team;
+
+  setSystemChargeLevels({
+    ...systemChargeLevels,
+    [team]: {
+      ...systemChargeLevels[team],
+      mine: 0,
+    },
+  });
+
+  const notificationMessage = {
+    team,
+    sameTeamMessage: `Successfully Dropped Mine on ${getCellName(message.data.row, message.data.column)}`,
+    oppTeamMessage: null,
+    intendedPlayer: "all", // You can specify a player here if needed
+    severitySameTeam: "info",
+    severityOppTeam: null,
+    timestamp: messageTimestamp,
+  };
+
+  setMessageTimestamp(messageTimestamp + 1)
+
+  // Add a notification message
+  setNotificationMessages(keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES))
+
+  setMinesList({...minesList,
+  [team]: [...minesList[team], [message.data.row, message.data.column]]})
+
 }
 
 // First mate detonates a mine
 // MESSAGE: {row, column}
 export function firstMateDetonateMine(context, message){
+  const {
+    getMessagePlayer,
+    updateLifeSupport,
+    subLocations,
+    setSystemHealthLevels,
+    systemHealthLevels,
+    minesList,
+    detonateWeapon,
+    setMinesList,
+    messageTimestamp,
+    setMessageTimestamp,
+    setNotificationMessages,
+    notificationMessages,
+  } = context;
+
+  let tempMessages = []
+  let tempTimestamp = messageTimestamp
+
+  // Define the teams
+  const team = getMessagePlayer(message).team;
+  const oppositeTeam = team === "blue" ? "red" : "blue"
   
+  let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
+  let updatedOwnMinesList = JSON.parse(JSON.stringify(minesList[team]));
+
+  let torpedoDetonated = []
+  let ownMinesDetonated = [[message.data.row, message.data.column]]
+  let oppMinesDetonated = []
+
+  let updatedDamageMap = {}
+  while (ownMinesDetonated.length > 0 || oppMinesDetonated.length > 0 || torpedoDetonated.length > 0) {
+
+    // Create the notification messages
+    oppMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        oppositeTeam,
+        sameTeamMessage: `Detonated Mine at ${getCellName(row, col)}`,
+        oppTeamMessage: `Opponent's mine detonated at ${getCellName(row, col)}`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
+    });
+
+    ownMinesDetonated.forEach(([row, col]) => {
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `Detonated Mine at ${getCellName(row, col)}`,
+        oppTeamMessage: `Opponent's mine detonated at ${getCellName(row, col)}`,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "info",
+        severityOppTeam: "warning",
+        timestamp: tempTimestamp,
+      };
+      tempTimestamp += 1
+      tempMessages.push(notificationMessage)
+    });
+    
+    // detonateWeapon(torpedoDetonated, [], updatedDamageMap, allHitCells, process.env.MAX_MINE_DAMAGE)
+    const ownMinesResult = detonateWeapon(ownMinesDetonated, updatedOwnMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
+    updatedOwnMinesList = ownMinesResult.listToUpdate
+    updatedDamageMap = ownMinesResult.updatedDamageMap
+
+    const oppMinesResult = detonateWeapon(oppMinesDetonated, updatedOppMinesList, updatedDamageMap, process.env.MAX_MINE_DAMAGE)
+    updatedOppMinesList = oppMinesResult.listToUpdate
+    updatedDamageMap = ownMinesResult.updatedDamageMap
+
+    const combinedHitCells = [...ownMinesResult.allHitCells, ...oppMinesResult.allHitCells]
+
+    // Check if any other mineIndices were detonated
+    ownMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOwnMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    });
+
+    // Check if any other mineIndices were detonated
+    oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
+      // Check if the cell [row, col] is present in updatedOwnMinesList
+      return updatedOppMinesList.some(([mineRow, mineCol]) => mineRow === row && mineCol === col);
+    });
+    
+  }
+
+  const ownHits = updatedDamageMap[`${subLocations[team][0]}-${subLocations[team][1]}`] ?? 0;
+  const oppHits = updatedDamageMap[`${subLocations[oppositeTeam][0]}-${subLocations[oppositeTeam][1]}`] ?? 0;
+
+  if (oppHits > 0) {
+    const notificationMessage = {
+      team,
+      sameTeamMessage: `Opponent sub received ${oppHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      oppTeamMessage: `Your sub recieved ${oppHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      intendedPlayer: "all", // You can specify a player here if needed
+      severitySameTeam: "success",
+      severityOppTeam: "error",
+      timestamp: tempTimestamp,
+    };
+    tempTimestamp += 1
+    tempMessages.push(notificationMessage)
+  }
+
+  if (ownHits > 0) {
+    const notificationMessage = {
+      team,
+      sameTeamMessage: `Your sub received ${ownHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      oppTeamMessage: `Opponent sub recieved ${ownHits * process.env.SYSTEM_DAMAGE_AMOUNT}% damage!`,
+      intendedPlayer: "all", // You can specify a player here if needed
+      severitySameTeam: "error",
+      severityOppTeam: "success",
+      timestamp: tempTimestamp,
+    };
+    tempTimestamp += 1
+    tempMessages.push(notificationMessage)
+  }
+
+  const ownUpdatedLifeSupport = updateLifeSupport(team, ownHits);
+  const oppUpdatedLifeSupport = updateLifeSupport(oppositeTeam, oppHits);
+
+  // Set the updated mines list
+  setMinesList({
+    [team]: updatedOwnMinesList,
+    [oppositeTeam]: updatedOppMinesList
+  })
+
+  // Update the life support after the craziness
+  setSystemHealthLevels({
+    ...systemHealthLevels,
+    [team]: {
+      ...systemHealthLevels[team],
+      "life support": ownUpdatedLifeSupport, // Update your team's life support
+    },
+    [oppositeTeam]: {
+      ...systemHealthLevels[oppositeTeam],
+      "life support": oppUpdatedLifeSupport, // Update the opposite team's life support
+    },
+  });
+
+  // Add a notification message
+  setMessageTimestamp(tempTimestamp)
+  setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES))
 }
 
 // First mate uses up their scan charge
@@ -490,10 +645,28 @@ export function firstMateScan(context, message){
     getMessagePlayer,
     setSystemChargeLevels,
     systemChargeLevels,
+    scanForEnemySub,
+    messageTimestamp,
+    setMessageTimestamp,
+    setNotificationMessages,
+    notificationMessages,
   } = context;
   
   const team = getMessagePlayer(message).team;
 
+  const notificationMessage = {
+      team,
+      sameTeamMessage: message.data.scanResult ? "Scan successful" : "Scan failed",
+      oppTeamMessage: null,
+      intendedPlayer: "first-mate", // You can specify a player here if needed
+      severitySameTeam: message.data.scanResult ? "success" : "error",
+      severityOppTeam: null,
+      timestamp: messageTimestamp,
+  };
+
+  setMessageTimestamp(messageTimestamp + 1)
+  setNotificationMessages(keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES))
+  
   // Reduce the charge of the scan system to 0
   setSystemChargeLevels({
     ...systemChargeLevels,

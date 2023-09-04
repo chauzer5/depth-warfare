@@ -5,7 +5,7 @@ const nextConfig = {
         GAME_COUNTDOWN_SECONDS: 3,
         MAP_DIMENSION: 15,
         SECTOR_DIMENSION: 5,
-        NUM_REQUIRED_PLAYERS: 5,
+        NUM_REQUIRED_PLAYERS: 6,
         STARTING_SPOT_TIMER_SECONDS: 999,
         STARTING_HIT_POINTS: 4,
         ISLAND_MAP: "map1",
@@ -14,7 +14,10 @@ const nextConfig = {
         REPAIR_MATRIX_DIMENSION: 5,
         REPAIR_MATRIX_CELL_SIZE: 50,
         TORPEDO_RANGE: 4,
+        DROP_MINE_RANGE: 1,
         MAX_TORPEDO_DAMAGE: 2,
+        MAX_MINE_DAMAGE: 2,
+        MAX_MESSAGES: 15,
     }
 }
 

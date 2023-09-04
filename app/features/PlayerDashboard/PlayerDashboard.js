@@ -1,7 +1,8 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Modal from 'react-modal';
 import SurfacingPage from './SurfacingPage';
 import theme from "@/app/styles/theme";
+import { useSnackbar } from 'notistack';
 
 import { useGameContext } from "@/app/state/game_state";
 import DashboardHeader from "./DashboardHeader";
@@ -11,8 +12,10 @@ import FirstMateDashboard from "./FirstMateDashboard/FirstMateDashboard";
 import RadioOperatorDashboard from "./RadioOperatorDashboard/RadioOperatorDashboard";
 
 export default function PlayerDashboard(props){
-    const { playerRole, currentlySurfacing, setCurrentlySurfacing } = useGameContext();
+    const { playerRole, currentlySurfacing, setCurrentlySurfacing, playerTeam, notificationMessages} = useGameContext();
     const { channel } = props;
+    const { enqueueSnackbar } = useSnackbar();
+
 
     const styles={
         button: {
@@ -46,6 +49,14 @@ export default function PlayerDashboard(props){
         }
     }
 
+    // Function to add a message to the Snackbar
+    const addMessageToSnackbar = (message, severity) => {
+        enqueueSnackbar(message, {
+        variant: severity, // You can customize the variant based on severity
+        autoHideDuration: 5000, // Set the duration in milliseconds
+        anchorOrigin: { vertical: 'bottom', horizontal: 'left' }, // Customize the position
+        });
+    };
 
     const openModal = () => {
         setCurrentlySurfacing(true);
@@ -54,6 +65,57 @@ export default function PlayerDashboard(props){
     const closeModal = () => {
         setCurrentlySurfacing(false);
     }
+
+    const [lastSeenMessage, setLastSeenMessage] = useState(-1);
+
+    // When new messages are received, filter and update the state
+    useEffect(() => {
+        const filteredMessages = notificationMessages.filter((message) => {
+            // Check if the message is newer than the last seen message
+            return message.timestamp > lastSeenMessage;
+        });
+
+        console.log("allMessages", filteredMessages, notificationMessages)
+    
+        // Update the last seen message to the highest timestamp among new messages
+        if (filteredMessages.length > 0) {
+            const highestTimestamp = Math.max(...filteredMessages.map((message) => message.timestamp));
+            setLastSeenMessage(highestTimestamp);
+        }        
+    
+        // Accumulate filtered messages to display them all together
+        const accumulatedMessages = [];
+        
+        for (const message of filteredMessages) {
+            // Transform the message or perform an action
+            console.log("specs", message.intendedPlayer, playerRole, playerTeam, message.team)
+            if (message.intendedPlayer === playerRole || message.intendedPlayer === "all") {
+                if (playerTeam === message.team) {
+                    console.log("should have notified");
+                    console.log(message.sameTeamMessage, message.severitySameTeam);
+                    accumulatedMessages.push({
+                        message: message.sameTeamMessage,
+                        severity: message.severitySameTeam,
+                    });
+                } 
+                if (playerTeam !== message.team && message.oppTeamMessage) {
+                    accumulatedMessages.push({
+                        message: message.oppTeamMessage,
+                        severity: message.severityOppTeam,
+                    });
+                }
+            }
+        }
+    
+        // Notify all accumulated messages
+        if (accumulatedMessages.length > 0) {
+            accumulatedMessages.forEach((message) => {
+                addMessageToSnackbar(message.message, message.severity);
+            });
+        }
+        
+    }, [notificationMessages]);
+    
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100vh' }}>

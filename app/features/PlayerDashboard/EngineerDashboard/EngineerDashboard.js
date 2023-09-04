@@ -16,6 +16,9 @@ export default function EngineerDashboard(props){
       pendingRepairMatrixBlock,
       systemChargeLevels,
       engineerCompassMap,
+      getEmptyRepairMatrix,
+      engineerPendingBlock,
+      subLocations
     } = useGameContext();
 
     // Calculate the length difference between "west" and "east" words
@@ -26,6 +29,8 @@ export default function EngineerDashboard(props){
     // Calculate the margins based on the length difference
     const marginLeft = lengthDifference < 0 ? 10 * Math.abs(lengthDifference) : 0;
     const marginRight = lengthDifference > 0 ? 10 * lengthDifference : 0;
+
+    const [clearRepairMatrix, setClearRepairMatrix] = useState(false)
 
     console.log("margins", marginLeft, marginRight)
 
@@ -127,11 +132,12 @@ export default function EngineerDashboard(props){
     }
 
     const handleClick = () => {
-      // Your logic for handling the button click goes here
-      channel.publish("engineer-clear-systems", {});
-      // You can perform any actions you need here
+      setClearRepairMatrix(true)
     };
 
+    useEffect(() => {
+      setClearRepairMatrix(false)
+    }, [subLocations[playerTeam]]);
     
     return (
         <>
@@ -139,13 +145,13 @@ export default function EngineerDashboard(props){
     <div style={styles.containerRow}>
 
         <div style = {styles.containerColumn}>
-          { pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] && (
+          { pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Place a block</h4>
               </div>
           )}
-          { pendingNavigate[playerTeam] && pendingRepairMatrixBlock[playerTeam] && (
+          { pendingNavigate[playerTeam] && engineerPendingBlock[playerTeam] && (
               <div>
                   <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[playerTeam].toUpperCase()}`}</h4>
                   <h4 style={styles.pendingText}>Waiting for first mate...</h4>
@@ -153,7 +159,7 @@ export default function EngineerDashboard(props){
           )}
 
         <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <RepairMatrix channel={channel} current_system={engineerCompassMap[playerTeam][pendingNavigate[playerTeam]]} />
+          <RepairMatrix channel={channel} clearRepairMatrix={clearRepairMatrix} />
           <button
             style={{ ...styles.systemButton, border: `3px solid ${theme.white}`, marginTop: "10px" }}
             onClick={handleClick} // Attach the handleClick function as an event handler

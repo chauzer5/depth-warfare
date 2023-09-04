@@ -7,21 +7,22 @@ import { capitalizeFirstLetter, ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 
 export default function RepairMatrix(props){
-    const { channel, current_system } = props;
+    const { channel, clearRepairMatrix } = props;
 
-    const { repairMatrix, playerTeam, pendingRepairMatrixBlock, pendingNavigate } = useGameContext();
+    const { playerTeam, pendingNavigate, pendingSystemCharge, subLocations, getEmptyRepairMatrix, checkConnectedRepairMatrixPath, pickNewOuterCells, engineerPendingBlock, engineerCompassMap } = useGameContext();
+
+    // This creates an empty and random repair matrix
+    const [repairMatrix, setRepairMatrix] = useState(getEmptyRepairMatrix());
+    const [resolvedMatrix, setResolvedMatrix] = useState([]);
+    const [pendingRepairMatrixBlock, setPendingRepairMatrixBlock] = useState(null);
+    const blockSystem = engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
+
 
     const MATRIX_SIZE = process.env.REPAIR_MATRIX_DIMENSION
     const MATRIX_CELL_SIZE = process.env.REPAIR_MATRIX_CELL_SIZE
     const tabSize = Math.round(MATRIX_CELL_SIZE * .4)
+    const hoverColor = getColorByName(blockSystem)
 
-    // const [hoverColor, setHoverColor] = useState(null); // State to store the hover color
-
-    const hoverColor = getColorByName(current_system)
-    // useEffect(() => {
-    //     // Update the hover color whenever the current_system changes
-    //     hoverColor = getColorByName(current_system);
-    // }, [current_system]);
 
     const styles = {
         table: {
@@ -81,7 +82,7 @@ export default function RepairMatrix(props){
     const setBackgroundColor = (row, column) => {
         const cellStyle = {};
 
-        const cell = repairMatrix[playerTeam][row][column];
+        const cell = repairMatrix[row][column];
         const cellColor = getColorByName(cell.system)
 
         if (row === 0) {
@@ -115,31 +116,85 @@ export default function RepairMatrix(props){
         return cellStyle;
     }
 
-    const isPendingCell = (row, column) => {
-        if (pendingRepairMatrixBlock === null) {
-            return false;
-        }
-    
-        const playerTeamPendingBlock = pendingRepairMatrixBlock[playerTeam];
-        
-        if (playerTeamPendingBlock && playerTeamPendingBlock[0] === row && playerTeamPendingBlock[1] === column) {
+    const isPendingCell = (row, column) => {    
+        if (engineerPendingBlock[playerTeam] && engineerPendingBlock[playerTeam].row === row && engineerPendingBlock[playerTeam].column === column) {
             return true;
         }
         return false
-
     }
+
+    useEffect(() => {
+
+        if (clearRepairMatrix) {
+            const updatedMatrix = repairMatrix.map((row) =>
+                row.map((cell) => ({
+                    ...cell,
+                    system: cell.type === 'inner' ? 'empty' : cell.system,
+                }))
+            );
+            // Update the state with the repaired matrix
+            setRepairMatrix(updatedMatrix);
+        }
+        
+    }, [clearRepairMatrix]);
+
     
-    const clickable = pendingNavigate[playerTeam] && !pendingRepairMatrixBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
+    
+    const clickable = pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam] ;   // Can add other statements to see if it can be clickable
 
     const handleClick = (row, column) => {
-        channel.publish("engineer-place-system-block", { row, column });
+        const updatedMatrix = [...repairMatrix.map(row => [...row])];
+
+        updatedMatrix[row][column] = {
+            ...updatedMatrix[row][column],
+            system: blockSystem,
+        };
+
+        const { isConnected, pathRowIndices, pathColumnIndices } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
+        
+        if (isConnected) {
+            // Reset the cells along the path to "empty"
+            for (let i = 0; i < pathRowIndices.length; i++) {
+                const pathRow = pathRowIndices[i];
+                const pathCol = pathColumnIndices[i];
+
+                updatedMatrix[pathRow][pathCol] = {
+                    ...updatedMatrix[pathRow][pathCol],
+                    system: "empty",
+                };
+            }
+
+            // Choose new random nodes along the outside
+            const selectedCells = pickNewOuterCells(updatedMatrix)
+
+            for (const { row, col } of selectedCells) {
+                updatedMatrix[row][col] = {
+                    type: "outer",
+                    system: blockSystem,
+                };
+            } 
+        }
+
+        setResolvedMatrix(updatedMatrix)
+
+        const healSystem = isConnected
+        const clickedCell = {row, column}
+        
+        channel.publish("engineer-place-system-block", { clickedCell, healSystem });
     };
+
+    useEffect(() => {
+        if (resolvedMatrix.length > 0) {
+            setRepairMatrix(resolvedMatrix)
+            setResolvedMatrix([])
+        }
+    }, [subLocations[playerTeam]]);
 
     // Functions for game goes here
     return (
         <table style={styles.table}>
             <tbody>
-                {repairMatrix[playerTeam].map((row, rowIndex) => (
+                {repairMatrix.map((row, rowIndex) => (
                     <tr key={rowIndex} style={styles.row}>
                         {row.map((cell, columnIndex) => (
                             <td key={columnIndex} style={{

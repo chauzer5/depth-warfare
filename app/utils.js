@@ -89,6 +89,19 @@ export function getRightAngleUnitVector(array){
 
 }
 
+export function getCellName(row, col) {
+    // Convert the column index to a letter (assuming A=0, B=1, C=2, ...)
+    const colLetter = String.fromCharCode('A'.charCodeAt(0) + col);
+
+    // Add 1 to the row index to match 1-based indexing
+    const rowNumber = row + 1;
+
+    // Combine the letter and number to create the cell name
+    const cellName = `${colLetter}${rowNumber}`;
+
+    return cellName;
+}
+
 export function getCellSector(cell){
     const row = cell[0];
     const col = cell[1];
@@ -98,3 +111,11 @@ export function getCellSector(cell){
   
     return sector;
 }
+
+export function keepLastNElements(arr, n) {
+    if (arr.length <= n) {
+      return arr; // If the array has less than or equal to n elements, return the original array
+    } else {
+      return arr.slice(arr.length - n); // Use slice to get the last n elements
+    }
+  }

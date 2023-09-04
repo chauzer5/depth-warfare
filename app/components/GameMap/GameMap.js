@@ -7,8 +7,8 @@ import targetImage from '../../target.png';
 import Image from 'next/image';
 
 export default function GameMap (props) {
-    const { channel, handleClick, silence, toggledSystem, clickedCell, torpedoCells } = props;
-    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells, getCellsDistanceAway, getFirstMateSystemColor } = useGameContext();
+    const { channel, handleClick, silence, toggledSystem, clickedCell, torpedoCells, dropMineCells} = props;
+    const { gameMap, playerTeam, pendingNavigate, subLocations, getValidSilenceCells, getCellsDistanceAway, getFirstMateSystem, minesList } = useGameContext();
 
     const MAP_DIMENSION = process.env.MAP_DIMENSION;
     const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -46,11 +46,17 @@ export default function GameMap (props) {
             width: "25px",
             height: "26px",
             backgroundColor: theme.blue,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
         },
         redSub: {
             width: "25px",
             height: "26px",
             backgroundColor: theme.red,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
         },
         pendingMoveCell: {
             width: "25px",
@@ -79,6 +85,22 @@ export default function GameMap (props) {
         visitedCell: {
             color: theme.white,
             fontSize: "24px",
+        },
+        mineCell: {
+            color: getFirstMateSystem('mine').color,
+            fontSize: "24px",
+            position: 'absolute',
+            zIndex: 0,
+        },
+        targetCellStyle: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            width: '100%',
+            // position: 'absolute',
+            zIndex: 1,
+            pointerEvents: 'none',
         }
     };
 
@@ -92,6 +114,8 @@ export default function GameMap (props) {
 
         return sectorStyle;
     };
+
+    console.log("DropMineCells", dropMineCells)
 
     const getIslandBorders = (row, column) => {
         const islandStyle = {};
@@ -146,14 +170,31 @@ export default function GameMap (props) {
                                         !toggledSystem && pendingNavigate[playerTeam] === "south" && rowIndex === subLocations[playerTeam][0] + 1 && columnIndex === subLocations[playerTeam][1] ? styles.pendingMoveCell :
                                         !toggledSystem && pendingNavigate[playerTeam] === "west" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] - 1 ? styles.pendingMoveCell :
                                         !toggledSystem && pendingNavigate[playerTeam] === "east" && rowIndex === subLocations[playerTeam][0] && columnIndex === subLocations[playerTeam][1] + 1 ? styles.pendingMoveCell :
-                                        toggledSystem === 'torpedo' && torpedoCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) ? styles.inRangeCell : 
+                                        toggledSystem === 'torpedo' && torpedoCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) ? styles.inRangeCell :
+                                        toggledSystem === 'mine' && dropMineCells.find(cell => cell[0] === rowIndex && cell[1] === columnIndex) ? styles.inRangeCell : 
                                         styles.water
                                     }
                                     onClick={handleClick ? () => handleClick(cell, rowIndex, columnIndex) : null}
                                 >
+                                    {toggledSystem && clickedCell && clickedCell.row === rowIndex && clickedCell.column === columnIndex && (
+                                    <div style={styles.targetCellStyle}>
+                                        <Image
+                                        src={targetImage}
+                                        alt="Target"
+                                        width={25}
+                                        height={25}
+                                        />
+                                    </div>
+                                    )}
                                     {
                                         !toggledSystem && cell.visited && cell.visited[playerTeam] &&
                                         <span style={styles.visitedCell}>X</span>
+                                    }
+
+                                    {
+                                        toggledSystem === 'mine' && 
+                                        minesList[playerTeam].find(cell => cell[0] === rowIndex && cell[1] === columnIndex) &&
+                                        <span style={styles.mineCell}>M</span>
                                     }
 
                                     {
@@ -172,7 +213,7 @@ export default function GameMap (props) {
                                             onClick={() => {handleSilence(rowIndex, columnIndex)}}
                                         />
                                     }
-                                    {
+                                    {/* {
                                         toggledSystem &&
                                         <Box>
                                             {clickedCell &&
@@ -187,7 +228,7 @@ export default function GameMap (props) {
                                                 />
                                             </div>)}
                                         </Box>
-                                    }
+                                    } */}
                                     
                                     
                                 </Box>
