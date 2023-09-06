@@ -289,6 +289,7 @@ export function firstMateFireTorpedo(context, message){
     setMessageTimestamp,
     setNotificationMessages,
     notificationMessages,
+    setCurrentStage,
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -420,6 +421,11 @@ export function firstMateFireTorpedo(context, message){
   const ownUpdatedLifeSupport = updateLifeSupport(team, ownHits);
   const oppUpdatedLifeSupport = updateLifeSupport(oppositeTeam, oppHits);
 
+  // Potentially end the game
+  if(ownUpdatedLifeSupport <= 0 || oppUpdatedLifeSupport <= 0){
+    setCurrentStage("game-end");
+  }
+
   // Set the updated mines list
   setMinesList({
     [team]: updatedOwnMinesList,
@@ -507,6 +513,7 @@ export function firstMateDetonateMine(context, message){
     setMessageTimestamp,
     setNotificationMessages,
     notificationMessages,
+    setCurrentStage,
   } = context;
 
   let tempMessages = []
@@ -613,6 +620,11 @@ export function firstMateDetonateMine(context, message){
 
   const ownUpdatedLifeSupport = updateLifeSupport(team, ownHits);
   const oppUpdatedLifeSupport = updateLifeSupport(oppositeTeam, oppHits);
+
+  // Potentially end the game
+  if(ownUpdatedLifeSupport <= 0 || oppUpdatedLifeSupport <= 0){
+    setCurrentStage("game-end");
+  }
 
   // Set the updated mines list
   setMinesList({
