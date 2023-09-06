@@ -1,62 +1,33 @@
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
+import { isNavigationDisabled } from "./navigationUtils";
 
 export default function TriangleMoveButton(props){
-    const { direction, channel } = props;
+    let { direction, channel, brokenEngine, disabled, enabledDirection } = props;
     const { gameMap, subLocations, playerTeam , pendingNavigate } = useGameContext();
 
     const w = '30';
     const h = '30';
     const color = theme.green;
     const disabledColor = theme.darkGreen;
+    const brokenColor = theme.black;
 
-    let disabled = false;
+    // let disabled = false;
+    console.log(`engineStatus ${brokenEngine}, ${enabledDirection}`);
+
+
+    if (brokenEngine){ 
+        console.log(`d1: ${direction}, d2: ${enabledDirection}`);  
+        if(direction === enabledDirection){
+            disabled = false;
+            brokenEngine = false;
+            console.log(`I have entered the if statement: this is the direction: ${direction}`);
+        }
+    }
 
     if(pendingNavigate[playerTeam]){
         disabled = true;
     }
-
-    switch(direction){
-        case "north":
-            if(subLocations[playerTeam][0] === 0){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]].type === "island"){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]].visited[playerTeam]){
-                disabled = true;
-            }
-            break;
-        case "south":
-            if(subLocations[playerTeam][0] === process.env.MAP_DIMENSION - 1){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]].type === "island"){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]].visited[playerTeam]){
-                disabled = true;
-            }
-            break;
-        case "west":
-            if(subLocations[playerTeam][1] === 0){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1].type === "island"){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1].visited[playerTeam]){
-                disabled = true;
-            }
-            break;
-        case "east":
-            if(subLocations[playerTeam][1] === process.env.MAP_DIMENSION - 1){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1].type === "island"){
-                disabled = true;
-            } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1].visited[playerTeam]){
-                disabled = true;
-            }
-            break;
-        default:
-            console.error(`Unrecognized direction: ${direction}`);
-    }
-
 
     const handleClick = () => {
         channel.publish("captain-start-sub-navigate", {direction});
@@ -71,14 +42,14 @@ export default function TriangleMoveButton(props){
     
     return (
         <svg
-            cursor={disabled ? "not-allowed" : "pointer"}
+            cursor={disabled || brokenEngine ? "not-allowed" : "pointer"}
             width={w}
             height={h}
-            onClick={disabled ? null : handleClick}
+            onClick={disabled || brokenEngine ? null : handleClick}
         >
             <polygon
                 points={points[direction].join(' ')}
-                fill={disabled ? disabledColor : color}
+                fill={brokenEngine ? brokenColor : (disabled ? disabledColor : color)}
             />
         </svg>
     );
