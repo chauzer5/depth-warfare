@@ -6,7 +6,10 @@ import theme from "@/app/styles/theme";
 import { useGameContext } from "@/app/state/game_state";
 import TriangleMoveButton from "./TriangleMoveButton";
 import { SYSTEMS_INFO } from "@/app/utils";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import { easing } from "@mui/material";
+import { East } from "@mui/icons-material";
 
 export default function CaptainDashboard(props){
 
@@ -85,7 +88,92 @@ export default function CaptainDashboard(props){
         playerTeam,
         pendingNavigate,
         systemChargeLevels,
+        systemHealthLevels,
+        gameMap, 
+        subLocations,
     } = useGameContext();
+
+    //function to see which direction is disabled
+    function isNavigationDisabled(direction, brokenEngine) {
+        
+        if (pendingNavigate[playerTeam]){
+            return true;
+        }
+    
+        switch(direction){
+            case "north":
+                if(subLocations[playerTeam][0] === 0){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            case "south":
+                if(subLocations[playerTeam][0] === process.env.MAP_DIMENSION - 1){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            case "west":
+                if(subLocations[playerTeam][1] === 0){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            case "east":
+                if(subLocations[playerTeam][1] === process.env.MAP_DIMENSION - 1){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            default:
+                console.error(`Unrecognized direction: ${direction}`);
+                return false;
+        }
+    
+        return false;
+    }
+    //check to see if engine is broken
+    const [brokenEngine, setBrokenEngine] = useState(false);
+    const [randomEnabledDirection, setRandomEnabledDirection] = useState(null);
+
+    const directions = ["north", "south", "west", "east"];
+    const directionStates = {};
+    
+
+    directions.forEach((direction) => {
+        directionStates[direction] = isNavigationDisabled(direction, brokenEngine);
+    });
+    console.log(directionStates);
+
+
+    useEffect(() => {
+        console.log(`Engine Health: ${systemHealthLevels[playerTeam].engine}`);
+        if(systemHealthLevels[playerTeam].engine >0){
+            setBrokenEngine(false);
+        }
+        else {
+            setBrokenEngine(true);  
+            const trueDirections = Object.keys(directionStates).filter((direction)=> directionStates[direction] === false);
+            
+            const randomIndex = Math.floor(Math.random() * trueDirections.length);
+            console.log(randomIndex);
+            setRandomEnabledDirection(trueDirections[randomIndex]);
+            console.log(`Random Direction: ${randomEnabledDirection}`)
+               
+        }
+    }, [systemHealthLevels[playerTeam]]);
 
     const [silenceActivated, setSilenceActivated] = useState(false);
 
@@ -94,6 +182,10 @@ export default function CaptainDashboard(props){
     const silenceStateStyle = {
         color: !silenceCharged ? theme.gray : (silenceActivated ? theme.purple : theme.white),
         cursor: silenceCharged ? "pointer" : "default",
+    }
+
+    const handleSilence = (row, column) => {
+        channel?.publish("captain-silence", { row, column });
     };
 
     const handleClickSilence = () => {
@@ -119,18 +211,23 @@ export default function CaptainDashboard(props){
                 <SectorsKey />
                 <GameMap silence={silenceActivated} channel={channel}/>
                 <div style={styles.controls}>
+                    {brokenEngine ? (
+                        <h3 style={{ color: "red" }}>
+                            Engine is Broken
+                            </h3>
+                    ) : null}
                     {pendingNavigate[playerTeam] && <MovementPendingCard channel={channel}/>}
                     <div style={styles.navButtons}>
                         <div style={styles.navRow}><span>North</span></div>
-                        <div style={styles.navRow}><TriangleMoveButton direction="north" channel={channel}/></div>
+                        <div style={styles.navRow}><TriangleMoveButton direction="north" channel={channel} brokenEngine={brokenEngine} disabled = {directionStates["north"]} enabledDirection={randomEnabledDirection}/></div>
                         <div style={styles.navRow}>
                             <span style={styles.directionText}>West</span>
-                            <TriangleMoveButton direction="west" channel={channel}/>
+                            <TriangleMoveButton direction="west" channel={channel} brokenEngine={brokenEngine} disabled = {directionStates["west"]} enabledDirection={randomEnabledDirection}/>
                             <div style={{height: "100%", width: "50px"}} />
-                            <TriangleMoveButton direction="east" channel={channel}/>
+                            <TriangleMoveButton direction="east" channel={channel} brokenEngine={brokenEngine} disabled = {directionStates["east"]} enabledDirection={randomEnabledDirection}/>
                             <span style={styles.directionText}>East</span>
                         </div>
-                        <div style={styles.navRow}><TriangleMoveButton direction="south" channel={channel}/></div>
+                        <div style={styles.navRow}><TriangleMoveButton direction="south" channel={channel} brokenEngine={brokenEngine} disabled = {directionStates["south"]} enabledDirection={randomEnabledDirection}/></div>
                         <div style={styles.navRow}><span>South</span></div>
                     </div>
                     <div style={styles.silenceControls}>
