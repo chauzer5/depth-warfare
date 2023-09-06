@@ -67,6 +67,14 @@ export default function FirstMateDashboard(props){
             color: "black",
             fontFamily: "VT323, monospace",
         },
+        scanTypeSelector: {
+            backgroundColor: "black",
+            border: "3px solid green",
+            color: "white",
+            fontFamily: "VT323, monospace",
+            height: "25px",
+            marginTop: "12px",
+        },
     };
 
     const { channel } = props;
@@ -212,7 +220,7 @@ export default function FirstMateDashboard(props){
                     Mine
                 </button>
 
-                <div style={{display: "flex", flexDirection: "row", marginLeft: "68px"}}>
+                <div style={{display: "flex", flexDirection: "row", marginLeft: "56px"}}>
                     <button
                         style={{
                             ...styles.systemButton,
@@ -225,7 +233,7 @@ export default function FirstMateDashboard(props){
                     </button>
 
 
-                    <select name="scanType" id="scanType" value={scanType} onChange={(e) => setScanType(e.target.value)}>
+                    <select style={styles.scanTypeSelector} name="scanType" id="scanType" value={scanType} onChange={(e) => setScanType(e.target.value)}>
                         <option value="sector">Sector</option>
                         <option value="row">Row</option>
                         <option value="column">Column</option>

@@ -61,6 +61,7 @@ export function GameWrapper({children}) {
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
     const [enemyMovements, setEnemyMovements] = useState([]);
+    const [enemyMovementCountOnDisable, setEnemyMovementCountOnDisable] = useState(0);
     const [engineerCompassMap, setEngineerCompassMap] = useState({
         blue: {
             "north": "scan",
@@ -257,6 +258,11 @@ export function GameWrapper({children}) {
             console.log("should have pushed message", notificationMessage)
             tempMessages.push(notificationMessage)
             tempMessageTimestamp += 1
+
+            // If the system is comms, keep track of how many enemy movements were before it was disabled
+            if (blockSystem === "comms") {
+                setEnemyMovementCountOnDisable(enemyMovements.length);
+            }
         }
 
         // Damage the system corresponding to the block placed
@@ -695,6 +701,7 @@ export function GameWrapper({children}) {
             notificationSeverity,
             notificationMessage,
             currentlySurfacing,
+            enemyMovementCountOnDisable,
             clearVisitedPath,
             pickNewOuterCells,
             getValidSilenceCells,
@@ -741,7 +748,8 @@ export function GameWrapper({children}) {
             engineerPendingBlock,
             engineerHealSystem,
             setEngineerPendingBlock,
-            setEngineerHealSystem
+            setEngineerHealSystem,
+            setEnemyMovementCountOnDisable,
         }}>
             {children}
         </GameContext.Provider>

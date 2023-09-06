@@ -16,6 +16,7 @@ import { captainCancelSubNavigate,
         engineerClearSystems, firstMateFireTorpedo,
         firstMateDropMine, firstMateDetonateMine
        } from "../../state/message_handler";
+import GameEnd from "../GameEnd/GameEnd";
 
 export default function Game() {
   const {
@@ -94,6 +95,7 @@ export default function Game() {
         currentStage === "starting-spot" ? <StartingSpot channel={channel} /> :
         currentStage === "countdown" ? <Countdown /> :
         currentStage === "main" ? <PlayerDashboard channel={channel}/> :
+        currentStage === "game-end" ? <GameEnd /> :
         null
       }
     </>
