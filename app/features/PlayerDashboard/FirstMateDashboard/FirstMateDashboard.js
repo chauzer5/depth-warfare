@@ -117,7 +117,7 @@ export default function FirstMateDashboard(props){
         });
         setDropMineCells(filteredDropMineCells);
 
-    }, [pendingNavigate[playerTeam], minesList[playerTeam]]);
+    }, [subLocations[playerTeam], minesList[playerTeam]]);
 
     useEffect(() => {
         setScanDisabled(systemHealthLevels[playerTeam]["scan"] === 0)
