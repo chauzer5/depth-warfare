@@ -1,6 +1,5 @@
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
-import { isNavigationDisabled } from "./navigationUtils";
 
 export default function TriangleMoveButton(props){
     let { direction, channel, brokenEngine, disabled, enabledDirection } = props;
