@@ -8,7 +8,6 @@ import TriangleMoveButton from "./TriangleMoveButton";
 import { SYSTEMS_INFO } from "@/app/utils";
 import React, { useEffect, useState } from "react";
 
-import {isNavigationDisabled} from "./NavigationUtils";
 import { easing } from "@mui/material";
 import { East } from "@mui/icons-material";
 
@@ -90,9 +89,61 @@ export default function CaptainDashboard(props){
         pendingNavigate,
         systemChargeLevels,
         systemHealthLevels,
+        gameMap, 
+        subLocations,
     } = useGameContext();
 
-
+    //function to see which direction is disabled
+    function isNavigationDisabled(direction, brokenEngine) {
+        
+        if (pendingNavigate[playerTeam]){
+            return true;
+        }
+    
+        switch(direction){
+            case "north":
+                if(subLocations[playerTeam][0] === 0){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            case "south":
+                if(subLocations[playerTeam][0] === process.env.MAP_DIMENSION - 1){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            case "west":
+                if(subLocations[playerTeam][1] === 0){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            case "east":
+                if(subLocations[playerTeam][1] === process.env.MAP_DIMENSION - 1){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1].type === "island"){
+                    return true;
+                } else if(gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1].visited[playerTeam]){
+                    return true;
+                }
+                break;
+            default:
+                console.error(`Unrecognized direction: ${direction}`);
+                return false;
+        }
+    
+        return false;
+    }
     //check to see if engine is broken
     const [brokenEngine, setBrokenEngine] = useState(false);
     const [randomEnabledDirection, setRandomEnabledDirection] = useState(null);
@@ -102,7 +153,7 @@ export default function CaptainDashboard(props){
     
 
     directions.forEach((direction) => {
-        directionStates[direction] = isNavigationDisabled({ direction, channel, brokenEngine });
+        directionStates[direction] = isNavigationDisabled(direction, brokenEngine);
     });
     console.log(directionStates);
 
