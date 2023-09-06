@@ -68,7 +68,13 @@ export default function RadioOperatorDashboard(){
         },
     };
 
-    const { setRadioMapNotes, enemyMovements } = useGameContext();
+    const {
+        setRadioMapNotes,
+        enemyMovements,
+        systemHealthLevels,
+        enemyMovementCountOnDisable,
+        playerTeam,
+    } = useGameContext();
 
     const ref = useRef(null);
     const scrollToBottom = () => {
@@ -114,7 +120,9 @@ export default function RadioOperatorDashboard(){
                                     marginLeft: "5px"
                                 }}
                             >
-                                {`${index + 1}. ${capitalizeFirstLetter(movement)}`}
+                                {`${index + 1}. ${systemHealthLevels[playerTeam]["comms"] <= 0 && index >= enemyMovementCountOnDisable ?
+                                 "???" :
+                                 capitalizeFirstLetter(movement)}`}
                             </div>
                         ))}
                         <div ref={ref} />
