@@ -103,8 +103,6 @@ export function GameWrapper({children}) {
 
     function detonateWeapon(listToDetonate, listToUpdate, updatedDamageMap, damage) {
         let allHitCells = [];
-
-        console.log("listToDetonate", listToDetonate)
         
         for (let i = 0; i < listToDetonate.length; i++) {
             const detonationCell = listToDetonate[i];
@@ -142,6 +140,9 @@ export function GameWrapper({children}) {
           
 
     function rotateEngineerCompassValues(compassMap) {
+
+        // Move to engineer only
+
         let rotatedMap = { ...compassMap };
         rotatedMap["north"] = compassMap["west"]
         rotatedMap["east"] = compassMap["north"]
@@ -151,12 +152,14 @@ export function GameWrapper({children}) {
     }
 
     function getMessagePlayer(message){
-        const messageSender = playerData.find((player) => player.clientId === message.clientId);
+        const messageSender = playerData?.find((player) => player.clientId === message.clientId);
         return messageSender;
     };
 
     function moveSub(team, row, column){
         const mapCopy = [...gameMap];
+
+        console.log(`Previous Location:`, subLocations[team])
 
         // remove the old position and make the path visited
         if(subLocations[team]){
@@ -213,6 +216,9 @@ export function GameWrapper({children}) {
         const tempMessages = []
         let tempMessageTimestamp = messageTimestamp
 
+        console.log(`Previous System Charge Levels:`, systemChargeLevels[team]);
+        console.log(`Previous System Health Levels:`, systemHealthLevels[team]);
+
         // charge the specified system
         setSystemChargeLevels({
             ...systemChargeLevels,
@@ -238,7 +244,6 @@ export function GameWrapper({children}) {
                 severityOppTeam: null,
                 timestamp: tempMessageTimestamp,
             };
-            console.log("should have pushed message", notificationMessage)
 
             tempMessages.push(notificationMessage)
             tempMessageTimestamp += 1
@@ -255,7 +260,6 @@ export function GameWrapper({children}) {
                 severityOppTeam: null,
                 timestamp: tempMessageTimestamp,
             };
-            console.log("should have pushed message", notificationMessage)
             tempMessages.push(notificationMessage)
             tempMessageTimestamp += 1
 
@@ -289,7 +293,6 @@ export function GameWrapper({children}) {
         // move the sub in the specified direction
         moveSubDirection(team, pendingNavigate[team]);
         if(playerTeam !== team){
-            console.log("plotting enemy movements...")
             setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
         }
 
@@ -405,7 +408,6 @@ export function GameWrapper({children}) {
     
         // Check if there are at least two empty outer cells
         if (emptyOuterCells.length < 2) {
-            console.log("Not enough empty outer cells to assign current_system.");
             return;
         }
     

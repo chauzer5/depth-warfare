@@ -32,8 +32,6 @@ export default function EngineerDashboard(props){
 
     const [clearRepairMatrix, setClearRepairMatrix] = useState(false)
 
-    console.log("margins", marginLeft, marginRight)
-
     const styles = {
         systemLabel: {
             fontSize : "100px"

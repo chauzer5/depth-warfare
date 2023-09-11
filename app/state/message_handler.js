@@ -466,8 +466,6 @@ export function firstMateDropMine(context, message){
     setMessageTimestamp
   } = context;
 
-  console.log("Dropped Mine")
-
   const team = getMessagePlayer(message).team;
 
   setSystemChargeLevels({

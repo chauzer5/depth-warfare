@@ -115,8 +115,6 @@ export default function GameMap (props) {
         return sectorStyle;
     };
 
-    console.log("DropMineCells", dropMineCells)
-
     const getIslandBorders = (row, column) => {
         const islandStyle = {};
 

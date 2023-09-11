@@ -155,11 +155,8 @@ export default function CaptainDashboard(props){
     directions.forEach((direction) => {
         directionStates[direction] = isNavigationDisabled(direction, brokenEngine);
     });
-    console.log(directionStates);
-
 
     useEffect(() => {
-        console.log(`Engine Health: ${systemHealthLevels[playerTeam].engine}`);
         if(systemHealthLevels[playerTeam].engine >0){
             setBrokenEngine(false);
         }
@@ -168,9 +165,7 @@ export default function CaptainDashboard(props){
             const trueDirections = Object.keys(directionStates).filter((direction)=> directionStates[direction] === false);
             
             const randomIndex = Math.floor(Math.random() * trueDirections.length);
-            console.log(randomIndex);
             setRandomEnabledDirection(trueDirections[randomIndex]);
-            console.log(`Random Direction: ${randomEnabledDirection}`)
                
         }
     }, [systemHealthLevels[playerTeam]]);
