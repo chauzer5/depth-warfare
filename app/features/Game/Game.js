@@ -83,7 +83,7 @@ export default function Game() {
         firstMateScan(gameContext, newMessage);
         break;
       default:
-        console.err(`Unrecognized message type: ${newMessage?.name}}`);
+        console.error(`Unrecognized message type: ${newMessage?.name}}`);
     }
 
   }, [messagesList])
