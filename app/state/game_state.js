@@ -159,7 +159,7 @@ export function GameWrapper({children}) {
     function moveSub(team, row, column){
         const mapCopy = [...gameMap];
 
-        console.log(`Previous Location: ${subLocations[team]}`)
+        console.log(`Previous Location:`, subLocations[team])
 
         // remove the old position and make the path visited
         if(subLocations[team]){
@@ -216,8 +216,8 @@ export function GameWrapper({children}) {
         const tempMessages = []
         let tempMessageTimestamp = messageTimestamp
 
-        console.log(`Previous System Charge Levels: ${systemChargeLevels[team]}`);
-        console.log(`Previous System Health Levels: ${systemHealthLevels[team]}`);
+        console.log(`Previous System Charge Levels:`, systemChargeLevels[team]);
+        console.log(`Previous System Health Levels:`, systemHealthLevels[team]);
 
         // charge the specified system
         setSystemChargeLevels({
