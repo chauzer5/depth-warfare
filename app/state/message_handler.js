@@ -202,12 +202,13 @@ export function captainSurface(context, message){
     subLocations,
     setEnemyMovements,
     enemyMovements,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (team === playerTeam){
-    setCurrentlySurfacing(true);
+    setCurrentlySurfacing({...currentlySurfacing, [team] : true});
   }
 
   // Clear path

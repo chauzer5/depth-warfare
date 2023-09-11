@@ -1,9 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import theme from "@/app/styles/theme";
 
-const SurfacingPage = ({closeModal}) => {
+const SurfacingPage = ({closeModal, team}) => {
 
-    const [rectangleWidth, setRectangleWidth] = useState("0%");
+    const [rectangleWidth, setRectangleWidth] = useState({
+        red: "0%",
+        blue: "0%",
+    });
     
 
     const styles = {
@@ -13,7 +16,7 @@ const SurfacingPage = ({closeModal}) => {
             borderRadius: "15px",
             border: `4px solid ${theme.green}`,
             marginRight: "10px",
-            width: rectangleWidth,
+            width: rectangleWidth[team],
             transition: "width 30s ease",
           },
           rectangleBorder: {
@@ -28,7 +31,10 @@ const SurfacingPage = ({closeModal}) => {
 
     useEffect(() => {
         const delayTimeout = setTimeout(() => {
-            setRectangleWidth("97%");
+            setRectangleWidth((prevWidths) => ({
+                ...prevWidths,
+                [team]: "97%",
+            }));
         }, 10);
 
         const closeTimeout = setTimeout(() => {

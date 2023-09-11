@@ -21,23 +21,25 @@ export default function PlayerDashboard(props){
         button: {
             height: "20px",
             width: "60px",
-            backgroundColor: "#058800",
-            color: "#0F0",
+            backgroundColor: theme.darkGreen,
+            color: theme.green,
         },
         modalContent: {
-            backgroundColor: "#000",
-            color: "#0F0",
+            backgroundColor: theme.black,
+            color: theme.green,
         },
     
     }; 
 
-    const customModalSyles = {
+    const customModalStyles = {
         overlay: {
-            backgroundColor: "rgba(0,0,0,.7)",
+            backgroundColor: "rgba(0,0,0,0)",
             display: "flex",
             alignItems: "center", 
             justifyContent: "center",
-
+            width: "100%",
+            height: "100%",
+            zIndex: 1000,
         },
         content : {
             backgroundColor: "#000",
@@ -46,7 +48,22 @@ export default function PlayerDashboard(props){
             flexDirection: "column",
             alignItems: "center", 
             justifyContent: "center",
-        }
+            pointerEvents: "auto",
+            zIndex: 1001, 
+        },
+       
+        modalOverlay: {
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.7)", // Semi-transparent black background
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000, // Ensure the overlay is above other content
+        },
     }
 
     // Function to add a message to the Snackbar
@@ -59,11 +76,11 @@ export default function PlayerDashboard(props){
     };
 
     const openModal = () => {
-        setCurrentlySurfacing(true);
+        setCurrentlySurfacing({...currentlySurfacing, [playerTeam]: true})
     };
 
     const closeModal = () => {
-        setCurrentlySurfacing(false);
+        setCurrentlySurfacing({...currentlySurfacing, [playerTeam]: false})
     }
 
     const [lastSeenMessage, setLastSeenMessage] = useState(-1);
@@ -121,16 +138,26 @@ export default function PlayerDashboard(props){
         <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100vh' }}>
             <DashboardHeader />
             {/* Modal content */}
-            <Modal isOpen={currentlySurfacing} 
-                onRequestClose={closeModal}
-                overlayClassName="custom-modal-overlay"
-                style={customModalSyles}
-                >
-                <div style = {styles.modalContent}>
-                    <SurfacingPage closeModal = {closeModal}></SurfacingPage>
-                    {/* <button onClick={closeModal}>Close</button> */}
+            {currentlySurfacing[playerTeam] && (
+                <div className="custom-modal-overlay" style={customModalStyles.modalOverlay}>
+                {/* Overlay covers the entire screen */}
                 </div>
+            )}
+            {currentlySurfacing[playerTeam] && (
+                <div style={customModalStyles.modalContent}>
+                <Modal isOpen={currentlySurfacing[playerTeam]} 
+                    onRequestClose={closeModal}
+                    overlayClassName="custom-modal-overlay"
+                    style={customModalStyles}
+                    shouldCloseOnOverlayClick={false} 
+                    >
+                {/* <div style = {styles.customModalStyles}> */}
+                    <SurfacingPage closeModal = {closeModal} team={playerTeam}></SurfacingPage>
+                    {/* <button onClick={closeModal}>Close</button> */}
+                {/* </div> */}
             </Modal>
+            </div>
+            )}
             {/* Render dashboard based on player role */}
             {playerRole === 'captain' ? <CaptainDashboard channel={channel} /> :
                 playerRole === 'engineer' ? <EngineerDashboard channel={channel} /> :

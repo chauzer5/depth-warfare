@@ -28,7 +28,7 @@ export function GameWrapper({children}) {
     const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
     const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
     const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
-    const [currentlySurfacing, setCurrentlySurfacing] = useState(false);   
+    const [currentlySurfacing, setCurrentlySurfacing] = useState({blue: false, red: false});   
     const [systemChargeLevels, setSystemChargeLevels] = useState({ 
         blue: {
             mine: 0,
