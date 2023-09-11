@@ -152,7 +152,7 @@ export function GameWrapper({children}) {
     }
 
     function getMessagePlayer(message){
-        const messageSender = playerData.find((player) => player.clientId === message.clientId);
+        const messageSender = playerData?.find((player) => player.clientId === message.clientId);
         return messageSender;
     };
 
