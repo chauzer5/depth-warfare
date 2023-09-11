@@ -43,7 +43,7 @@ export default function Game() {
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
 
-    console.log(`Message: ${newMessage}`)
+    console.log("Message:", newMessage)
 
     switch(newMessage?.name){
       case "captain-set-starting-spot":
