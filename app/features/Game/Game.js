@@ -42,8 +42,8 @@ export default function Game() {
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
-    console.log("NEW MESSAGE RECEIVED");
-    console.log(newMessage);
+
+    console.log(`Message: ${newMessage}`)
 
     switch(newMessage?.name){
       case "captain-set-starting-spot":
@@ -83,7 +83,7 @@ export default function Game() {
         firstMateScan(gameContext, newMessage);
         break;
       default:
-        console.log(`Unrecognized message type: ${newMessage?.name}}`);
+        console.err(`Unrecognized message type: ${newMessage?.name}}`);
     }
 
   }, [messagesList])

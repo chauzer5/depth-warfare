@@ -12,15 +12,12 @@ export default function TriangleMoveButton(props){
     const brokenColor = theme.black;
 
     // let disabled = false;
-    console.log(`engineStatus ${brokenEngine}, ${enabledDirection}`);
 
 
     if (brokenEngine){ 
-        console.log(`d1: ${direction}, d2: ${enabledDirection}`);  
         if(direction === enabledDirection){
             disabled = false;
             brokenEngine = false;
-            console.log(`I have entered the if statement: this is the direction: ${direction}`);
         }
     }
 
