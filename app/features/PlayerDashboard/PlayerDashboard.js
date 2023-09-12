@@ -75,12 +75,8 @@ export default function PlayerDashboard(props){
         });
     };
 
-    const openModal = () => {
-        setCurrentlySurfacing({...currentlySurfacing, [playerTeam]: true})
-    };
-
     const closeModal = () => {
-        setCurrentlySurfacing({...currentlySurfacing, [playerTeam]: false})
+        channel.publish("stop-surfacing", {})
     }
 
     const [lastSeenMessage, setLastSeenMessage] = useState(-1);

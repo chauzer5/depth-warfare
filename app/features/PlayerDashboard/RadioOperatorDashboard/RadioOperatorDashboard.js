@@ -81,6 +81,10 @@ export default function RadioOperatorDashboard(){
         ref.current.scrollIntoView({ behavior: "smooth" });
     }
 
+    const isMoveHidden = (index) => {
+        return systemHealthLevels[playerTeam]["comms"] <= 0 && index >= movementCountOnDisable[playerTeam === "blue" ? "red" : "blue"]
+    }
+
     const oppositeTeam = playerTeam === "blue" ? "red" : "blue"
 
     useEffect(() => {
@@ -118,11 +122,11 @@ export default function RadioOperatorDashboard(){
                                 key={index}
                                 style={{
                                     fontSize: "24px",
-                                    color: movement === "silence" ? theme.purple : movement.includes("surface") ? theme.green : theme.white,
+                                    color: movement === "silence" && !isMoveHidden(index) ? theme.purple : movement.includes("surface") && !isMoveHidden(index) ? theme.green : theme.white,
                                     marginLeft: "5px"
                                 }}
                             >
-                                {`${index + 1}. ${systemHealthLevels[playerTeam]["comms"] <= 0 && index >= movementCountOnDisable[playerTeam === "blue" ? "red" : "blue"] ?
+                                {`${index + 1}. ${isMoveHidden(index) ?
                                  "???" :
                                  capitalizeFirstLetter(movement)}`}
                             </div>

@@ -14,6 +14,7 @@ const GameContext = createContext();
 export function GameWrapper({children}) {
     const islandList = maps[process.env.ISLAND_MAP];
     const [username, setUsername] = useState();
+    const [hostClientId, setHostClientId] = useState(null)
     const [currentStage, setCurrentStage] = useState("login");
     const [gameId, setGameId] = useState();
     const [playerTeam, setPlayerTeam] = useState();
@@ -159,8 +160,6 @@ export function GameWrapper({children}) {
     function moveSub(team, row, column){
         const mapCopy = [...gameMap];
 
-        console.log(`Previous Location:`, subLocations[team])
-
         // remove the old position and make the path visited
         if(subLocations[team]){
             const prevContents = gameMap[subLocations[team][0]][subLocations[team][1]];
@@ -207,8 +206,10 @@ export function GameWrapper({children}) {
         const newContents = { ...prevContents, subPresent: { ...prevContents.subPresent, [team]: true }};
         mapCopy[row][column] = newContents;
 
-        setSubLocations({ ...subLocations, [team]: [row, column] });
-        setGameMap(mapCopy);
+        return {
+            subLocations: { ...subLocations, [team]: [row, column] },
+            gameMap: mapCopy,
+        }
     };
 
     function finishTurn(systemHealed, chargedSystem, team) {
@@ -216,24 +217,46 @@ export function GameWrapper({children}) {
         const tempMessages = []
         let tempMessageTimestamp = messageTimestamp
 
-        console.log(`Previous System Charge Levels:`, systemChargeLevels[team]);
-        console.log(`Previous System Health Levels:`, systemHealthLevels[team]);
-
         // charge the specified system
-        setSystemChargeLevels({
-            ...systemChargeLevels,
-            [team]: {
-                ...systemChargeLevels[team],
-                [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
-            },
-        });
+        const syncStateMessage = {systemChargeLevels: 
+            {
+                ...systemChargeLevels,
+                [team]: {
+                    ...systemChargeLevels[team],
+                    [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
+                },
+            }
+        };
 
         // place the pending matrix block and create an updated version of the repair matrix
         const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
 
+        // Filter out invalid systems, then damage a random system
+        const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
+            (system) => systemHealthLevels[team][system] > 0 && system !== 'life support'
+        );
+
+        let randomSystem = blockSystem
+
+        if (filteredSystems.length > 0) {
+            // Generate a random index within the valid range of filtered systems
+            const randomIndex = Math.floor(Math.random() * filteredSystems.length);
+            // Use the random index to select a system from the filtered list
+            randomSystem = filteredSystems[randomIndex];
+        } 
+
         // set the updated health level for the system
-        const updatedHealthLevel = systemHealed ? process.env.MAX_SYSTEM_HEALTH : Math.max(systemHealthLevels[team][blockSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
+        const updatedHealthLevel = Math.max(systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
         
+        // Damage the system corresponding to the block placed
+        syncStateMessage['systemHealthLevels'] = {
+            ...systemHealthLevels,
+            [team]: {
+                ...systemHealthLevels[team],
+                [randomSystem]: updatedHealthLevel,
+            },
+        };
+
         if (systemHealed) {
             const notificationMessage = {
                 team,
@@ -247,13 +270,15 @@ export function GameWrapper({children}) {
 
             tempMessages.push(notificationMessage)
             tempMessageTimestamp += 1
+
+            syncStateMessage['systemHealthLevels'][team][blockSystem] = process.env.MAX_SYSTEM_HEALTH
         }
 
-        if (systemHealthLevels[team][blockSystem] > 0 && updatedHealthLevel === 0) {
+        if (syncStateMessage['systemHealthLevels'][team][randomSystem] === 0 && systemHealthLevels[team][randomSystem] > 0) {
             // Notify team that system is now disabled
             const notificationMessage = {
                 team,
-                sameTeamMessage: `${capitalizeFirstLetter(blockSystem)} disabled`,
+                sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
                 oppTeamMessage: null,
                 intendedPlayer: "all", // You can specify a player here if needed
                 severitySameTeam: "error",
@@ -264,19 +289,11 @@ export function GameWrapper({children}) {
             tempMessageTimestamp += 1
 
             // If the system is comms, keep track of how many enemy movements were before it was disabled
-            if (blockSystem === "comms") {
-                setMovementCountOnDisable(movements[team === "blue" ? "red" : "blue"].length);
-            }
+            if (randomSystem === "comms") {
+                const oppositeTeam = team === "blue" ? "red" : "blue"
+                syncStateMessage['movementCountOnDisable'] = {...movementCountOnDisable, [oppositeTeam]: movements[oppositeTeam].length};
+            } 
         }
-
-        // Damage the system corresponding to the block placed
-        setSystemHealthLevels({
-            ...systemHealthLevels,
-            [team]: {
-                ...systemHealthLevels[team],
-                [blockSystem]: updatedHealthLevel,
-            },
-        });
 
         // Update the state with the new matrix containing reset cells
         const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
@@ -288,40 +305,46 @@ export function GameWrapper({children}) {
             }
         };
 
-        setEngineerCompassMap(updatedTeamMap);
+        syncStateMessage['engineerCompassMap'] = updatedTeamMap
 
         // move the sub in the specified direction
-        moveSubDirection(team, pendingNavigate[team]);
-        setMovements({...movements, [team]: [...movements[team], pendingNavigate[team]]});
+        const moveSubInfo = moveSubDirection(team, pendingNavigate[team]);
 
-        // reset the pending state
-        setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
-        setPendingNavigate({ ...pendingNavigate, [team]: null });
-        setEngineerPendingBlock({...engineerPendingBlock, [team]: null})
-        setEngineerHealSystem({...engineerHealSystem, [team]: false})
+        syncStateMessage['subLocations'] = moveSubInfo.subLocations
+        syncStateMessage['gameMap'] = moveSubInfo.gameMap
 
-        setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES));
-        setMessageTimestamp(tempMessageTimestamp);
+        syncStateMessage['movements'] = {...movements, [team]: [...movements[team], pendingNavigate[team]]};
+        syncStateMessage['pendingSystemCharge'] = { ...pendingSystemCharge, [team]: null };
+        syncStateMessage['engineerPendingBlock'] = { ...engineerPendingBlock, [team]: null };
+        syncStateMessage['pendingNavigate'] = { ...pendingNavigate, [team]: null };
+        syncStateMessage['engineerHealSystem'] = { ...engineerHealSystem, [team]: false };
+        syncStateMessage['notificationMessages'] = keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES);
+        syncStateMessage['messageTimestamp'] = tempMessageTimestamp
+
+        // sync state across the clients
+        return syncStateMessage
     }
 
     function moveSubDirection(team, direction){
         const [row, column] = subLocations[team];
+        let moveInfo = {}
         switch(direction){
             case "north":
-                moveSub(team, row - 1, column);
+                moveInfo = moveSub(team, row - 1, column);
                 break;
             case "south":
-                moveSub(team, row + 1, column);
+                moveInfo = moveSub(team, row + 1, column);
                 break;
             case "west":
-                moveSub(team, row, column - 1);
+                moveInfo = moveSub(team, row, column - 1);
                 break;
             case "east":
-                moveSub(team, row, column + 1);
+                moveInfo = moveSub(team, row, column + 1);
                 break;
             default:
                 console.error(`Unrecognized direction: ${direction}`);
         }
+        return moveInfo
     };
 
     function resetMap(){
@@ -368,7 +391,7 @@ export function GameWrapper({children}) {
             }
         }
 
-        setGameMap(mapCopy);
+        return mapCopy
     }
 
     const isCornerRepairMatrix = (row, column, matrix) => {
@@ -687,6 +710,7 @@ export function GameWrapper({children}) {
             minesList,
             subLocations,
             hitPoints,
+            hostClientId,
             gameMap,
             repairMatrix,
             playerData,
@@ -701,7 +725,7 @@ export function GameWrapper({children}) {
             notificationSeverity,
             notificationMessage,
             currentlySurfacing,
-            enemyMovementCountOnDisable,
+            movementCountOnDisable,
             clearVisitedPath,
             pickNewOuterCells,
             getValidSilenceCells,
@@ -749,7 +773,8 @@ export function GameWrapper({children}) {
             engineerHealSystem,
             setEngineerPendingBlock,
             setEngineerHealSystem,
-            setEnemyMovementCountOnDisable,
+            setMovementCountOnDisable,
+            setHostClientId,
         }}>
             {children}
         </GameContext.Provider>

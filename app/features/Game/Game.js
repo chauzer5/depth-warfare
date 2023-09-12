@@ -12,9 +12,9 @@ import { captainCancelSubNavigate,
         firstMateScan,
         engineerPlaceSystemBlock, 
         captainSurface,
-        firstMateChooseSystemCharge, 
-        engineerClearSystems, firstMateFireTorpedo,
-        firstMateDropMine, firstMateDetonateMine
+        firstMateChooseSystemCharge, firstMateFireTorpedo,
+        firstMateDropMine, firstMateDetonateMine, syncNetworkState,
+        stopSurfacing
        } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
 
@@ -24,8 +24,8 @@ export default function Game() {
     username,
     currentStage,
     resetMap,
-    getEmptyRepairMatrix,
-    setRepairMatrix,
+    selfClientId,
+    hostClientId,
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -43,49 +43,68 @@ export default function Game() {
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
 
-    console.log("Message:", newMessage)
+    // console.log("Message:", newMessage)
 
-    switch(newMessage?.name){
-      case "captain-set-starting-spot":
-        captainSetStartingSpot(gameContext, newMessage);
-        break;
-      case "captain-start-sub-navigate":
-        captainStartSubNavigate(gameContext, newMessage);
-        break;
-      case "captain-cancel-sub-navigate":
-        captainCancelSubNavigate(gameContext, newMessage);
-        break;
-      case "engineer-place-system-block":
-        engineerPlaceSystemBlock(gameContext, newMessage);
-        break;
-      case "engineer-clear-systems":
-        engineerClearSystems(gameContext, newMessage);
-        break;
-      case "first-mate-choose-system-charge":
-        firstMateChooseSystemCharge(gameContext, newMessage);
-        break;
-      case "captain-silence":
-        captainSilence(gameContext, newMessage);
-        break;
-      case "captain-surface":
-        captainSurface(gameContext, newMessage);
-        break;
-      case "first-mate-fire-torpedo":
-        firstMateFireTorpedo(gameContext, newMessage);
-        break;
-      case "first-mate-drop-mine":
-        firstMateDropMine(gameContext, newMessage);
-        break;
-      case "first-mate-detonate-mine":
-        firstMateDetonateMine(gameContext, newMessage);
-        break;
-      case "first-mate-scan":
-        firstMateScan(gameContext, newMessage);
-        break;
-      default:
-        console.error(`Unrecognized message type: ${newMessage?.name}}`);
+    if (selfClientId === hostClientId) {
+      let networkState = {}
+      switch(newMessage?.name){
+        case "captain-set-starting-spot": // Done
+          networkState = captainSetStartingSpot(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "captain-start-sub-navigate":
+          networkState = captainStartSubNavigate(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "captain-cancel-sub-navigate":
+          networkState = captainCancelSubNavigate(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "engineer-place-system-block":
+          networkState = engineerPlaceSystemBlock(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "first-mate-choose-system-charge":
+          networkState = firstMateChooseSystemCharge(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "captain-silence":
+          networkState = captainSilence(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "captain-surface":
+          networkState = captainSurface(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "stop-surfacing":
+          networkState = stopSurfacing(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "first-mate-fire-torpedo":
+          networkState = firstMateFireTorpedo(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "first-mate-drop-mine":
+          networkState = firstMateDropMine(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "first-mate-detonate-mine":
+          networkState = firstMateDetonateMine(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        case "first-mate-scan":
+          networkState = firstMateScan(gameContext, newMessage);
+          channel.publish("sync-network-state", networkState)
+          break;
+        default:
+          console.error(`Unrecognized message type: ${newMessage?.name}}`);
+      }
     }
 
+    if (newMessage?.name === "sync-network-state") {
+      syncNetworkState(gameContext, newMessage)
+    }
+    
   }, [messagesList])
 
   return (
