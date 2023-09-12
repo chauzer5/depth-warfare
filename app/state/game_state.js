@@ -60,8 +60,8 @@ export function GameWrapper({children}) {
         }
     });
     const [radioMapNotes, setRadioMapNotes] = useState([]);
-    const [enemyMovements, setEnemyMovements] = useState([]);
-    const [enemyMovementCountOnDisable, setEnemyMovementCountOnDisable] = useState(0);
+    const [movements, setMovements] = useState({blue: [], red: []});
+    const [movementCountOnDisable, setMovementCountOnDisable] = useState({blue: 0, red: 0});
     const [engineerCompassMap, setEngineerCompassMap] = useState({
         blue: {
             "north": "scan",
@@ -265,7 +265,7 @@ export function GameWrapper({children}) {
 
             // If the system is comms, keep track of how many enemy movements were before it was disabled
             if (blockSystem === "comms") {
-                setEnemyMovementCountOnDisable(enemyMovements.length);
+                setMovementCountOnDisable(movements[team === "blue" ? "red" : "blue"].length);
             }
         }
 
@@ -292,9 +292,7 @@ export function GameWrapper({children}) {
 
         // move the sub in the specified direction
         moveSubDirection(team, pendingNavigate[team]);
-        if(playerTeam !== team){
-            setEnemyMovements([...enemyMovements, pendingNavigate[team]]);
-        }
+        setMovements({...movements, [team]: [...movements[team], pendingNavigate[team]]});
 
         // reset the pending state
         setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
@@ -698,7 +696,7 @@ export function GameWrapper({children}) {
             systemHealthLevels,
             engineerCompassMap,
             radioMapNotes,
-            enemyMovements,
+            movements,
             notificationOpen,
             notificationSeverity,
             notificationMessage,
@@ -730,7 +728,7 @@ export function GameWrapper({children}) {
             getEmptyRepairMatrix,
             getCellsDistanceAway,
             setRadioMapNotes,
-            setEnemyMovements,
+            setMovements,
             checkConnectedRepairMatrixPath,
             healSystem,
             rotateEngineerCompassValues,

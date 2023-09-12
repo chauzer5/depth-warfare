@@ -70,9 +70,9 @@ export default function RadioOperatorDashboard(){
 
     const {
         setRadioMapNotes,
-        enemyMovements,
+        movements,
         systemHealthLevels,
-        enemyMovementCountOnDisable,
+        movementCountOnDisable,
         playerTeam,
     } = useGameContext();
 
@@ -81,9 +81,11 @@ export default function RadioOperatorDashboard(){
         ref.current.scrollIntoView({ behavior: "smooth" });
     }
 
+    const oppositeTeam = playerTeam === "blue" ? "red" : "blue"
+
     useEffect(() => {
         scrollToBottom();
-    }, [enemyMovements]);
+    }, [movements[oppositeTeam]]);
 
     return (
         <div style={styles.main}>
@@ -111,7 +113,7 @@ export default function RadioOperatorDashboard(){
                 <div style={styles.rightColumn}>
                     <h3 style={styles.header}>Enemy Movements</h3>
                     <Box style={styles.movementsList}>
-                        {enemyMovements.map((movement, index) => (
+                        {movements[playerTeam === "blue" ? "red" : "blue"].map((movement, index) => (
                             <div
                                 key={index}
                                 style={{
@@ -120,7 +122,7 @@ export default function RadioOperatorDashboard(){
                                     marginLeft: "5px"
                                 }}
                             >
-                                {`${index + 1}. ${systemHealthLevels[playerTeam]["comms"] <= 0 && index >= enemyMovementCountOnDisable ?
+                                {`${index + 1}. ${systemHealthLevels[playerTeam]["comms"] <= 0 && index >= movementCountOnDisable[playerTeam === "blue" ? "red" : "blue"] ?
                                  "???" :
                                  capitalizeFirstLetter(movement)}`}
                             </div>

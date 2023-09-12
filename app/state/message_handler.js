@@ -42,32 +42,8 @@ export function captainStartSubNavigate(context, message) {
 // MESSAGE: {row, column}
 export function engineerPlaceSystemBlock(context, message){
   const {
-    pendingNavigate,
-    setPendingNavigate,
-    pendingRepairMatrixBlock,
-    systemChargeLevels,
-    setSystemChargeLevels,
     pendingSystemCharge,
     getMessagePlayer,
-    checkConnectedRepairMatrixPath,
-    moveSubDirection,
-    setSystemHealthLevels,
-    systemHealthLevels,
-    enemyMovements,
-    setEnemyMovements,
-    playerTeam,
-    healSystem,
-    setPendingSystemCharge,
-    setRepairMatrix,
-    repairMatrix,
-    pickNewOuterCells,
-    engineerCompassMap,
-    setEngineerCompassMap,
-    rotateEngineerCompassValues,
-    notificationMessages,
-    setNotificationMessages,
-    setMessageTimestamp,
-    messageTimestamp,
     engineerPendingBlock,
     engineerHealSystem,
     setEngineerPendingBlock,
@@ -89,32 +65,9 @@ export function engineerPlaceSystemBlock(context, message){
 // MESSAGE: {system}
 export function firstMateChooseSystemCharge(context, message){
   const {
-    pendingNavigate,
-    setPendingNavigate,
-    pendingRepairMatrixBlock,
-    systemChargeLevels,
-    setSystemChargeLevels,
     pendingSystemCharge,
     getMessagePlayer,
-    checkConnectedRepairMatrixPath,
-    moveSubDirection,
-    setSystemHealthLevels,
-    systemHealthLevels,
-    enemyMovements,
-    setEnemyMovements,
-    playerTeam,
-    healSystem,
     setPendingSystemCharge,
-    setRepairMatrix,
-    repairMatrix,
-    pickNewOuterCells,
-    engineerCompassMap,
-    setEngineerCompassMap,
-    rotateEngineerCompassValues,
-    setNotificationMessages,
-    notificationMessages,
-    setMessageTimestamp,
-    messageTimestamp,
     engineerPendingBlock,
     engineerHealSystem,
     finishTurn
@@ -161,8 +114,8 @@ export function captainSilence(context, message){
     systemChargeLevels,
     getMessagePlayer,
     moveSub,
-    enemyMovements,
-    setEnemyMovements,
+    movements,
+    setMovements,
     playerTeam,
   } = context;
 
@@ -181,9 +134,8 @@ export function captainSilence(context, message){
   });
 
   // Add "silence" to the enemy movements list
-  if(playerTeam !== team){
-    setEnemyMovements([...enemyMovements, "silence"]);
-  }
+  setMovements({...movements, [team]: [...movements[team], "silence"]});
+
 }
 
 // Captain triggers a "surface" event
@@ -200,8 +152,8 @@ export function captainSurface(context, message){
     systemHealthLevels,
     setSystemHealthLevels,
     subLocations,
-    setEnemyMovements,
-    enemyMovements,
+    setMovements,
+    movements,
     currentlySurfacing,
   } = context;
 
@@ -230,10 +182,9 @@ export function captainSurface(context, message){
   setRepairMatrix({...repairMatrix, [team]: getEmptyRepairMatrix()});
 
   // Send to enemy radio operator
-  if(playerTeam !== team){
-    const sector = getCellSector(subLocations[team]);
-    setEnemyMovements([...enemyMovements, `surface(${sector})`]);
-  }
+  const sector = getCellSector(subLocations[team]);
+  setMovements({...movements, [team]: [...movements[team], `surface(${sector})`]});
+
 
 }
 
