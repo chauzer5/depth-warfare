@@ -149,7 +149,6 @@ export default function FirstMateDashboard(props){
             channel.publish("first-mate-drop-mine", clickedCell);
         }
         if (systemName === 'mine' && validDetonateMine) {
-            
             channel.publish("first-mate-detonate-mine", clickedCell);
         }
     };

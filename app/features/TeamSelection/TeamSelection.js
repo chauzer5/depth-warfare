@@ -43,10 +43,12 @@ export default function TeamSelection(props) {
     setPlayerTeam,
     setPlayerRole,
     setPlayerData,
+    setHostClientId,
   } = useGameContext();
 
 
   useEffect(() => {
+    
     if(presenceData.length === process.env.NUM_REQUIRED_PLAYERS && !presenceData.find(player => !player.data.team)){
       setPlayerTeam(presenceData.find(player => player.clientId === selfClientId).data.team);
       setPlayerRole(presenceData.find(player => player.clientId === selfClientId).data.role);
@@ -60,6 +62,13 @@ export default function TeamSelection(props) {
         };
       });
 
+      // Sort the newPlayerData array by clientId
+      newPlayerData.sort((a, b) => a.clientId.localeCompare(b.clientId));
+
+      // Get the first clientId in the sorted array. This is guarenteed to be the same for all players
+      const hostClientId = newPlayerData[0].clientId;
+
+      setHostClientId(hostClientId)
       setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
     }

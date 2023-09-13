@@ -70,9 +70,9 @@ export default function RadioOperatorDashboard(){
 
     const {
         setRadioMapNotes,
-        enemyMovements,
+        movements,
         systemHealthLevels,
-        enemyMovementCountOnDisable,
+        movementCountOnDisable,
         playerTeam,
     } = useGameContext();
 
@@ -81,9 +81,15 @@ export default function RadioOperatorDashboard(){
         ref.current.scrollIntoView({ behavior: "smooth" });
     }
 
+    const isMoveHidden = (index) => {
+        return systemHealthLevels[playerTeam]["comms"] <= 0 && index >= movementCountOnDisable[playerTeam === "blue" ? "red" : "blue"]
+    }
+
+    const oppositeTeam = playerTeam === "blue" ? "red" : "blue"
+
     useEffect(() => {
         scrollToBottom();
-    }, [enemyMovements]);
+    }, [movements[oppositeTeam]]);
 
     return (
         <div style={styles.main}>
@@ -111,16 +117,16 @@ export default function RadioOperatorDashboard(){
                 <div style={styles.rightColumn}>
                     <h3 style={styles.header}>Enemy Movements</h3>
                     <Box style={styles.movementsList}>
-                        {enemyMovements.map((movement, index) => (
+                        {movements[playerTeam === "blue" ? "red" : "blue"].map((movement, index) => (
                             <div
                                 key={index}
                                 style={{
                                     fontSize: "24px",
-                                    color: movement === "silence" ? theme.purple : movement.includes("surface") ? theme.green : theme.white,
+                                    color: movement === "silence" && !isMoveHidden(index) ? theme.purple : movement.includes("surface") && !isMoveHidden(index) ? theme.green : theme.white,
                                     marginLeft: "5px"
                                 }}
                             >
-                                {`${index + 1}. ${systemHealthLevels[playerTeam]["comms"] <= 0 && index >= enemyMovementCountOnDisable ?
+                                {`${index + 1}. ${isMoveHidden(index) ?
                                  "???" :
                                  capitalizeFirstLetter(movement)}`}
                             </div>

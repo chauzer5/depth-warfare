@@ -55,7 +55,7 @@ export default function SystemDamage(props){
             // border: "4px solid #0F0",
             marginRight: "10px",
             transition: "width 1s ease",
-            animation: "blink 1s infinite",
+            // animation: "blink 1s infinite",
             // backgroundColor: theme.white,
           },
           damageRectangle: {

@@ -7,20 +7,23 @@ export function captainSetStartingSpot(context, message) {
         moveSub,
         getMessagePlayer,
         subLocations,
-        setCurrentStage,
     } = context;
 
     const team = getMessagePlayer(message).team;
 
     let allDone = false;
-    moveSub(team, message.data.row, message.data.column);
+
+    const networkState = moveSub(team, message.data.row, message.data.column);
+
     if(subLocations[team === "blue" ? "red" : "blue"]){
       allDone = true;
     }
 
     if(allDone){
-      setCurrentStage("countdown");
+      networkState['currentStage'] = "countdown"
     }
+
+    return networkState
 }
 
 // This is the one where the captain picks a direction to go, 
@@ -29,92 +32,47 @@ export function captainSetStartingSpot(context, message) {
 export function captainStartSubNavigate(context, message) {
   const {
     pendingNavigate,
-    setPendingNavigate,
     getMessagePlayer,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
-  setPendingNavigate({ ...pendingNavigate, [team]: message.data.direction });
+  return { pendingNavigate: { ...pendingNavigate, [team]: message.data.direction } }
 }
 
 //engineer picks the systems to activate, which will damage it each turn
 // MESSAGE: {row, column}
 export function engineerPlaceSystemBlock(context, message){
   const {
-    pendingNavigate,
-    setPendingNavigate,
-    pendingRepairMatrixBlock,
-    systemChargeLevels,
-    setSystemChargeLevels,
     pendingSystemCharge,
     getMessagePlayer,
-    checkConnectedRepairMatrixPath,
-    moveSubDirection,
-    setSystemHealthLevels,
-    systemHealthLevels,
-    enemyMovements,
-    setEnemyMovements,
-    playerTeam,
-    healSystem,
-    setPendingSystemCharge,
-    setRepairMatrix,
-    repairMatrix,
-    pickNewOuterCells,
-    engineerCompassMap,
-    setEngineerCompassMap,
-    rotateEngineerCompassValues,
-    notificationMessages,
-    setNotificationMessages,
-    setMessageTimestamp,
-    messageTimestamp,
     engineerPendingBlock,
     engineerHealSystem,
-    setEngineerPendingBlock,
-    setEngineerHealSystem,
     finishTurn
   } = context;
 
   const team = getMessagePlayer(message).team;
 
+  let networkState = {}
+
   if (!pendingSystemCharge[team]) {
-    setEngineerPendingBlock({...engineerPendingBlock, [team]: message.data.clickedCell})
-    setEngineerHealSystem({...engineerHealSystem, [team]: message.data.healSystem})
+    networkState = {
+      engineerPendingBlock: {...engineerPendingBlock, [team]: message.data.clickedCell},
+      engineerHealSystem: {...engineerHealSystem, [team]: message.data.healSystem}
+    }
   } else {
-    finishTurn(message.data.healSystem, pendingSystemCharge[team], team)
+    networkState = finishTurn(message.data.healSystem, pendingSystemCharge[team], team)
   }
+
+  return networkState
 }
 
 // first mate choses something to activate
 // MESSAGE: {system}
 export function firstMateChooseSystemCharge(context, message){
   const {
-    pendingNavigate,
-    setPendingNavigate,
-    pendingRepairMatrixBlock,
-    systemChargeLevels,
-    setSystemChargeLevels,
     pendingSystemCharge,
     getMessagePlayer,
-    checkConnectedRepairMatrixPath,
-    moveSubDirection,
-    setSystemHealthLevels,
-    systemHealthLevels,
-    enemyMovements,
-    setEnemyMovements,
-    playerTeam,
-    healSystem,
-    setPendingSystemCharge,
-    setRepairMatrix,
-    repairMatrix,
-    pickNewOuterCells,
-    engineerCompassMap,
-    setEngineerCompassMap,
-    rotateEngineerCompassValues,
-    setNotificationMessages,
-    notificationMessages,
-    setMessageTimestamp,
-    messageTimestamp,
     engineerPendingBlock,
     engineerHealSystem,
     finishTurn
@@ -122,14 +80,20 @@ export function firstMateChooseSystemCharge(context, message){
 
   const team = getMessagePlayer(message).team;
 
+  let networkState = {}
+
   if (!engineerPendingBlock[team]) {
-    setPendingSystemCharge({ ...pendingSystemCharge, [team]: message.data.system });
+    networkState = {
+      pendingSystemCharge: { ...pendingSystemCharge, [team]: message.data.system },
+    }
   }
   else {
     // This means we are second to go this turn
     // engineerHealSystem[team] should already be assigned
-    finishTurn(engineerHealSystem[team], message.data.system, team)
+    networkState = finishTurn(engineerHealSystem[team], message.data.system, team)
   }
+
+  return networkState
 }
 
 //Captain can change his mind on a move he makes
@@ -137,52 +101,57 @@ export function firstMateChooseSystemCharge(context, message){
 export function captainCancelSubNavigate(context, message){
   const {
     pendingNavigate,
-    setPendingNavigate,
-    pendingRepairMatrixBlock,
-    setEngineerPendingBlock,
     pendingSystemCharge,
-    setPendingSystemCharge,
     getMessagePlayer,
     engineerPendingBlock
   } = context;
 
   const team = getMessagePlayer(message).team;
 
-  setPendingNavigate({ ...pendingNavigate, [team]: null });
-  setEngineerPendingBlock({ ...engineerPendingBlock, [team]: null });
-  setPendingSystemCharge({ ...pendingSystemCharge, [team]: null });
+  return {
+    pendingNavigate: { ...pendingNavigate, [team]: null },
+    engineerPendingBlock: { ...engineerPendingBlock, [team]: null },
+    pendingSystemCharge: { ...pendingSystemCharge, [team]: null },
+  }
 }
 
 // Captain uses the silence ability
 // MESSAGE: {row, column}
 export function captainSilence(context, message){
   const {
-    setSystemChargeLevels,
     systemChargeLevels,
     getMessagePlayer,
     moveSub,
-    enemyMovements,
-    setEnemyMovements,
-    playerTeam,
+    movements,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   // Move the sub to the chosen location
-  moveSub(team, message.data.row, message.data.column);
+  const networkState = moveSub(team, message.data.row, message.data.column);
 
-  // Reduce the charge level of the silence system to 0
-  setSystemChargeLevels({
+  networkState['systemChargeLevels'] = {
     ...systemChargeLevels,
     [team]: {
       ...systemChargeLevels[team],
       silence: 0,
     },
-  });
+  }
+  networkState['movements'] =  {...movements, [team]: [...movements[team], "silence"]}
 
-  // Add "silence" to the enemy movements list
-  if(playerTeam !== team){
-    setEnemyMovements([...enemyMovements, "silence"]);
+  return networkState
+}
+
+export function stopSurfacing(context, message){
+  const {
+    getMessagePlayer,
+    currentlySurfacing,
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  return {
+    currentlySurfacing: {...currentlySurfacing, [team] : false},
   }
 }
 
@@ -190,85 +159,37 @@ export function captainSilence(context, message){
 // MESSAGE: {}
 export function captainSurface(context, message){
   const {
-    playerTeam,
-    setRepairMatrix,
-    repairMatrix,
-    getEmptyRepairMatrix,
     clearVisitedPath,
     getMessagePlayer,
-    setCurrentlySurfacing,
     systemHealthLevels,
-    setSystemHealthLevels,
     subLocations,
-    setEnemyMovements,
-    enemyMovements,
+    movements,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
-
-  if (team === playerTeam){
-    setCurrentlySurfacing(true);
-  }
 
   // Clear path
-  clearVisitedPath(team);
-
-  // Repair systems
-  setSystemHealthLevels({
-    ...systemHealthLevels, 
-    [team]: {
-      weapons: process.env.MAX_SYSTEM_HEALTH,
-      scan: process.env.MAX_SYSTEM_HEALTH,
-      engine: process.env.MAX_SYSTEM_HEALTH,
-      comms: process.env.MAX_SYSTEM_HEALTH,
-      "life support": systemHealthLevels[team]["life support"],
-    }
-  });
-
-  // Clear matrix
-  setRepairMatrix({...repairMatrix, [team]: getEmptyRepairMatrix()});
+  const updatedGameMap = clearVisitedPath(team);
 
   // Send to enemy radio operator
-  if(playerTeam !== team){
-    const sector = getCellSector(subLocations[team]);
-    setEnemyMovements([...enemyMovements, `surface(${sector})`]);
+  const sector = getCellSector(subLocations[team]);
+
+  return {
+    currentlySurfacing: {...currentlySurfacing, [team] : true},
+    systemHealthLevels: {
+      ...systemHealthLevels, 
+      [team]: {
+        weapons: process.env.MAX_SYSTEM_HEALTH,
+        scan: process.env.MAX_SYSTEM_HEALTH,
+        engine: process.env.MAX_SYSTEM_HEALTH,
+        comms: process.env.MAX_SYSTEM_HEALTH,
+        "life support": systemHealthLevels[team]["life support"],
+      }
+    },
+    movements: {...movements, [team]: [...movements[team], `surface(${sector})`]},
+    gameMap: updatedGameMap
   }
-
-}
-
-// Engineer clears the systems
-// MESSAGE: {}
-export function engineerClearSystems(context, message){
-  const {
-    playerTeam,
-    healSystem,
-    setSystemHealthLevels,
-    systemHealthLevels,
-    getMessagePlayer,
-    getEmptyRepairMatrix,
-    setRepairMatrix,
-    repairMatrix,
-  } = context;
-
-  const team = getMessagePlayer(message).team;
-
-  const tempHealthLevels = {}
-  // Heal all systems
-  ENGINEER_SYSTEMS_INFO.forEach(systemInfo => {
-    if (systemInfo.name !== "life support") {
-        // Damage the life support
-        tempHealthLevels[systemInfo.name] = process.env.MAX_SYSTEM_HEALTH
-    }
-  });
-
-  tempHealthLevels["life support"] = Math.max(systemHealthLevels[team]["life support"] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
-
-  // Damage the life support
-  setSystemHealthLevels({
-    ...systemHealthLevels,
-    [team]: tempHealthLevels,
-  });
-
 }
 
 // First mate fires a torpedo
@@ -278,30 +199,26 @@ export function firstMateFireTorpedo(context, message){
     getMessagePlayer,
     updateLifeSupport,
     subLocations,
-    setSystemHealthLevels,
     systemHealthLevels,
-    setSystemChargeLevels,
     systemChargeLevels,
     minesList,
     detonateWeapon,
-    setMinesList,
     messageTimestamp,
-    setMessageTimestamp,
-    setNotificationMessages,
     notificationMessages,
-    setCurrentStage,
   } = context;
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue"
 
-  setSystemChargeLevels({
-    ...systemChargeLevels,
-    [team]: {
-      ...systemChargeLevels[team],
-      torpedo: 0,
-    },
-  });
+  const syncNetworkMessage = {
+    systemChargeLevels: {
+      ...systemChargeLevels,
+      [team]: {
+        ...systemChargeLevels[team],
+        torpedo: 0,
+      },
+    }
+  }
 
   let tempMessages = []
   let tempTimestamp = messageTimestamp
@@ -423,17 +340,16 @@ export function firstMateFireTorpedo(context, message){
 
   // Potentially end the game
   if(ownUpdatedLifeSupport <= 0 || oppUpdatedLifeSupport <= 0){
-    setCurrentStage("game-end");
+    syncNetworkMessage['currentStage'] = "game-end"
   }
 
   // Set the updated mines list
-  setMinesList({
+  syncNetworkMessage['minesList'] = {
     [team]: updatedOwnMinesList,
     [oppositeTeam]: updatedOppMinesList
-  })
+  }
 
-  // Update the life support after the craziness
-  setSystemHealthLevels({
+  syncNetworkMessage['systemHealthLevels'] = {
     ...systemHealthLevels,
     [team]: {
       ...systemHealthLevels[team],
@@ -443,11 +359,12 @@ export function firstMateFireTorpedo(context, message){
       ...systemHealthLevels[oppositeTeam],
       "life support": oppUpdatedLifeSupport, // Update the opposite team's life support
     },
-  });
+  }
 
-  // Add a notification message
-  setMessageTimestamp(tempTimestamp)
-  setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES))
+  syncNetworkMessage['messageTimestamp'] = tempTimestamp
+  syncNetworkMessage['notificationMessages'] = keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES)
+
+  return syncNetworkMessage
 }
 
 // First mate drops a mine
@@ -455,25 +372,22 @@ export function firstMateFireTorpedo(context, message){
 export function firstMateDropMine(context, message){
   const {
     getMessagePlayer,
-    setSystemChargeLevels,
     systemChargeLevels,
     minesList,
-    setMinesList,
     notificationMessages,
-    setNotificationMessages,
     messageTimestamp,
-    setMessageTimestamp
   } = context;
 
   const team = getMessagePlayer(message).team;
 
-  setSystemChargeLevels({
+  const syncNetworkMessage = {
+    systemChargeLevels: {
     ...systemChargeLevels,
     [team]: {
       ...systemChargeLevels[team],
       mine: 0,
-    },
-  });
+    }}
+  };
 
   const notificationMessage = {
     team,
@@ -485,14 +399,11 @@ export function firstMateDropMine(context, message){
     timestamp: messageTimestamp,
   };
 
-  setMessageTimestamp(messageTimestamp + 1)
-
-  // Add a notification message
-  setNotificationMessages(keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES))
-
-  setMinesList({...minesList,
-  [team]: [...minesList[team], [message.data.row, message.data.column]]})
-
+  syncNetworkMessage['messageTimestamp'] = messageTimestamp + 1
+  syncNetworkMessage['notificationMessages'] = keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES)
+  syncNetworkMessage['minesList'] = {...minesList, [team]: [...minesList[team], [message.data.row, message.data.column]]}
+  
+  return syncNetworkMessage
 }
 
 // First mate detonates a mine
@@ -502,16 +413,11 @@ export function firstMateDetonateMine(context, message){
     getMessagePlayer,
     updateLifeSupport,
     subLocations,
-    setSystemHealthLevels,
     systemHealthLevels,
     minesList,
     detonateWeapon,
-    setMinesList,
     messageTimestamp,
-    setMessageTimestamp,
-    setNotificationMessages,
     notificationMessages,
-    setCurrentStage,
   } = context;
 
   let tempMessages = []
@@ -619,19 +525,21 @@ export function firstMateDetonateMine(context, message){
   const ownUpdatedLifeSupport = updateLifeSupport(team, ownHits);
   const oppUpdatedLifeSupport = updateLifeSupport(oppositeTeam, oppHits);
 
+  const syncNetworkMessage = {}
+
   // Potentially end the game
   if(ownUpdatedLifeSupport <= 0 || oppUpdatedLifeSupport <= 0){
-    setCurrentStage("game-end");
+    syncNetworkMessage['currentStage'] = "game-end"
   }
 
   // Set the updated mines list
-  setMinesList({
+  syncNetworkMessage['minesList'] = {
     [team]: updatedOwnMinesList,
     [oppositeTeam]: updatedOppMinesList
-  })
+  }
 
   // Update the life support after the craziness
-  setSystemHealthLevels({
+  syncNetworkMessage['systemHealthLevels'] = {
     ...systemHealthLevels,
     [team]: {
       ...systemHealthLevels[team],
@@ -641,11 +549,12 @@ export function firstMateDetonateMine(context, message){
       ...systemHealthLevels[oppositeTeam],
       "life support": oppUpdatedLifeSupport, // Update the opposite team's life support
     },
-  });
+  };
 
-  // Add a notification message
-  setMessageTimestamp(tempTimestamp)
-  setNotificationMessages(keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES))
+  syncNetworkMessage['messageTimestamp'] = tempTimestamp
+  syncNetworkMessage['notificationMessages'] = keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES)
+
+  return syncNetworkMessage
 }
 
 // First mate uses up their scan charge
@@ -653,12 +562,8 @@ export function firstMateDetonateMine(context, message){
 export function firstMateScan(context, message){
   const {
     getMessagePlayer,
-    setSystemChargeLevels,
     systemChargeLevels,
-    scanForEnemySub,
     messageTimestamp,
-    setMessageTimestamp,
-    setNotificationMessages,
     notificationMessages,
   } = context;
   
@@ -674,15 +579,85 @@ export function firstMateScan(context, message){
       timestamp: messageTimestamp,
   };
 
-  setMessageTimestamp(messageTimestamp + 1)
-  setNotificationMessages(keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES))
+  return {
+    messageTimestamp: messageTimestamp + 1,
+    notificationMessages: keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES),
+    systemChargeLevels: {
+      ...systemChargeLevels,
+      [team]: {
+        ...systemChargeLevels[team],
+        scan: 0,
+      },
+    }
+  }
+}
+
+export function syncNetworkState(context, message){
+  const {
+    setCurrentStage,
+    setSubLocations,
+    setGameMap,
+    setSystemChargeLevels,
+    setMovementCountOnDisable,
+    setSystemHealthLevels,
+    setEngineerCompassMap,
+    setMovements,
+    setPendingSystemCharge,
+    setEngineerPendingBlock,
+    setPendingNavigate,
+    setEngineerHealSystem,
+    setNotificationMessages,
+    setMessageTimestamp,
+    setCurrentlySurfacing,
+    setMinesList
+  } = context;
   
-  // Reduce the charge of the scan system to 0
-  setSystemChargeLevels({
-    ...systemChargeLevels,
-    [team]: {
-      ...systemChargeLevels[team],
-      scan: 0,
-    },
-  });
+  if (message.data.hasOwnProperty("currentStage")) {
+    setCurrentStage(message.data.currentStage);
+  }
+  if (message.data.hasOwnProperty("subLocations")) {
+    setSubLocations(message.data.subLocations);
+  }
+  if (message.data.hasOwnProperty("gameMap")) {
+    setGameMap(message.data.gameMap);
+  }
+  if (message.data.hasOwnProperty("systemChargeLevels")) {
+    setSystemChargeLevels(message.data.systemChargeLevels);
+  }
+  if (message.data.hasOwnProperty("movementCountOnDisable")) {
+    setMovementCountOnDisable(message.data.movementCountOnDisable);
+  }
+  if (message.data.hasOwnProperty("systemHealthLevels")) {
+    setSystemHealthLevels(message.data.systemHealthLevels);
+  }
+  if (message.data.hasOwnProperty("engineerCompassMap")) {
+    setEngineerCompassMap(message.data.engineerCompassMap);
+  }
+  if (message.data.hasOwnProperty("movements")) {
+    setMovements(message.data.movements);
+  }
+  if (message.data.hasOwnProperty("pendingSystemCharge")) {
+    setPendingSystemCharge(message.data.pendingSystemCharge);
+  }
+  if (message.data.hasOwnProperty("engineerPendingBlock")) {
+    setEngineerPendingBlock(message.data.engineerPendingBlock);
+  }
+  if (message.data.hasOwnProperty("pendingNavigate")) {
+    setPendingNavigate(message.data.pendingNavigate);
+  }
+  if (message.data.hasOwnProperty("engineerHealSystem")) {
+    setEngineerHealSystem(message.data.engineerHealSystem);
+  }
+  if (message.data.hasOwnProperty("notificationMessages")) {
+    setNotificationMessages(message.data.notificationMessages);
+  }
+  if (message.data.hasOwnProperty("messageTimestamp")) {
+    setMessageTimestamp(message.data.messageTimestamp);
+  }
+  if (message.data.hasOwnProperty("currentlySurfacing")) {
+    setCurrentlySurfacing(message.data.currentlySurfacing);
+  }
+  if (message.data.hasOwnProperty("minesList")) {
+    setMinesList(message.data.minesList);
+  }
 }
