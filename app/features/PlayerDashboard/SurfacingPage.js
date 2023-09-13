@@ -45,7 +45,7 @@ const SurfacingPage = ({channel, team}) => {
             clearTimeout(delayTimeout);
             clearTimeout(closeTimeout);
         };
-    }, [closeModal]);
+    }, []);
 
     return (
         <div>
