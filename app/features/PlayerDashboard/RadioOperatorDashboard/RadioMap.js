@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import { useGameContext } from "@/app/state/game_state";
 import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
+import { useState } from "react";
 
 export default function RadioMap () {
     const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
@@ -48,6 +49,10 @@ export default function RadioMap () {
             color: theme.white,
             fontSize: "24px",
         },
+        latestNote: {
+            color: theme.red,
+            fontSize: "24px",
+        }
     };
 
     const getSectorStyle = (row, column) => {
@@ -73,6 +78,8 @@ export default function RadioMap () {
         return islandStyle;
     }
 
+    const [latestNoteCell, setLatestNoteCell] = useState(null);
+
     const handleClick = (row, column) => {
         if(radioMapNotes.find((note) => note[0] === row && note[1] === column)){
             // Remove note
@@ -80,6 +87,7 @@ export default function RadioMap () {
         }
         else {
             // Add note
+            setLatestNoteCell([row, column]);
             setRadioMapNotes([...radioMapNotes, [row, column]]);
         }
     };
@@ -107,7 +115,10 @@ export default function RadioMap () {
                                     sx={ cell.type === "island" ? styles.island : styles.water }
                                     onClick={() => handleClick(rowIndex, columnIndex)}
                                 >
-                                    {radioMapNotes.find((note) => note[0] === rowIndex && note[1] === columnIndex) && <span style={styles.note}>X</span>}
+                                    {radioMapNotes.find((note) => note[0] === rowIndex && note[1] === columnIndex) && 
+                                    <span style={rowIndex === latestNoteCell[0] && columnIndex === latestNoteCell[1] ? styles.latestNote : styles.note}>
+                                        X
+                                    </span>}
                                 </Box>
                             </td>
                         ))}
