@@ -39,7 +39,7 @@ const SurfacingPage = ({channel, team}) => {
 
         const closeTimeout = setTimeout(() => {
             channel.publish("stop-surfacing", {}); // Close the modal after the rectangle is fully grown
-        }, 5000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
+        }, 30000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
 
         return () => {
             clearTimeout(delayTimeout);
