@@ -33,13 +33,13 @@ const SurfacingPage = ({channel, team}) => {
         const delayTimeout = setTimeout(() => {
             setRectangleWidth((prevWidths) => ({
                 ...prevWidths,
-                [team]: "97%",
+                [team]: "98%",
             }));
         }, 10);
 
         const closeTimeout = setTimeout(() => {
             channel.publish("stop-surfacing", {}); // Close the modal after the rectangle is fully grown
-        }, 30000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
+        }, 50000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
 
         return () => {
             clearTimeout(delayTimeout);

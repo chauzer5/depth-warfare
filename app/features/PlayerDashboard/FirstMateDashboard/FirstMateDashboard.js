@@ -168,7 +168,7 @@ export default function FirstMateDashboard(props){
     }
 
     const validTorpedoSelection = clickedCell && torpedoCells.find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
-    const validScanSelection = clickedCell.row && clickedCell.column;
+    const validScanSelection = !!clickedCell;
     const validDropMine = clickedCell && dropMineCells.find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
     const validDetonateMine = clickedCell && minesList[playerTeam].find(cell => cell[0] === clickedCell.row && cell[1] === clickedCell.column)
 
