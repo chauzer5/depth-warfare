@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import theme from "@/app/styles/theme";
 
-const SurfacingPage = ({closeModal, team}) => {
+const SurfacingPage = ({channel, team}) => {
 
     const [rectangleWidth, setRectangleWidth] = useState({
         red: "0%",
@@ -38,8 +38,8 @@ const SurfacingPage = ({closeModal, team}) => {
         }, 10);
 
         const closeTimeout = setTimeout(() => {
-            closeModal(); // Close the modal after the rectangle is fully grown
-        }, 30000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
+            channel.publish("stop-surfacing", {}); // Close the modal after the rectangle is fully grown
+        }, 5000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
 
         return () => {
             clearTimeout(delayTimeout);

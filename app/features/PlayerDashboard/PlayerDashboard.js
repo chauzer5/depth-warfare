@@ -75,10 +75,6 @@ export default function PlayerDashboard(props){
         });
     };
 
-    const closeModal = () => {
-        channel.publish("stop-surfacing", {})
-    }
-
     const [lastSeenMessage, setLastSeenMessage] = useState(-1);
 
     // When new messages are received, filter and update the state
@@ -136,18 +132,15 @@ export default function PlayerDashboard(props){
             )}
             {currentlySurfacing[playerTeam] && (
                 <div style={customModalStyles.modalContent}>
-                <Modal isOpen={currentlySurfacing[playerTeam]} 
-                    onRequestClose={closeModal}
-                    overlayClassName="custom-modal-overlay"
-                    style={customModalStyles}
-                    shouldCloseOnOverlayClick={false} 
+                    <Modal 
+                        isOpen={currentlySurfacing[playerTeam]} 
+                        overlayClassName="custom-modal-overlay"
+                        style={customModalStyles}
+                        shouldCloseOnOverlayClick={false} 
                     >
-                {/* <div style = {styles.customModalStyles}> */}
-                    <SurfacingPage closeModal = {closeModal} team={playerTeam}></SurfacingPage>
-                    {/* <button onClick={closeModal}>Close</button> */}
-                {/* </div> */}
-            </Modal>
-            </div>
+                        <SurfacingPage channel={channel} team={playerTeam}></SurfacingPage>
+                    </Modal>
+                </div>
             )}
             {/* Render dashboard based on player role */}
             {playerRole === 'captain' ? <CaptainDashboard channel={channel} /> :
