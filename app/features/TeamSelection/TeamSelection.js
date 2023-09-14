@@ -28,13 +28,10 @@ export default function TeamSelection(props) {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-    }
+    },
   };
 
-  const {
-    presenceData,
-    updateStatus,
-  } = props;
+  const { presenceData, updateStatus } = props;
 
   const {
     username,
@@ -46,12 +43,19 @@ export default function TeamSelection(props) {
     setHostClientId,
   } = useGameContext();
 
-
   useEffect(() => {
-    
-    if(presenceData.length === process.env.NUM_REQUIRED_PLAYERS && !presenceData.find(player => !player.data.team)){
-      setPlayerTeam(presenceData.find(player => player.clientId === selfClientId).data.team);
-      setPlayerRole(presenceData.find(player => player.clientId === selfClientId).data.role);
+    if (
+      presenceData.length === process.env.NUM_REQUIRED_PLAYERS &&
+      !presenceData.find((player) => !player.data.team)
+    ) {
+      setPlayerTeam(
+        presenceData.find((player) => player.clientId === selfClientId).data
+          .team
+      );
+      setPlayerRole(
+        presenceData.find((player) => player.clientId === selfClientId).data
+          .role
+      );
 
       const newPlayerData = presenceData.map((player) => {
         return {
@@ -68,7 +72,7 @@ export default function TeamSelection(props) {
       // Get the first clientId in the sorted array. This is guarenteed to be the same for all players
       const hostClientId = newPlayerData[0].clientId;
 
-      setHostClientId(hostClientId)
+      setHostClientId(hostClientId);
       setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
     }
@@ -76,13 +80,14 @@ export default function TeamSelection(props) {
 
   const handleClick = (selectedTeam, selectedRole) => {
     const playerSelected = presenceData.find((player) => {
-      return (player.data.team === selectedTeam && player.data.role === selectedRole);
+      return (
+        player.data.team === selectedTeam && player.data.role === selectedRole
+      );
     });
 
-    if(!playerSelected){
-      updateStatus({ name: username, team: selectedTeam, role: selectedRole});
-    }
-    else if(playerSelected.clientId === selfClientId){
+    if (!playerSelected) {
+      updateStatus({ name: username, team: selectedTeam, role: selectedRole });
+    } else if (playerSelected.clientId === selfClientId) {
       updateStatus({ name: username, team: null, role: null });
     }
   };
@@ -93,16 +98,56 @@ export default function TeamSelection(props) {
         <h3>Pick your team and role</h3>
         <div style={styles.selectors}>
           <div style={styles.team}>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="blue" role="captain"/>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="blue" role="first-mate"/>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="blue" role="engineer"/>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="blue" role="radio-operator"/>
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="blue"
+              role="captain"
+            />
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="blue"
+              role="first-mate"
+            />
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="blue"
+              role="engineer"
+            />
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="blue"
+              role="radio-operator"
+            />
           </div>
           <div style={styles.team}>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="red" role="captain"/>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="red" role="first-mate"/>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="red" role="engineer"/>
-            <TeamRoleButton presenceData={presenceData} handleClick={handleClick} team="red" role="radio-operator"/>
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="red"
+              role="captain"
+            />
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="red"
+              role="first-mate"
+            />
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="red"
+              role="engineer"
+            />
+            <TeamRoleButton
+              presenceData={presenceData}
+              handleClick={handleClick}
+              team="red"
+              role="radio-operator"
+            />
           </div>
         </div>
       </div>

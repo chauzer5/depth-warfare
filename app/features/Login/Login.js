@@ -2,7 +2,6 @@ import { useGameContext } from "../../state/game_state";
 import theme from "@/app/styles/theme";
 
 export default function Login() {
-
   const styles = {
     main: {
       width: "100%",
@@ -31,12 +30,9 @@ export default function Login() {
       textDecoration: "none",
       fontFamily: "'VT323', monospace",
     },
-  }
+  };
 
-  const {
-    setUsername,
-    setCurrentStage,
-  } = useGameContext();
+  const { setUsername, setCurrentStage } = useGameContext();
 
   const handleChangeUsername = (event) => {
     setUsername(event.target.value);
@@ -48,10 +44,17 @@ export default function Login() {
   };
 
   return (
-      <form style={styles.main} onSubmit={handleSubmit}>
-        <label>Username</label>
-        <input style={styles.usernameInput} type="text" onChange={handleChangeUsername} autoFocus/>
-        <button style={styles.lobbyButton} type="submit">Enter Lobby</button>
-      </form>
+    <form style={styles.main} onSubmit={handleSubmit}>
+      <label>Username</label>
+      <input
+        style={styles.usernameInput}
+        type="text"
+        onChange={handleChangeUsername}
+        autoFocus
+      />
+      <button style={styles.lobbyButton} type="submit">
+        Enter Lobby
+      </button>
+    </form>
   );
 }

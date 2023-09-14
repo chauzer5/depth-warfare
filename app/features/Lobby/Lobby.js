@@ -1,9 +1,9 @@
 "use client";
 
-import { useGameContext } from '@/app/state/game_state';
-import { useChannel, usePresence } from '@ably-labs/react-hooks'
-import { useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useGameContext } from "@/app/state/game_state";
+import { useChannel, usePresence } from "@ably-labs/react-hooks";
+import { useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Lobby() {
   const styles = {
@@ -24,29 +24,33 @@ export default function Lobby() {
     },
     player: {
       margin: "5px",
-    }
+    },
   };
 
-  const { username, selfClientId, setGameId, setCurrentStage } = useGameContext();
-  
+  const { username, selfClientId, setGameId, setCurrentStage } =
+    useGameContext();
+
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
-    if(message.name === "start-game"){
+    if (message.name === "start-game") {
       setGameId(message.data.gameId);
       setCurrentStage("teams");
     }
   });
 
-  const [presenceData] = usePresence("depth-warfare-lobby", {name: username});
-  
+  const [presenceData] = usePresence("depth-warfare-lobby", { name: username });
+
   useEffect(() => {
-    if(presenceData.length === process.env.NUM_REQUIRED_PLAYERS && selfClientId === presenceData[0].clientId){
-      channel.publish("start-game", {gameId: uuidv4()});
+    if (
+      presenceData.length === process.env.NUM_REQUIRED_PLAYERS &&
+      selfClientId === presenceData[0].clientId
+    ) {
+      channel.publish("start-game", { gameId: uuidv4() });
     }
   }, [presenceData]);
 
   // Disables the context menu on right click if not running locally
   useEffect(() => {
-    if(window.location.hostname !== "localhost"){
+    if (window.location.hostname !== "localhost") {
       document.addEventListener("contextmenu", (event) => {
         event.preventDefault();
       });
@@ -57,11 +61,11 @@ export default function Lobby() {
     <div style={styles.main}>
       <div style={styles.container}>
         <h3>Waiting for more players...</h3>
-        {
-          presenceData.map((player, index) => (
-            <p key={index} style={styles.player}>{player.data.name}</p>
-          ))
-        }
+        {presenceData.map((player, index) => (
+          <p key={index} style={styles.player}>
+            {player.data.name}
+          </p>
+        ))}
       </div>
     </div>
   );

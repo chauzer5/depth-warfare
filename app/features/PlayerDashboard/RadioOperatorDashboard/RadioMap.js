@@ -4,127 +4,155 @@ import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
 import { useState } from "react";
 
-export default function RadioMap () {
-    const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
+export default function RadioMap() {
+  const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
 
-    const MAP_DIMENSION = process.env.MAP_DIMENSION;
-    const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
+  const MAP_DIMENSION = process.env.MAP_DIMENSION;
+  const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
 
-    const styles = {
-        table: {
-            borderCollapse: "collapse",
-            maxHeight: `${(MAP_DIMENSION + 1) * 25}px`,
-        },
-        cell: {
-            border: `2px solid ${theme.green}`,
-            borderCollapse: "collapse",
-            width: "25px",
-            padding: 0,
-        },
-        columnHeader: {
-            width: "25px",
-        },
-        island: {
-            width: "25px",
-            height: "25px",
-            backgroundColor: theme.darkGreen,
-            "&:hover": {
-                backgroundColor: theme.green,
-            },
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        water: {
-            width: "25px",
-            height: "26px",
-            "&:hover": {
-                backgroundColor: theme.green,
-            },
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-        note: {
-            color: theme.white,
-            fontSize: "24px",
-        },
-        latestNote: {
-            color: theme.red,
-            fontSize: "24px",
-        }
-    };
+  const styles = {
+    table: {
+      borderCollapse: "collapse",
+      maxHeight: `${(MAP_DIMENSION + 1) * 25}px`,
+    },
+    cell: {
+      border: `2px solid ${theme.green}`,
+      borderCollapse: "collapse",
+      width: "25px",
+      padding: 0,
+    },
+    columnHeader: {
+      width: "25px",
+    },
+    island: {
+      width: "25px",
+      height: "25px",
+      backgroundColor: theme.darkGreen,
+      "&:hover": {
+        backgroundColor: theme.green,
+      },
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    water: {
+      width: "25px",
+      height: "26px",
+      "&:hover": {
+        backgroundColor: theme.green,
+      },
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    note: {
+      color: theme.white,
+      fontSize: "24px",
+    },
+    latestNote: {
+      color: theme.red,
+      fontSize: "24px",
+    },
+  };
 
-    const getSectorStyle = (row, column) => {
-        const sectorStyle = {};
+  const getSectorStyle = (row, column) => {
+    const sectorStyle = {};
 
-        if(column % SECTOR_DIMENSION === 0){ sectorStyle.borderLeft = `5px solid ${theme.green}`; }
-        if(column === MAP_DIMENSION - 1){ sectorStyle.borderRight = `5px solid ${theme.green}`; }
-        if(row % SECTOR_DIMENSION === 0){ sectorStyle.borderTop = `5px solid ${theme.green}`; }
-        if(row === MAP_DIMENSION - 1){ sectorStyle.borderBottom = `5px solid ${theme.green}`; }
-
-        return sectorStyle;
-    };
-
-    const getIslandBorders = (row, column) => {
-        const islandStyle = {};
-
-        const cell = gameMap[row][column];
-        if(cell.type != "island"){ return islandStyle; }
-        
-        islandStyle.border = "none";
-        islandStyle.backgroundColor = theme.darkGreen;
-
-        return islandStyle;
+    if (column % SECTOR_DIMENSION === 0) {
+      sectorStyle.borderLeft = `5px solid ${theme.green}`;
+    }
+    if (column === MAP_DIMENSION - 1) {
+      sectorStyle.borderRight = `5px solid ${theme.green}`;
+    }
+    if (row % SECTOR_DIMENSION === 0) {
+      sectorStyle.borderTop = `5px solid ${theme.green}`;
+    }
+    if (row === MAP_DIMENSION - 1) {
+      sectorStyle.borderBottom = `5px solid ${theme.green}`;
     }
 
-    const [latestNoteCell, setLatestNoteCell] = useState(null);
+    return sectorStyle;
+  };
 
-    const handleClick = (row, column) => {
-        if(radioMapNotes.find((note) => note[0] === row && note[1] === column)){
-            // Remove note
-            setRadioMapNotes(radioMapNotes.filter((note) => note[0] !== row || note[1] !== column));
-        }
-        else {
-            // Add note
-            setLatestNoteCell([row, column]);
-            setRadioMapNotes([...radioMapNotes, [row, column]]);
-        }
-    };
+  const getIslandBorders = (row, column) => {
+    const islandStyle = {};
 
-    return (
-        <table style={styles.table}>
-            <tbody>
-                <tr style={styles.row}>
-                    <td></td>
-                    {Array(MAP_DIMENSION).fill(0).map((col, index) => (
-                        <th style={styles.columnHeader} key={index}>{indexToColumn(index)}</th>
-                    ))}
-                </tr>
+    const cell = gameMap[row][column];
+    if (cell.type != "island") {
+      return islandStyle;
+    }
 
-                {gameMap.map((row, rowIndex) => (
-                    <tr key={rowIndex} style={styles.row}>
-                        <th>{indexToRow(rowIndex)}</th>
-                        {row.map((cell, columnIndex) => (
-                            <td key={columnIndex} style={{
-                                ...styles.cell,
-                                ...getSectorStyle(rowIndex, columnIndex),
-                                ...getIslandBorders(rowIndex, columnIndex)
-                            }}>
-                                <Box
-                                    sx={ cell.type === "island" ? styles.island : styles.water }
-                                    onClick={() => handleClick(rowIndex, columnIndex)}
-                                >
-                                    {radioMapNotes.find((note) => note[0] === rowIndex && note[1] === columnIndex) && 
-                                    <span style={rowIndex === latestNoteCell[0] && columnIndex === latestNoteCell[1] ? styles.latestNote : styles.note}>
-                                        X
-                                    </span>}
-                                </Box>
-                            </td>
-                        ))}
-                    </tr>
-                ))}
-            </tbody>
-        </table>
-    );
+    islandStyle.border = "none";
+    islandStyle.backgroundColor = theme.darkGreen;
+
+    return islandStyle;
+  };
+
+  const [latestNoteCell, setLatestNoteCell] = useState(null);
+
+  const handleClick = (row, column) => {
+    if (radioMapNotes.find((note) => note[0] === row && note[1] === column)) {
+      // Remove note
+      setRadioMapNotes(
+        radioMapNotes.filter((note) => note[0] !== row || note[1] !== column)
+      );
+    } else {
+      // Add note
+      setLatestNoteCell([row, column]);
+      setRadioMapNotes([...radioMapNotes, [row, column]]);
+    }
+  };
+
+  return (
+    <table style={styles.table}>
+      <tbody>
+        <tr style={styles.row}>
+          <td></td>
+          {Array(MAP_DIMENSION)
+            .fill(0)
+            .map((col, index) => (
+              <th style={styles.columnHeader} key={index}>
+                {indexToColumn(index)}
+              </th>
+            ))}
+        </tr>
+
+        {gameMap.map((row, rowIndex) => (
+          <tr key={rowIndex} style={styles.row}>
+            <th>{indexToRow(rowIndex)}</th>
+            {row.map((cell, columnIndex) => (
+              <td
+                key={columnIndex}
+                style={{
+                  ...styles.cell,
+                  ...getSectorStyle(rowIndex, columnIndex),
+                  ...getIslandBorders(rowIndex, columnIndex),
+                }}
+              >
+                <Box
+                  sx={cell.type === "island" ? styles.island : styles.water}
+                  onClick={() => handleClick(rowIndex, columnIndex)}
+                >
+                  {radioMapNotes.find(
+                    (note) => note[0] === rowIndex && note[1] === columnIndex
+                  ) && (
+                    <span
+                      style={
+                        rowIndex === latestNoteCell[0] &&
+                        columnIndex === latestNoteCell[1]
+                          ? styles.latestNote
+                          : styles.note
+                      }
+                    >
+                      X
+                    </span>
+                  )}
+                </Box>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 }

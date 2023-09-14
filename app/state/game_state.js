@@ -4,781 +4,951 @@ import { createContext, useContext, useState } from "react";
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
-import { columnToIndex, rowToIndex, ENGINEER_SYSTEMS_INFO, getRightAngleUnitVector, SYSTEMS_INFO, getCellSector, keepLastNElements, capitalizeFirstLetter } from "../utils";
+import {
+  columnToIndex,
+  rowToIndex,
+  ENGINEER_SYSTEMS_INFO,
+  getRightAngleUnitVector,
+  SYSTEMS_INFO,
+  getCellSector,
+  keepLastNElements,
+  capitalizeFirstLetter,
+} from "../utils";
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
 
 const GameContext = createContext();
 
-export function GameWrapper({children}) {
-    const islandList = maps[process.env.ISLAND_MAP];
-    const [username, setUsername] = useState();
-    const [hostClientId, setHostClientId] = useState(null)
-    const [currentStage, setCurrentStage] = useState("login");
-    const [gameId, setGameId] = useState();
-    const [playerTeam, setPlayerTeam] = useState();
-    const [playerRole, setPlayerRole] = useState();
-    const [gameMap, setGameMap] = useState();
-    const [repairMatrix, setRepairMatrix] = useState({blue: [], red: []});
-    const [playerData, setPlayerData] = useState();
-    const [subLocations, setSubLocations] = useState({ blue: null, red: null });
-    const [engineerPendingBlock, setEngineerPendingBlock] = useState({ blue: null, red: null });
-    const [engineerHealSystem, setEngineerHealSystem] = useState({ blue: false, red: false });
-    const [minesList, setMinesList] = useState({ blue: [], red: [] });
-    const [hitPoints, setHitPoints] = useState({ blue: process.env.STARTING_HIT_POINTS, red: process.env.STARTING_HIT_POINTS });
-    const [pendingNavigate, setPendingNavigate] = useState({ blue: null, red: null });
-    const [pendingSystemCharge, setPendingSystemCharge] = useState({ blue: null, red: null });
-    const [currentlySurfacing, setCurrentlySurfacing] = useState({blue: false, red: false});   
-    const [systemChargeLevels, setSystemChargeLevels] = useState({ 
-        blue: {
-            mine: 0,
-            torpedo: 0,
-            scan: 0,
-            silence: 0,
-        },
-        red: {
-            mine: 0,
-            torpedo: 0,
-            scan: 0,
-            silence: 0,
-        }
-    });
-    const [systemHealthLevels, setSystemHealthLevels] = useState({
-        blue: {
-            weapons: process.env.MAX_SYSTEM_HEALTH,
-            scan: process.env.MAX_SYSTEM_HEALTH,
-            engine: process.env.MAX_SYSTEM_HEALTH,
-            comms: process.env.MAX_SYSTEM_HEALTH,
-            "life support": process.env.MAX_SYSTEM_HEALTH,
-        },
-        red: {
-            weapons: process.env.MAX_SYSTEM_HEALTH,
-            scan: process.env.MAX_SYSTEM_HEALTH,
-            engine: process.env.MAX_SYSTEM_HEALTH,
-            comms: process.env.MAX_SYSTEM_HEALTH,
-            "life support": process.env.MAX_SYSTEM_HEALTH,
-        }
-    });
-    const [radioMapNotes, setRadioMapNotes] = useState([]);
-    const [movements, setMovements] = useState({blue: [], red: []});
-    const [movementCountOnDisable, setMovementCountOnDisable] = useState({blue: 0, red: 0});
-    const [engineerCompassMap, setEngineerCompassMap] = useState({
-        blue: {
-            "north": "scan",
-            "south": "comms",
-            "east": "weapons",
-            "west": "engine",
-        },
-        red: {
-            "north": "scan",
-            "south": "comms",
-            "east": "weapons",
-            "west": "engine",
-        }
-    });
-    const [notificationMessages, setNotificationMessages] = useState([]);
-    const [messageTimestamp, setMessageTimestamp] = useState(0);
-    const [notificationOpen, setNotificationOpen] = useState(false);
-    const [notificationSeverity, setNotificationSeverity] = useState("info");
-    const [notificationMessage, setNotificationMessage] = useState("");
-    const [messagesQueue, setMessagesQueue] = useState([]);
+export function GameWrapper({ children }) {
+  const islandList = maps[process.env.ISLAND_MAP];
+  const [username, setUsername] = useState();
+  const [hostClientId, setHostClientId] = useState(null);
+  const [currentStage, setCurrentStage] = useState("login");
+  const [gameId, setGameId] = useState();
+  const [playerTeam, setPlayerTeam] = useState();
+  const [playerRole, setPlayerRole] = useState();
+  const [gameMap, setGameMap] = useState();
+  const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
+  const [playerData, setPlayerData] = useState();
+  const [subLocations, setSubLocations] = useState({ blue: null, red: null });
+  const [engineerPendingBlock, setEngineerPendingBlock] = useState({
+    blue: null,
+    red: null,
+  });
+  const [engineerHealSystem, setEngineerHealSystem] = useState({
+    blue: false,
+    red: false,
+  });
+  const [minesList, setMinesList] = useState({ blue: [], red: [] });
+  const [hitPoints, setHitPoints] = useState({
+    blue: process.env.STARTING_HIT_POINTS,
+    red: process.env.STARTING_HIT_POINTS,
+  });
+  const [pendingNavigate, setPendingNavigate] = useState({
+    blue: null,
+    red: null,
+  });
+  const [pendingSystemCharge, setPendingSystemCharge] = useState({
+    blue: null,
+    red: null,
+  });
+  const [currentlySurfacing, setCurrentlySurfacing] = useState({
+    blue: false,
+    red: false,
+  });
+  const [systemChargeLevels, setSystemChargeLevels] = useState({
+    blue: {
+      mine: 0,
+      torpedo: 0,
+      scan: 0,
+      silence: 0,
+    },
+    red: {
+      mine: 0,
+      torpedo: 0,
+      scan: 0,
+      silence: 0,
+    },
+  });
+  const [systemHealthLevels, setSystemHealthLevels] = useState({
+    blue: {
+      weapons: process.env.MAX_SYSTEM_HEALTH,
+      scan: process.env.MAX_SYSTEM_HEALTH,
+      engine: process.env.MAX_SYSTEM_HEALTH,
+      comms: process.env.MAX_SYSTEM_HEALTH,
+      "life support": process.env.MAX_SYSTEM_HEALTH,
+    },
+    red: {
+      weapons: process.env.MAX_SYSTEM_HEALTH,
+      scan: process.env.MAX_SYSTEM_HEALTH,
+      engine: process.env.MAX_SYSTEM_HEALTH,
+      comms: process.env.MAX_SYSTEM_HEALTH,
+      "life support": process.env.MAX_SYSTEM_HEALTH,
+    },
+  });
+  const [radioMapNotes, setRadioMapNotes] = useState([]);
+  const [movements, setMovements] = useState({ blue: [], red: [] });
+  const [movementCountOnDisable, setMovementCountOnDisable] = useState({
+    blue: 0,
+    red: 0,
+  });
+  const [engineerCompassMap, setEngineerCompassMap] = useState({
+    blue: {
+      north: "scan",
+      south: "comms",
+      east: "weapons",
+      west: "engine",
+    },
+    red: {
+      north: "scan",
+      south: "comms",
+      east: "weapons",
+      west: "engine",
+    },
+  });
+  const [notificationMessages, setNotificationMessages] = useState([]);
+  const [messageTimestamp, setMessageTimestamp] = useState(0);
 
-    const notify = async (messages) => {
-        for (const message of messages) {
-            setNotificationMessage(message.message);
-            setNotificationSeverity(message.severity);
-            setNotificationOpen(true);
-    
-            // Wait for a moment before showing the next message (adjust the delay as needed)
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // 3-second delay (adjust as needed)
-        }
-    };
-    
-    const closeNotify = () => {
-        setNotificationOpen(false);
-    };
+  const getFirstMateSystem = (inputSystem) => {
+    return SYSTEMS_INFO.find((system) => system.name === inputSystem);
+  };
 
-    const getFirstMateSystem = (inputSystem) => {
-        return SYSTEMS_INFO.find(system => system.name === inputSystem)}
+  function detonateWeapon(
+    listToDetonate,
+    listToUpdate,
+    updatedDamageMap,
+    damage
+  ) {
+    let allHitCells = [];
 
-    function detonateWeapon(listToDetonate, listToUpdate, updatedDamageMap, damage) {
-        let allHitCells = [];
-        
-        for (let i = 0; i < listToDetonate.length; i++) {
-            const detonationCell = listToDetonate[i];
-            
-            // Remove mine that is detonating, this will be empty if a torpedo
-            listToUpdate = listToUpdate.filter(item => {
-            return item[0] !== detonationCell[0] || item[1] !== detonationCell[1];
-            });
-            
-            // Get the hit cells for the mine
-            const hitCells = getCellsDistanceAway(detonationCell[0], detonationCell[1], damage - 1, false);
-            
-            // Update all of the hits
-            allHitCells = [...allHitCells, ...hitCells];
-            
-            // Then create a damage map hit
-            const damageMap = hitCells.reduce((result, [row, col]) => {
-                const tempDamage = damage - manhattanDistance(row, col, detonationCell[0], detonationCell[1]);
-                result[`${row}-${col}`] = tempDamage;
-                return result;
-            }, {});
-            
-            // Update the overall damage map. This accumulates the damage values.
-            for (const key in damageMap) {
-                if (updatedDamageMap.hasOwnProperty(key)) {
-                    updatedDamageMap[key] += damageMap[key]; // Accumulate damage values
-                } else {
-                    updatedDamageMap[key] = damageMap[key];
-                }
-            }
-        }
-        
-    return { allHitCells: allHitCells, listToUpdate: listToUpdate, updatedDamageMap: updatedDamageMap }
-    }
-          
+    for (let i = 0; i < listToDetonate.length; i++) {
+      const detonationCell = listToDetonate[i];
 
-    function rotateEngineerCompassValues(compassMap) {
+      // Remove mine that is detonating, this will be empty if a torpedo
+      listToUpdate = listToUpdate.filter((item) => {
+        return item[0] !== detonationCell[0] || item[1] !== detonationCell[1];
+      });
 
-        // Move to engineer only
+      // Get the hit cells for the mine
+      const hitCells = getCellsDistanceAway(
+        detonationCell[0],
+        detonationCell[1],
+        damage - 1,
+        false
+      );
 
-        let rotatedMap = { ...compassMap };
-        rotatedMap["north"] = compassMap["west"]
-        rotatedMap["east"] = compassMap["north"]
-        rotatedMap["south"] = compassMap["east"]
-        rotatedMap["west"] = compassMap["south"]
-        return rotatedMap;
-    }
+      // Update all of the hits
+      allHitCells = [...allHitCells, ...hitCells];
 
-    function getMessagePlayer(message){
-        const messageSender = playerData?.find((player) => player.clientId === message.clientId);
-        return messageSender;
-    };
+      // Then create a damage map hit
+      const damageMap = hitCells.reduce((result, [row, col]) => {
+        const tempDamage =
+          damage -
+          manhattanDistance(row, col, detonationCell[0], detonationCell[1]);
+        result[`${row}-${col}`] = tempDamage;
+        return result;
+      }, {});
 
-    function moveSub(team, row, column){
-        const mapCopy = [...gameMap];
-
-        // remove the old position and make the path visited
-        if(subLocations[team]){
-            const prevContents = gameMap[subLocations[team][0]][subLocations[team][1]];
-            const newContents = {
-                ...prevContents,
-                subPresent: {
-                    ...prevContents.subPresent,
-                    [team]: false,
-                },
-                visited: {
-                    ...prevContents.visited,
-                    [team]: currentStage === "main" ? true : false,
-                }
-            };
-
-            // Mark the entire path as visited
-            if(currentStage === "main"){
-                const oldLocation = [subLocations[team][0], subLocations[team][1]];
-                const newLocation = [row, column];
-                const movementVector = [newLocation[0] - oldLocation[0], newLocation[1] - oldLocation[1]];
-                const distance = movementVector[0] !== 0 ? Math.abs(movementVector[0]) : Math.abs(movementVector[1]);
-                const unitVector = getRightAngleUnitVector(movementVector);
-                
-                for(let i = 1; i < distance; i++){
-                    const visitedRow = oldLocation[0] + unitVector[0] * i;
-                    const visitedColumn = oldLocation[1] + unitVector[1] * i;
-                    const visitedContents = gameMap[visitedRow][visitedColumn];
-                    const newVisitedContents = {
-                        ...visitedContents,
-                        visited: {
-                            ...visitedContents.visited,
-                            [team]: true,
-                        }
-                    };
-                    mapCopy[visitedRow][visitedColumn] = newVisitedContents;
-                }
-            }
-
-            mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
-        }
-
-        // add the new position
-        const prevContents = gameMap[row][column];
-        const newContents = { ...prevContents, subPresent: { ...prevContents.subPresent, [team]: true }};
-        mapCopy[row][column] = newContents;
-
-        return {
-            subLocations: { ...subLocations, [team]: [row, column] },
-            gameMap: mapCopy,
-        }
-    };
-
-    function finishTurn(systemHealed, chargedSystem, team) {
-
-        const tempMessages = []
-        let tempMessageTimestamp = messageTimestamp
-
-        // charge the specified system
-        const syncStateMessage = {systemChargeLevels: 
-            {
-                ...systemChargeLevels,
-                [team]: {
-                    ...systemChargeLevels[team],
-                    [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
-                },
-            }
-        };
-
-        // place the pending matrix block and create an updated version of the repair matrix
-        const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
-
-        // Filter out invalid systems, then damage a random system
-        const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
-            (system) => systemHealthLevels[team][system] > 0 && system !== 'life support'
-        );
-
-        let randomSystem = blockSystem
-
-        if (filteredSystems.length > 0) {
-            // Generate a random index within the valid range of filtered systems
-            const randomIndex = Math.floor(Math.random() * filteredSystems.length);
-            // Use the random index to select a system from the filtered list
-            randomSystem = filteredSystems[randomIndex];
-        } 
-
-        // set the updated health level for the system
-        const updatedHealthLevel = Math.max(systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT, 0)
-        
-        // Damage the system corresponding to the block placed
-        syncStateMessage['systemHealthLevels'] = {
-            ...systemHealthLevels,
-            [team]: {
-                ...systemHealthLevels[team],
-                [randomSystem]: updatedHealthLevel,
-            },
-        };
-
-        if (systemHealed) {
-            const notificationMessage = {
-                team,
-                sameTeamMessage: `${capitalizeFirstLetter(blockSystem)} repaired`,
-                oppTeamMessage: null,
-                intendedPlayer: "all", // You can specify a player here if needed
-                severitySameTeam: "success",
-                severityOppTeam: null,
-                timestamp: tempMessageTimestamp,
-            };
-
-            tempMessages.push(notificationMessage)
-            tempMessageTimestamp += 1
-
-            syncStateMessage['systemHealthLevels'][team][blockSystem] = process.env.MAX_SYSTEM_HEALTH
-        }
-
-        if (syncStateMessage['systemHealthLevels'][team][randomSystem] === 0 && systemHealthLevels[team][randomSystem] > 0) {
-            // Notify team that system is now disabled
-            const notificationMessage = {
-                team,
-                sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
-                oppTeamMessage: null,
-                intendedPlayer: "all", // You can specify a player here if needed
-                severitySameTeam: "error",
-                severityOppTeam: null,
-                timestamp: tempMessageTimestamp,
-            };
-            tempMessages.push(notificationMessage)
-            tempMessageTimestamp += 1
-
-            // If the system is comms, keep track of how many enemy movements were before it was disabled
-            if (randomSystem === "comms") {
-                const oppositeTeam = team === "blue" ? "red" : "blue"
-                syncStateMessage['movementCountOnDisable'] = {...movementCountOnDisable, [oppositeTeam]: movements[oppositeTeam].length};
-            } 
-        }
-
-        // Update the state with the new matrix containing reset cells
-        const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
-
-        const updatedTeamMap = {
-            ...engineerCompassMap,
-            [team]: {
-                ...rotatedValues,
-            }
-        };
-
-        syncStateMessage['engineerCompassMap'] = updatedTeamMap
-
-        // move the sub in the specified direction
-        const moveSubInfo = moveSubDirection(team, pendingNavigate[team]);
-
-        syncStateMessage['subLocations'] = moveSubInfo.subLocations
-        syncStateMessage['gameMap'] = moveSubInfo.gameMap
-
-        syncStateMessage['movements'] = {...movements, [team]: [...movements[team], pendingNavigate[team]]};
-        syncStateMessage['pendingSystemCharge'] = { ...pendingSystemCharge, [team]: null };
-        syncStateMessage['engineerPendingBlock'] = { ...engineerPendingBlock, [team]: null };
-        syncStateMessage['pendingNavigate'] = { ...pendingNavigate, [team]: null };
-        syncStateMessage['engineerHealSystem'] = { ...engineerHealSystem, [team]: false };
-        syncStateMessage['notificationMessages'] = keepLastNElements([...notificationMessages, ...tempMessages], process.env.MAX_MESSAGES);
-        syncStateMessage['messageTimestamp'] = tempMessageTimestamp
-
-        // sync state across the clients
-        return syncStateMessage
-    }
-
-    function moveSubDirection(team, direction){
-        const [row, column] = subLocations[team];
-        let moveInfo = {}
-        switch(direction){
-            case "north":
-                moveInfo = moveSub(team, row - 1, column);
-                break;
-            case "south":
-                moveInfo = moveSub(team, row + 1, column);
-                break;
-            case "west":
-                moveInfo = moveSub(team, row, column - 1);
-                break;
-            case "east":
-                moveInfo = moveSub(team, row, column + 1);
-                break;
-            default:
-                console.error(`Unrecognized direction: ${direction}`);
-        }
-        return moveInfo
-    };
-
-    function resetMap(){
-        let blankGameMap = Array(process.env.MAP_DIMENSION);
-        for(let i = 0; i < process.env.MAP_DIMENSION; i++){
-            blankGameMap[i] = Array(process.env.MAP_DIMENSION).fill({
-                type: "water",
-                visited: {
-                    blue: false,
-                    red: false,
-                },
-                subPresent: {
-                    blue: false,
-                    red: false,
-                },
-                minePresent: {
-                    blue: false,
-                    red: false,
-                },
-            });
-        }
-
-        islandList.forEach((spot) => {
-            blankGameMap[rowToIndex(spot[1])][columnToIndex(spot[0])] = { type: "island" };
-        });
-
-        setGameMap(blankGameMap);
-    };
-
-    function clearVisitedPath(team) {
-        const mapCopy = [...gameMap];
-
-        for(let row =0; row < process.env.MAP_DIMENSION; row++){
-            for(let col=0; col< process.env.MAP_DIMENSION; col++){
-                const prevContents = gameMap[row][col];
-                const newContents = {
-                    ...prevContents,
-                    visited: {
-                        ...prevContents.visited,
-                        [team]: false,
-                    }
-                };
-                mapCopy[row][col] = newContents;
-            }
-        }
-
-        return mapCopy
-    }
-
-    const isCornerRepairMatrix = (row, column, matrix) => {
-        return (row === 0 && column === 0 
-            || row === 0 && column === matrix.length - 1
-            || row === matrix.length - 1 && column === 0
-            || row === matrix.length - 1 && column === matrix.length - 1)
-    }
-
-    // Function to get random distinct indices
-    const getRandomIndices = (max, count) => {
-        const indices = Array.from({ length: max }, (_, index) => index);
-        const randomIndices = [];
-    
-        while (randomIndices.length < count && indices.length > 0) {
-            const randomIndex = Math.floor(Math.random() * indices.length);
-            randomIndices.push(indices.splice(randomIndex, 1)[0]);
-        }
-    
-        return randomIndices;
-    };
-
-    const pickNewOuterCells = (matrix) => {
-        const emptyOuterCells = []; // Array to store coordinates of empty outer cells
-    
-        // Find empty outer cells and store their coordinates
-        for (let row = 0; row < matrix.length; row++) {
-            for (let col = 0; col < matrix[0].length; col++) {
-                const cell = matrix[row][col];
-                if (cell.type === "outer" && cell.system === "empty" && !isCornerRepairMatrix(row, col, matrix)) {
-                    emptyOuterCells.push({ row, col });
-                }
-            }
-        }
-    
-        // Check if there are at least two empty outer cells
-        if (emptyOuterCells.length < 2) {
-            return;
-        }
-    
-        // Randomly select two empty outer cells
-        const randomIndices = getRandomIndices(emptyOuterCells.length, 2);
-        const selectedCells = randomIndices.map(index => emptyOuterCells[index]);
-
-        return selectedCells
-    };
-
-    function findConnectedRepairMatrixPath(matrix, startRow, startCol, targetRow, targetCol){
-        const visited = new Array(matrix.length).fill(false).map(() => new Array(matrix[0].length).fill(false));
-        const systemName = matrix[startRow][startCol].system;
-    
-        const pathRowIndices = [];
-        const pathColumnIndices = [];
-        let prevCellType;
-    
-        const hasPath = (row, col, prevCellType) => {
-            if (
-                row < 0 ||
-                row >= matrix.length ||
-                col < 0 ||
-                col >= matrix[0].length ||
-                visited[row][col] ||
-                matrix[row][col].system !== systemName ||
-                matrix[row][col].type === "outer" && prevCellType === "outer"
-            ) {
-                return false;
-            }
-    
-            visited[row][col] = true;
-            pathRowIndices.push(row);
-            pathColumnIndices.push(col);
-            prevCellType = matrix[row][col].type;
-    
-            if (row === targetRow && col === targetCol) {
-                return true;
-            }
-    
-            const neighbors = [
-                [row - 1, col],
-                [row + 1, col],
-                [row, col - 1],
-                [row, col + 1],
-            ];
-    
-            for (const [nRow, nCol] of neighbors) {
-                if (hasPath(nRow, nCol, prevCellType)) {
-                    return true;
-                }
-            }
-    
-            pathRowIndices.pop();
-            pathColumnIndices.pop();
-            return false;
-        };
-    
-        const isConnected = hasPath(startRow, startCol, null);
-    
-        if (!isConnected) {
-            pathRowIndices.length = 0;
-            pathColumnIndices.length = 0;
-        }
-    
-        return { isConnected, pathRowIndices, pathColumnIndices };
-    };
-
-    function checkConnectedRepairMatrixPath(matrix, system){
-        const rowIndices = [];
-        const columnIndices = [];
-    
-        for (let row = 0; row < matrix.length; row++) {
-            for (let col = 0; col < matrix[0].length; col++) {
-                const cell = matrix[row][col];
-                if (cell.type === "outer" && cell.system === system) {
-                    rowIndices.push(row);
-                    columnIndices.push(col);
-                }
-            }
-        }
-    
-        if (rowIndices.length >= 2) {
-            const startRow = rowIndices[0];
-            const startCol = columnIndices[0];
-            const targetRow = rowIndices[1];
-            const targetCol = columnIndices[1];
-    
-            return findConnectedRepairMatrixPath(matrix, startRow, startCol, targetRow, targetCol);
+      // Update the overall damage map. This accumulates the damage values.
+      for (const key in damageMap) {
+        if (updatedDamageMap.hasOwnProperty(key)) {
+          updatedDamageMap[key] += damageMap[key]; // Accumulate damage values
         } else {
-            return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
+          updatedDamageMap[key] = damageMap[key];
         }
+      }
     }
 
-    function getEmptyRepairMatrix(){
-        const dimension = process.env.REPAIR_MATRIX_DIMENSION;
-        const systems = ENGINEER_SYSTEMS_INFO.filter(system => system.name !== "life support").map(system => system.name);
-        const doubledSystems = systems.concat(systems.slice());
-        const extra_elements = dimension * 4
-
-        while (doubledSystems.length < extra_elements) {
-            doubledSystems.push("empty");
-        }
-
-        const shuffledSystems = shuffleArray(doubledSystems);
-    
-        let blankRepairMatrix = [];
-    
-        for (let i = 0; i < dimension + 2; i++) {
-            let row = [];
-            for (let j = 0; j < dimension + 2; j++) {
-                if (i === 0 || i === dimension + 1 || j === 0 || j === dimension + 1) {
-                    // Cells in the first row, last row, first column, and last column are "outer" cells
-                    let system;
-
-                    if ((i === 0 && j === 0) || (i === 0 && j === dimension + 1) || 
-                    (i === dimension + 1 && j === 0) || (i === dimension + 1 && j === dimension + 1)) {
-                        system = "empty"
-                    } else {
-                        system = shuffledSystems.pop();
-                    }
-
-                    row.push({
-                        type: "outer",
-                        system: system,
-                    });
-                } else {
-                    row.push({
-                        type: "inner",
-                        system: "empty",
-                    });
-                }
-            }
-            blankRepairMatrix.push(row);
-        }
-        
-        return blankRepairMatrix
+    return {
+      allHitCells: allHitCells,
+      listToUpdate: listToUpdate,
+      updatedDamageMap: updatedDamageMap,
     };
-    
-    // Function to shuffle an array using Fisher-Yates algorithm
-    function shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
+  }
 
-    function getValidSilenceCells(){
-        const [row, column] = subLocations[playerTeam];
-        const validCells = [];
-        
-        // Check 4 cells in the north direction
-        for(let i = 1; i <= 4; i++){
-            if(row - i < 0){ break; }
-            if(gameMap[row - i][column].type === "island"){ break; }
-            if(gameMap[row - i][column].visited[playerTeam]){ break; }
+  function rotateEngineerCompassValues(compassMap) {
+    // Move to engineer only
 
-            validCells.push([row - i, column]);
-        }
+    let rotatedMap = { ...compassMap };
+    rotatedMap["north"] = compassMap["west"];
+    rotatedMap["east"] = compassMap["north"];
+    rotatedMap["south"] = compassMap["east"];
+    rotatedMap["west"] = compassMap["south"];
+    return rotatedMap;
+  }
 
-        // Check 4 cells in the east direction
-        for(let i = 1; i <= 4; i++){
-            if(column + i >= process.env.MAP_DIMENSION){ break; }
-            if(gameMap[row][column + i].type === "island"){ break; }
-            if(gameMap[row][column + i].visited[playerTeam]){ break; }
+  function getMessagePlayer(message) {
+    const messageSender = playerData?.find(
+      (player) => player.clientId === message.clientId
+    );
+    return messageSender;
+  }
 
-            validCells.push([row, column + i]);
-        }
+  function moveSub(team, row, column) {
+    const mapCopy = [...gameMap];
 
-        // Check 4 cells in the south direction
-        for(let i = 1; i <= 4; i++){
-            if(row + i >= process.env.MAP_DIMENSION){ break; }
-            if(gameMap[row + i][column].type === "island"){ break; }
-            if(gameMap[row + i][column].visited[playerTeam]){ break; }
+    // remove the old position and make the path visited
+    if (subLocations[team]) {
+      const prevContents =
+        gameMap[subLocations[team][0]][subLocations[team][1]];
+      const newContents = {
+        ...prevContents,
+        subPresent: {
+          ...prevContents.subPresent,
+          [team]: false,
+        },
+        visited: {
+          ...prevContents.visited,
+          [team]: currentStage === "main" ? true : false,
+        },
+      };
 
-            validCells.push([row + i, column]);
-        }
+      // Mark the entire path as visited
+      if (currentStage === "main") {
+        const oldLocation = [subLocations[team][0], subLocations[team][1]];
+        const newLocation = [row, column];
+        const movementVector = [
+          newLocation[0] - oldLocation[0],
+          newLocation[1] - oldLocation[1],
+        ];
+        const distance =
+          movementVector[0] !== 0
+            ? Math.abs(movementVector[0])
+            : Math.abs(movementVector[1]);
+        const unitVector = getRightAngleUnitVector(movementVector);
 
-        // Check 4 cells in the west direction
-        for(let i = 1; i <= 4; i++){
-            if(column - i < 0){ break; }
-            if(gameMap[row][column - i].type === "island"){ break; }
-            if(gameMap[row][column - i].visited[playerTeam]){ break; }
-
-            validCells.push([row, column - i]);
-        }
-
-        return validCells;
-    };
-
-    function explorePaths(row, col, distance, visited, validCells, currentDistance = 0) {
-        if (
-            row < 0 || col < 0 || row >= gameMap.length || col >= gameMap[0].length ||
-            currentDistance > distance || visited[row][col] || gameMap[row][col].type === 'island'
-        ) {
-            // visited[row][col] = true;
-            return;
-        }
-
-        visited[row][col] = true;
-        validCells.push([ row, col ]);
-      
-        // Explore neighboring cells
-        explorePaths(row + 1, col, distance, visited, validCells, currentDistance + 1); // Down
-        explorePaths(row - 1, col, distance, visited, validCells, currentDistance + 1); // Up
-        explorePaths(row, col + 1, distance, visited, validCells, currentDistance + 1); // Right
-        explorePaths(row, col - 1, distance, visited, validCells, currentDistance + 1); // Left
-
-        visited[row][col] = false;
-    }
-
-    function getCellsDistanceAway(startRow, startCol, maxDistance, removeStart=true) {
-
-        const rows = gameMap.length;
-        const cols = gameMap[0].length;
-
-        // Create a visited array to keep track of visited cells
-        const visited = new Array(rows).fill(false).map(() => new Array(cols).fill(false));
-
-        const validCells = [];
-        explorePaths(startRow, startCol, maxDistance, visited, validCells);
-
-        // Find the index of the starting cell in validCells and remove it
-        if (removeStart) {
-            const startingCellIndex = validCells.findIndex(([row, col]) => row === startRow && col === startCol);
-            if (startingCellIndex !== -1) {
-                validCells.splice(startingCellIndex, 1);
-            }
-        }
-        return validCells  
-    }
-
-    function healSystem(team, system){
-        setSystemHealthLevels({
-            ...systemHealthLevels,
-            [team]: {
-                ...systemHealthLevels[team],
-                [system]: process.env.MAX_SYSTEM_HEALTH,
+        for (let i = 1; i < distance; i++) {
+          const visitedRow = oldLocation[0] + unitVector[0] * i;
+          const visitedColumn = oldLocation[1] + unitVector[1] * i;
+          const visitedContents = gameMap[visitedRow][visitedColumn];
+          const newVisitedContents = {
+            ...visitedContents,
+            visited: {
+              ...visitedContents.visited,
+              [team]: true,
             },
-        });
+          };
+          mapCopy[visitedRow][visitedColumn] = newVisitedContents;
+        }
+      }
+
+      mapCopy[subLocations[team][0]][subLocations[team][1]] = newContents;
+    }
+
+    // add the new position
+    const prevContents = gameMap[row][column];
+    const newContents = {
+      ...prevContents,
+      subPresent: { ...prevContents.subPresent, [team]: true },
+    };
+    mapCopy[row][column] = newContents;
+
+    return {
+      subLocations: { ...subLocations, [team]: [row, column] },
+      gameMap: mapCopy,
+    };
+  }
+
+  function finishTurn(systemHealed, chargedSystem, team) {
+    const tempMessages = [];
+    let tempMessageTimestamp = messageTimestamp;
+
+    // charge the specified system
+    const syncStateMessage = {
+      systemChargeLevels: {
+        ...systemChargeLevels,
+        [team]: {
+          ...systemChargeLevels[team],
+          [chargedSystem]: systemChargeLevels[team][chargedSystem] + 1,
+        },
+      },
     };
 
-    function manhattanDistance(row1, col1, row2, col2) {
-        return Math.abs(row1 - row2) + Math.abs(col1 - col2);
+    // place the pending matrix block and create an updated version of the repair matrix
+    const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
+
+    // Filter out invalid systems, then damage a random system
+    const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
+      (system) =>
+        systemHealthLevels[team][system] > 0 && system !== "life support"
+    );
+
+    let randomSystem = blockSystem;
+
+    if (filteredSystems.length > 0) {
+      // Generate a random index within the valid range of filtered systems
+      const randomIndex = Math.floor(Math.random() * filteredSystems.length);
+      // Use the random index to select a system from the filtered list
+      randomSystem = filteredSystems[randomIndex];
     }
 
-    function updateLifeSupport(team, hits) {
-        return Math.max(systemHealthLevels[team]["life support"] - process.env.SYSTEM_DAMAGE_AMOUNT * hits, 0)
+    // set the updated health level for the system
+    const updatedHealthLevel = Math.max(
+      systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
+      0
+    );
+
+    // Damage the system corresponding to the block placed
+    syncStateMessage["systemHealthLevels"] = {
+      ...systemHealthLevels,
+      [team]: {
+        ...systemHealthLevels[team],
+        [randomSystem]: updatedHealthLevel,
+      },
+    };
+
+    if (systemHealed) {
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `${capitalizeFirstLetter(blockSystem)} repaired`,
+        oppTeamMessage: null,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "success",
+        severityOppTeam: null,
+        timestamp: tempMessageTimestamp,
+      };
+
+      tempMessages.push(notificationMessage);
+      tempMessageTimestamp += 1;
+
+      syncStateMessage["systemHealthLevels"][team][blockSystem] =
+        process.env.MAX_SYSTEM_HEALTH;
     }
 
-    function scanForEnemySub(row, column, scanType){
-        const enemySubLocations = subLocations[playerTeam === "blue" ? "red" : "blue"];
-        const enemySubRow = enemySubLocations[0];
-        const enemySubColumn = enemySubLocations[1];
+    if (
+      syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
+      systemHealthLevels[team][randomSystem] > 0
+    ) {
+      // Notify team that system is now disabled
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
+        oppTeamMessage: null,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "error",
+        severityOppTeam: null,
+        timestamp: tempMessageTimestamp,
+      };
+      tempMessages.push(notificationMessage);
+      tempMessageTimestamp += 1;
 
-        switch(scanType){
-            case "sector":
-                return getCellSector([row, column]) === getCellSector([enemySubRow, enemySubColumn]);
-            case "row":
-                return row === enemySubRow;
-            case "column":
-                return column === enemySubColumn;
-            default:
-                console.error(`Unrecognized scan type: ${scanType}`);
-        }
+      // If the system is comms, keep track of how many enemy movements were before it was disabled
+      if (randomSystem === "comms") {
+        const oppositeTeam = team === "blue" ? "red" : "blue";
+        syncStateMessage["movementCountOnDisable"] = {
+          ...movementCountOnDisable,
+          [oppositeTeam]: movements[oppositeTeam].length,
+        };
+      }
     }
 
+    // Update the state with the new matrix containing reset cells
+    const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
+
+    const updatedTeamMap = {
+      ...engineerCompassMap,
+      [team]: {
+        ...rotatedValues,
+      },
+    };
+
+    syncStateMessage["engineerCompassMap"] = updatedTeamMap;
+
+    // move the sub in the specified direction
+    const moveSubInfo = moveSubDirection(team, pendingNavigate[team]);
+
+    syncStateMessage["subLocations"] = moveSubInfo.subLocations;
+    syncStateMessage["gameMap"] = moveSubInfo.gameMap;
+
+    syncStateMessage["movements"] = {
+      ...movements,
+      [team]: [...movements[team], pendingNavigate[team]],
+    };
+    syncStateMessage["pendingSystemCharge"] = {
+      ...pendingSystemCharge,
+      [team]: null,
+    };
+    syncStateMessage["engineerPendingBlock"] = {
+      ...engineerPendingBlock,
+      [team]: null,
+    };
+    syncStateMessage["pendingNavigate"] = { ...pendingNavigate, [team]: null };
+    syncStateMessage["engineerHealSystem"] = {
+      ...engineerHealSystem,
+      [team]: false,
+    };
+    syncStateMessage["notificationMessages"] = keepLastNElements(
+      [...notificationMessages, ...tempMessages],
+      process.env.MAX_MESSAGES
+    );
+    syncStateMessage["messageTimestamp"] = tempMessageTimestamp;
+
+    // sync state across the clients
+    return syncStateMessage;
+  }
+
+  function moveSubDirection(team, direction) {
+    const [row, column] = subLocations[team];
+    let moveInfo = {};
+    switch (direction) {
+      case "north":
+        moveInfo = moveSub(team, row - 1, column);
+        break;
+      case "south":
+        moveInfo = moveSub(team, row + 1, column);
+        break;
+      case "west":
+        moveInfo = moveSub(team, row, column - 1);
+        break;
+      case "east":
+        moveInfo = moveSub(team, row, column + 1);
+        break;
+      default:
+        console.error(`Unrecognized direction: ${direction}`);
+    }
+    return moveInfo;
+  }
+
+  function resetMap() {
+    let blankGameMap = Array(process.env.MAP_DIMENSION);
+    for (let i = 0; i < process.env.MAP_DIMENSION; i++) {
+      blankGameMap[i] = Array(process.env.MAP_DIMENSION).fill({
+        type: "water",
+        visited: {
+          blue: false,
+          red: false,
+        },
+        subPresent: {
+          blue: false,
+          red: false,
+        },
+        minePresent: {
+          blue: false,
+          red: false,
+        },
+      });
+    }
+
+    islandList.forEach((spot) => {
+      blankGameMap[rowToIndex(spot[1])][columnToIndex(spot[0])] = {
+        type: "island",
+      };
+    });
+
+    setGameMap(blankGameMap);
+  }
+
+  function clearVisitedPath(team) {
+    const mapCopy = [...gameMap];
+
+    for (let row = 0; row < process.env.MAP_DIMENSION; row++) {
+      for (let col = 0; col < process.env.MAP_DIMENSION; col++) {
+        const prevContents = gameMap[row][col];
+        const newContents = {
+          ...prevContents,
+          visited: {
+            ...prevContents.visited,
+            [team]: false,
+          },
+        };
+        mapCopy[row][col] = newContents;
+      }
+    }
+
+    return mapCopy;
+  }
+
+  const isCornerRepairMatrix = (row, column, matrix) => {
     return (
-        <GameContext.Provider value={{
-            selfClientId,
-            currentStage,
-            username,
-            gameId,
-            playerTeam,
-            playerRole,
-            islandList,
-            minesList,
-            subLocations,
-            hitPoints,
-            hostClientId,
-            gameMap,
-            repairMatrix,
-            playerData,
-            pendingNavigate,
-            pendingSystemCharge,
-            systemChargeLevels,
-            systemHealthLevels,
-            engineerCompassMap,
-            radioMapNotes,
-            movements,
-            notificationOpen,
-            notificationSeverity,
-            notificationMessage,
-            currentlySurfacing,
-            movementCountOnDisable,
-            clearVisitedPath,
-            pickNewOuterCells,
-            getValidSilenceCells,
-            setCurrentStage,
-            setUsername,
-            setGameId,
-            setPlayerTeam,
-            setPlayerRole,
-            setMinesList,
-            setSubLocations,
-            setHitPoints,
-            setGameMap,
-            setRepairMatrix,
-            moveSub,
-            moveSubDirection,
-            setPlayerData,
-            getMessagePlayer,
-            setPendingNavigate,
-            setPendingSystemCharge,
-            setSystemChargeLevels,
-            setSystemHealthLevels,
-            setEngineerCompassMap,
-            resetMap,
-            getEmptyRepairMatrix,
-            getCellsDistanceAway,
-            setRadioMapNotes,
-            setMovements,
-            checkConnectedRepairMatrixPath,
-            healSystem,
-            rotateEngineerCompassValues,
-            getFirstMateSystem,
-            updateLifeSupport,
-            manhattanDistance,
-            notify,
-            closeNotify,
-            setCurrentlySurfacing,
-            scanForEnemySub,
-            detonateWeapon,
-            setNotificationMessages,
-            notificationMessages,
-            messageTimestamp,
-            setMessageTimestamp,
-            finishTurn,
-            engineerPendingBlock,
-            engineerHealSystem,
-            setEngineerPendingBlock,
-            setEngineerHealSystem,
-            setMovementCountOnDisable,
-            setHostClientId,
-        }}>
-            {children}
-        </GameContext.Provider>
-    )
+      (row === 0 && column === 0) ||
+      (row === 0 && column === matrix.length - 1) ||
+      (row === matrix.length - 1 && column === 0) ||
+      (row === matrix.length - 1 && column === matrix.length - 1)
+    );
+  };
+
+  // Function to get random distinct indices
+  const getRandomIndices = (max, count) => {
+    const indices = Array.from({ length: max }, (_, index) => index);
+    const randomIndices = [];
+
+    while (randomIndices.length < count && indices.length > 0) {
+      const randomIndex = Math.floor(Math.random() * indices.length);
+      randomIndices.push(indices.splice(randomIndex, 1)[0]);
+    }
+
+    return randomIndices;
+  };
+
+  const pickNewOuterCells = (matrix) => {
+    const emptyOuterCells = []; // Array to store coordinates of empty outer cells
+
+    // Find empty outer cells and store their coordinates
+    for (let row = 0; row < matrix.length; row++) {
+      for (let col = 0; col < matrix[0].length; col++) {
+        const cell = matrix[row][col];
+        if (
+          cell.type === "outer" &&
+          cell.system === "empty" &&
+          !isCornerRepairMatrix(row, col, matrix)
+        ) {
+          emptyOuterCells.push({ row, col });
+        }
+      }
+    }
+
+    // Check if there are at least two empty outer cells
+    if (emptyOuterCells.length < 2) {
+      return;
+    }
+
+    // Randomly select two empty outer cells
+    const randomIndices = getRandomIndices(emptyOuterCells.length, 2);
+    const selectedCells = randomIndices.map((index) => emptyOuterCells[index]);
+
+    return selectedCells;
+  };
+
+  function findConnectedRepairMatrixPath(
+    matrix,
+    startRow,
+    startCol,
+    targetRow,
+    targetCol
+  ) {
+    const visited = new Array(matrix.length)
+      .fill(false)
+      .map(() => new Array(matrix[0].length).fill(false));
+    const systemName = matrix[startRow][startCol].system;
+
+    const pathRowIndices = [];
+    const pathColumnIndices = [];
+    let prevCellType;
+
+    const hasPath = (row, col, prevCellType) => {
+      if (
+        row < 0 ||
+        row >= matrix.length ||
+        col < 0 ||
+        col >= matrix[0].length ||
+        visited[row][col] ||
+        matrix[row][col].system !== systemName ||
+        (matrix[row][col].type === "outer" && prevCellType === "outer")
+      ) {
+        return false;
+      }
+
+      visited[row][col] = true;
+      pathRowIndices.push(row);
+      pathColumnIndices.push(col);
+      prevCellType = matrix[row][col].type;
+
+      if (row === targetRow && col === targetCol) {
+        return true;
+      }
+
+      const neighbors = [
+        [row - 1, col],
+        [row + 1, col],
+        [row, col - 1],
+        [row, col + 1],
+      ];
+
+      for (const [nRow, nCol] of neighbors) {
+        if (hasPath(nRow, nCol, prevCellType)) {
+          return true;
+        }
+      }
+
+      pathRowIndices.pop();
+      pathColumnIndices.pop();
+      return false;
+    };
+
+    const isConnected = hasPath(startRow, startCol, null);
+
+    if (!isConnected) {
+      pathRowIndices.length = 0;
+      pathColumnIndices.length = 0;
+    }
+
+    return { isConnected, pathRowIndices, pathColumnIndices };
+  }
+
+  function checkConnectedRepairMatrixPath(matrix, system) {
+    const rowIndices = [];
+    const columnIndices = [];
+
+    for (let row = 0; row < matrix.length; row++) {
+      for (let col = 0; col < matrix[0].length; col++) {
+        const cell = matrix[row][col];
+        if (cell.type === "outer" && cell.system === system) {
+          rowIndices.push(row);
+          columnIndices.push(col);
+        }
+      }
+    }
+
+    if (rowIndices.length >= 2) {
+      const startRow = rowIndices[0];
+      const startCol = columnIndices[0];
+      const targetRow = rowIndices[1];
+      const targetCol = columnIndices[1];
+
+      return findConnectedRepairMatrixPath(
+        matrix,
+        startRow,
+        startCol,
+        targetRow,
+        targetCol
+      );
+    } else {
+      return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
+    }
+  }
+
+  function getEmptyRepairMatrix() {
+    const dimension = process.env.REPAIR_MATRIX_DIMENSION;
+    const systems = ENGINEER_SYSTEMS_INFO.filter(
+      (system) => system.name !== "life support"
+    ).map((system) => system.name);
+    const doubledSystems = systems.concat(systems.slice());
+    const extra_elements = dimension * 4;
+
+    while (doubledSystems.length < extra_elements) {
+      doubledSystems.push("empty");
+    }
+
+    const shuffledSystems = shuffleArray(doubledSystems);
+
+    let blankRepairMatrix = [];
+
+    for (let i = 0; i < dimension + 2; i++) {
+      let row = [];
+      for (let j = 0; j < dimension + 2; j++) {
+        if (i === 0 || i === dimension + 1 || j === 0 || j === dimension + 1) {
+          // Cells in the first row, last row, first column, and last column are "outer" cells
+          let system;
+
+          if (
+            (i === 0 && j === 0) ||
+            (i === 0 && j === dimension + 1) ||
+            (i === dimension + 1 && j === 0) ||
+            (i === dimension + 1 && j === dimension + 1)
+          ) {
+            system = "empty";
+          } else {
+            system = shuffledSystems.pop();
+          }
+
+          row.push({
+            type: "outer",
+            system: system,
+          });
+        } else {
+          row.push({
+            type: "inner",
+            system: "empty",
+          });
+        }
+      }
+      blankRepairMatrix.push(row);
+    }
+
+    return blankRepairMatrix;
+  }
+
+  // Function to shuffle an array using Fisher-Yates algorithm
+  function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }
+
+  function getValidSilenceCells() {
+    const [row, column] = subLocations[playerTeam];
+    const validCells = [];
+
+    // Check 4 cells in the north direction
+    for (let i = 1; i <= 4; i++) {
+      if (row - i < 0) {
+        break;
+      }
+      if (gameMap[row - i][column].type === "island") {
+        break;
+      }
+      if (gameMap[row - i][column].visited[playerTeam]) {
+        break;
+      }
+
+      validCells.push([row - i, column]);
+    }
+
+    // Check 4 cells in the east direction
+    for (let i = 1; i <= 4; i++) {
+      if (column + i >= process.env.MAP_DIMENSION) {
+        break;
+      }
+      if (gameMap[row][column + i].type === "island") {
+        break;
+      }
+      if (gameMap[row][column + i].visited[playerTeam]) {
+        break;
+      }
+
+      validCells.push([row, column + i]);
+    }
+
+    // Check 4 cells in the south direction
+    for (let i = 1; i <= 4; i++) {
+      if (row + i >= process.env.MAP_DIMENSION) {
+        break;
+      }
+      if (gameMap[row + i][column].type === "island") {
+        break;
+      }
+      if (gameMap[row + i][column].visited[playerTeam]) {
+        break;
+      }
+
+      validCells.push([row + i, column]);
+    }
+
+    // Check 4 cells in the west direction
+    for (let i = 1; i <= 4; i++) {
+      if (column - i < 0) {
+        break;
+      }
+      if (gameMap[row][column - i].type === "island") {
+        break;
+      }
+      if (gameMap[row][column - i].visited[playerTeam]) {
+        break;
+      }
+
+      validCells.push([row, column - i]);
+    }
+
+    return validCells;
+  }
+
+  function explorePaths(
+    row,
+    col,
+    distance,
+    visited,
+    validCells,
+    currentDistance = 0
+  ) {
+    if (
+      row < 0 ||
+      col < 0 ||
+      row >= gameMap.length ||
+      col >= gameMap[0].length ||
+      currentDistance > distance ||
+      visited[row][col] ||
+      gameMap[row][col].type === "island"
+    ) {
+      // visited[row][col] = true;
+      return;
+    }
+
+    visited[row][col] = true;
+    validCells.push([row, col]);
+
+    // Explore neighboring cells
+    explorePaths(
+      row + 1,
+      col,
+      distance,
+      visited,
+      validCells,
+      currentDistance + 1
+    ); // Down
+    explorePaths(
+      row - 1,
+      col,
+      distance,
+      visited,
+      validCells,
+      currentDistance + 1
+    ); // Up
+    explorePaths(
+      row,
+      col + 1,
+      distance,
+      visited,
+      validCells,
+      currentDistance + 1
+    ); // Right
+    explorePaths(
+      row,
+      col - 1,
+      distance,
+      visited,
+      validCells,
+      currentDistance + 1
+    ); // Left
+
+    visited[row][col] = false;
+  }
+
+  function getCellsDistanceAway(
+    startRow,
+    startCol,
+    maxDistance,
+    removeStart = true
+  ) {
+    const rows = gameMap.length;
+    const cols = gameMap[0].length;
+
+    // Create a visited array to keep track of visited cells
+    const visited = new Array(rows)
+      .fill(false)
+      .map(() => new Array(cols).fill(false));
+
+    const validCells = [];
+    explorePaths(startRow, startCol, maxDistance, visited, validCells);
+
+    // Find the index of the starting cell in validCells and remove it
+    if (removeStart) {
+      const startingCellIndex = validCells.findIndex(
+        ([row, col]) => row === startRow && col === startCol
+      );
+      if (startingCellIndex !== -1) {
+        validCells.splice(startingCellIndex, 1);
+      }
+    }
+    return validCells;
+  }
+
+  function healSystem(team, system) {
+    setSystemHealthLevels({
+      ...systemHealthLevels,
+      [team]: {
+        ...systemHealthLevels[team],
+        [system]: process.env.MAX_SYSTEM_HEALTH,
+      },
+    });
+  }
+
+  function manhattanDistance(row1, col1, row2, col2) {
+    return Math.abs(row1 - row2) + Math.abs(col1 - col2);
+  }
+
+  function updateLifeSupport(team, hits) {
+    return Math.max(
+      systemHealthLevels[team]["life support"] -
+        process.env.SYSTEM_DAMAGE_AMOUNT * hits,
+      0
+    );
+  }
+
+  function scanForEnemySub(row, column, scanType) {
+    const enemySubLocations =
+      subLocations[playerTeam === "blue" ? "red" : "blue"];
+    const enemySubRow = enemySubLocations[0];
+    const enemySubColumn = enemySubLocations[1];
+
+    switch (scanType) {
+      case "sector":
+        return (
+          getCellSector([row, column]) ===
+          getCellSector([enemySubRow, enemySubColumn])
+        );
+      case "row":
+        return row === enemySubRow;
+      case "column":
+        return column === enemySubColumn;
+      default:
+        console.error(`Unrecognized scan type: ${scanType}`);
+    }
+  }
+
+  return (
+    <GameContext.Provider
+      value={{
+        selfClientId,
+        currentStage,
+        username,
+        gameId,
+        playerTeam,
+        playerRole,
+        islandList,
+        minesList,
+        subLocations,
+        hitPoints,
+        hostClientId,
+        gameMap,
+        repairMatrix,
+        playerData,
+        pendingNavigate,
+        pendingSystemCharge,
+        systemChargeLevels,
+        systemHealthLevels,
+        engineerCompassMap,
+        radioMapNotes,
+        movements,
+        currentlySurfacing,
+        movementCountOnDisable,
+        notificationMessages,
+        messageTimestamp,
+        engineerPendingBlock,
+        engineerHealSystem,
+        clearVisitedPath,
+        pickNewOuterCells,
+        getValidSilenceCells,
+        setCurrentStage,
+        setUsername,
+        setGameId,
+        setPlayerTeam,
+        setPlayerRole,
+        setMinesList,
+        setSubLocations,
+        setHitPoints,
+        setGameMap,
+        setRepairMatrix,
+        moveSub,
+        moveSubDirection,
+        setPlayerData,
+        getMessagePlayer,
+        setPendingNavigate,
+        setPendingSystemCharge,
+        setSystemChargeLevels,
+        setSystemHealthLevels,
+        setEngineerCompassMap,
+        resetMap,
+        getEmptyRepairMatrix,
+        getCellsDistanceAway,
+        setRadioMapNotes,
+        setMovements,
+        checkConnectedRepairMatrixPath,
+        healSystem,
+        rotateEngineerCompassValues,
+        getFirstMateSystem,
+        updateLifeSupport,
+        manhattanDistance,
+        setCurrentlySurfacing,
+        scanForEnemySub,
+        detonateWeapon,
+        setNotificationMessages,
+        setMessageTimestamp,
+        finishTurn,
+        setEngineerPendingBlock,
+        setEngineerHealSystem,
+        setMovementCountOnDisable,
+        setHostClientId,
+      }}
+    >
+      {children}
+    </GameContext.Provider>
+  );
 }
 
-export function useGameContext(){ return useContext(GameContext); }
+export function useGameContext() {
+  return useContext(GameContext);
+}
