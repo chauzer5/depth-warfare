@@ -700,7 +700,7 @@ export function firstMateScan(context, message) {
   };
 }
 
-export function syncNetworkState(context, message) {
+export function syncNetworkState(context, networkState) {
   const {
     setCurrentStage,
     setSubLocations,
@@ -720,52 +720,52 @@ export function syncNetworkState(context, message) {
     setMinesList,
   } = context;
 
-  if (message.data.hasOwnProperty("currentStage")) {
-    setCurrentStage(message.data.currentStage);
+  if (networkState.hasOwnProperty("currentStage")) {
+    setCurrentStage(networkState.currentStage);
   }
-  if (message.data.hasOwnProperty("subLocations")) {
-    setSubLocations(message.data.subLocations);
+  if (networkState.hasOwnProperty("subLocations")) {
+    setSubLocations(networkState.subLocations);
   }
-  if (message.data.hasOwnProperty("gameMap")) {
-    setGameMap(message.data.gameMap);
+  if (networkState.hasOwnProperty("gameMap")) {
+    setGameMap(networkState.gameMap);
   }
-  if (message.data.hasOwnProperty("systemChargeLevels")) {
-    setSystemChargeLevels(message.data.systemChargeLevels);
+  if (networkState.hasOwnProperty("systemChargeLevels")) {
+    setSystemChargeLevels(networkState.systemChargeLevels);
   }
-  if (message.data.hasOwnProperty("movementCountOnDisable")) {
-    setMovementCountOnDisable(message.data.movementCountOnDisable);
+  if (networkState.hasOwnProperty("movementCountOnDisable")) {
+    setMovementCountOnDisable(networkState.movementCountOnDisable);
   }
-  if (message.data.hasOwnProperty("systemHealthLevels")) {
-    setSystemHealthLevels(message.data.systemHealthLevels);
+  if (networkState.hasOwnProperty("systemHealthLevels")) {
+    setSystemHealthLevels(networkState.systemHealthLevels);
   }
-  if (message.data.hasOwnProperty("engineerCompassMap")) {
-    setEngineerCompassMap(message.data.engineerCompassMap);
+  if (networkState.hasOwnProperty("engineerCompassMap")) {
+    setEngineerCompassMap(networkState.engineerCompassMap);
   }
-  if (message.data.hasOwnProperty("movements")) {
-    setMovements(message.data.movements);
+  if (networkState.hasOwnProperty("movements")) {
+    setMovements(networkState.movements);
   }
-  if (message.data.hasOwnProperty("pendingSystemCharge")) {
-    setPendingSystemCharge(message.data.pendingSystemCharge);
+  if (networkState.hasOwnProperty("pendingSystemCharge")) {
+    setPendingSystemCharge(networkState.pendingSystemCharge);
   }
-  if (message.data.hasOwnProperty("engineerPendingBlock")) {
-    setEngineerPendingBlock(message.data.engineerPendingBlock);
+  if (networkState.hasOwnProperty("engineerPendingBlock")) {
+    setEngineerPendingBlock(networkState.engineerPendingBlock);
   }
-  if (message.data.hasOwnProperty("pendingNavigate")) {
-    setPendingNavigate(message.data.pendingNavigate);
+  if (networkState.hasOwnProperty("pendingNavigate")) {
+    setPendingNavigate(networkState.pendingNavigate);
   }
-  if (message.data.hasOwnProperty("engineerHealSystem")) {
-    setEngineerHealSystem(message.data.engineerHealSystem);
+  if (networkState.hasOwnProperty("engineerHealSystem")) {
+    setEngineerHealSystem(networkState.engineerHealSystem);
   }
-  if (message.data.hasOwnProperty("notificationMessages")) {
-    setNotificationMessages(message.data.notificationMessages);
+  if (networkState.hasOwnProperty("notificationMessages")) {
+    setNotificationMessages(networkState.notificationMessages);
   }
-  if (message.data.hasOwnProperty("messageTimestamp")) {
-    setMessageTimestamp(message.data.messageTimestamp);
+  if (networkState.hasOwnProperty("messageTimestamp")) {
+    setMessageTimestamp(networkState.messageTimestamp);
   }
-  if (message.data.hasOwnProperty("currentlySurfacing")) {
-    setCurrentlySurfacing(message.data.currentlySurfacing);
+  if (networkState.hasOwnProperty("currentlySurfacing")) {
+    setCurrentlySurfacing(networkState.currentlySurfacing);
   }
-  if (message.data.hasOwnProperty("minesList")) {
-    setMinesList(message.data.minesList);
+  if (networkState.hasOwnProperty("minesList")) {
+    setMinesList(networkState.minesList);
   }
 }
