@@ -102,6 +102,9 @@ export default function Game() {
           networkState = firstMateScan(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
           break;
+        case "sync-network-state":
+          // Do nothing
+          break;
         default:
           console.error(`Unrecognized message type: ${newMessage?.name}}`);
       }

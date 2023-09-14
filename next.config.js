@@ -19,6 +19,7 @@ const nextConfig = {
     MAX_MINE_DAMAGE: 2,
     MAX_MESSAGES: 15,
   },
+  productionBrowserSourceMaps: true,
 };
 
 module.exports = nextConfig;
