@@ -5,7 +5,7 @@ import { useGameContext } from "@/app/state/game_state";
 import { capitalizeFirstLetter } from "@/app/utils";
 import { Box } from "@mui/material";
 import theme from "@/app/styles/theme";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function RadioOperatorDashboard() {
   const styles = {
@@ -76,6 +76,8 @@ export default function RadioOperatorDashboard() {
     playerTeam,
   } = useGameContext();
 
+  const [latestNoteCell, setLatestNoteCell] = useState(null)
+
   const ref = useRef(null);
   const scrollToBottom = () => {
     ref.current.scrollIntoView({ behavior: "smooth" });
@@ -101,20 +103,20 @@ export default function RadioOperatorDashboard() {
           <SectorsKey />
           <div style={styles.shiftControls}>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="north" />
+              <TriangleShiftButton direction="north" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="west" />
+              <TriangleShiftButton direction="west" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
               <div style={{ height: "100%", width: "50px" }} />
-              <TriangleShiftButton direction="east" />
+              <TriangleShiftButton direction="east" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="south" />
+              <TriangleShiftButton direction="south" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
             </div>
           </div>
         </div>
         <div>
-          <RadioMap />
+          <RadioMap latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
           <button
             style={styles.clearButton}
             onClick={() => setRadioMapNotes([])}

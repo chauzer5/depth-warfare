@@ -4,8 +4,10 @@ import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
 import { useState } from "react";
 
-export default function RadioMap() {
-  const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
+export default function RadioMap(props) {
+  const { gameMap, radioMapNotes, setRadioMapNotes} = useGameContext();
+  const { latestNoteCell, setLatestNoteCell } = props;
+
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -87,8 +89,6 @@ export default function RadioMap() {
 
     return islandStyle;
   };
-
-  const [latestNoteCell, setLatestNoteCell] = useState(null);
 
   const handleClick = (row, column) => {
     if (radioMapNotes.find((note) => note[0] === row && note[1] === column)) {
