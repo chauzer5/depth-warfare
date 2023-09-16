@@ -48,10 +48,8 @@ export default function Game() {
   });
 
   useEffect(() => {
-    if (selfClientId === hostClientId) {
-      resetMap();
-      setRepairMatrix({ blue: getEmptyRepairMatrix(), red: getEmptyRepairMatrix() })
-    }
+    resetMap()
+    setRepairMatrix({ blue: getEmptyRepairMatrix(), red: getEmptyRepairMatrix() })
   }, []);
 
   useEffect(() => {

@@ -70,12 +70,12 @@ export function engineerPlaceSystemBlock(context, message) {
       networkState = {
         engineerPendingBlock: {
           ...engineerPendingBlock,
-          [team]: cell,
+          [team]: message.data.clickedCell,
         },
       };
     } else {
       networkState = finishTurn(
-        cell,
+        message.data.clickedCell,
         pendingSystemCharge[team],
         team,
         isHost, // If we are on the host, set the random elements

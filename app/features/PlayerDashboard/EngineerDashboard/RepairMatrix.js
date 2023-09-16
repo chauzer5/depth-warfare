@@ -90,7 +90,7 @@ export default function RepairMatrix(props) {
   const setBackgroundColor = (row, column) => {
     const cellStyle = {};
 
-    const cell = repairMatrix[row][column];
+    const cell = repairMatrix[playerTeam][row][column];
     const cellColor = getColorByName(cell.system);
 
     if (row === 0) {
@@ -142,65 +142,15 @@ export default function RepairMatrix(props) {
     pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam]; // Can add other statements to see if it can be clickable
 
   const handleClick = (row, column) => {
-    const updatedMatrix = [...repairMatrix[playerTeam].map((row) => [...row])];
-
-    updatedMatrix[row][column] = {
-      ...updatedMatrix[row][column],
-      system: blockSystem,
-    };
-
-    const { isConnected, pathRowIndices, pathColumnIndices } =
-      checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
-
-    if (isConnected) {
-      // Reset the cells along the path to "empty"
-      for (let i = 0; i < pathRowIndices.length; i++) {
-        const pathRow = pathRowIndices[i];
-        const pathCol = pathColumnIndices[i];
-
-        updatedMatrix[pathRow][pathCol] = {
-          ...updatedMatrix[pathRow][pathCol],
-          system: "empty",
-        };
-      }
-
-      // Choose new random nodes along the outside
-      const selectedCells = pickNewOuterCells(updatedMatrix);
-
-      for (const { row, col } of selectedCells) {
-        updatedMatrix[row][col] = {
-          type: "outer",
-          system: blockSystem,
-        };
-      }
-    }
-
-    setResolvedMatrix(updatedMatrix);
-
-    const healSystem = isConnected;
-    const clickedCell = { row, column };
-
-    channel.publish("engineer-place-system-block", { clickedCell, healSystem });
-  };
-
-  const handleClick = (row, column) => {
-    clickedCell = { row, column }
+    const clickedCell = { row, column }
     channel.publish("engineer-place-system-block", { clickedCell })
   }
-
-
-  useEffect(() => {
-    if (resolvedMatrix.length > 0) {
-      setRepairMatrix({...repairMatrix, [playerTeam]: resolvedMatrix});
-      setResolvedMatrix([]);
-    }
-  }, [subLocations[playerTeam]]);
 
   // Functions for game goes here
   return (
     <table style={styles.table}>
       <tbody>
-        {repairMatrix.map((row, rowIndex) => (
+        {repairMatrix[playerTeam].map((row, rowIndex) => (
           <tr key={rowIndex} style={styles.row}>
             {row.map((cell, columnIndex) => (
               <td

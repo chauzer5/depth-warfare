@@ -292,16 +292,18 @@ export function GameWrapper({ children }) {
     
         // Damage the system corresponding to the block placed
         syncStateMessage["systemHealthLevels"] = {
-            ...systemHealthLevels,
-            [team]: {
-            ...systemHealthLevels[team],
-            [randomSystem]: updatedHealthLevel,
-            },
+          ...systemHealthLevels,
+          [team]: {
+          ...systemHealthLevels[team],
+          [randomSystem]: updatedHealthLevel,
+          },
         };
     }
 
     // Update the repair matrix and check to see if it is repaired
     const updatedMatrix = [...repairMatrix[team].map((row) => [...row])];
+
+    const { row, column } = engineerBlockCell
 
     updatedMatrix[row][column] = {
       ...updatedMatrix[row][column],
@@ -348,28 +350,30 @@ export function GameWrapper({ children }) {
       tempMessages.push(notificationMessage);
       tempMessageTimestamp += 1;
 
-      syncStateMessage["systemHealthLevels"][team][blockSystem] =
+      if (isHost) {
+        syncStateMessage["systemHealthLevels"][team][blockSystem] =
         process.env.MAX_SYSTEM_HEALTH;
+      }
     }
 
-    if (
-      syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
-      systemHealthLevels[team][randomSystem] > 0
-    ) {
-      // Notify team that system is now disabled
-      const notificationMessage = {
-        team,
-        sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
-        oppTeamMessage: null,
-        intendedPlayer: "all", // You can specify a player here if needed
-        severitySameTeam: "error",
-        severityOppTeam: null,
-        timestamp: tempMessageTimestamp,
-      };
-      tempMessages.push(notificationMessage);
-      tempMessageTimestamp += 1;
-
-      if (isHost) {
+    if (isHost) {
+      if (
+        syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
+        systemHealthLevels[team][randomSystem] > 0
+      ) {
+        // Notify team that system is now disabled
+        const notificationMessage = {
+          team,
+          sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
+          oppTeamMessage: null,
+          intendedPlayer: "all", // You can specify a player here if needed
+          severitySameTeam: "error",
+          severityOppTeam: null,
+          timestamp: tempMessageTimestamp,
+        };
+        tempMessages.push(notificationMessage);
+        tempMessageTimestamp += 1;
+  
         // If the system is comms, keep track of how many enemy movements were before it was disabled
         if (randomSystem === "comms") {
             const oppositeTeam = team === "blue" ? "red" : "blue";
