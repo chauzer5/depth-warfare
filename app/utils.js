@@ -23,6 +23,11 @@ export const SYSTEMS_INFO = [
   },
 ];
 
+export const getSystemMaxCharge = (systemName) => {
+  const system = SYSTEMS_INFO.find((system) => system.name === systemName);
+  return system ? system.maxCharge : null;
+};
+
 export const ENGINEER_SYSTEMS_INFO = [
   {
     name: "scan",

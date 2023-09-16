@@ -250,7 +250,7 @@ export function GameWrapper({ children }) {
     };
   }
 
-  function finishTurn(systemHealed, chargedSystem, team) {
+  function finishTurn(engineerBlockCell, chargedSystem, team, isHost) {
     const tempMessages = [];
     let tempMessageTimestamp = messageTimestamp;
 
@@ -268,37 +268,73 @@ export function GameWrapper({ children }) {
     // place the pending matrix block and create an updated version of the repair matrix
     const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
 
-    // Filter out invalid systems, then damage a random system
-    const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
-      (system) =>
-        systemHealthLevels[team][system] > 0 && system !== "life support"
-    );
-
-    let randomSystem = blockSystem;
-
-    if (filteredSystems.length > 0) {
-      // Generate a random index within the valid range of filtered systems
-      const randomIndex = Math.floor(Math.random() * filteredSystems.length);
-      // Use the random index to select a system from the filtered list
-      randomSystem = filteredSystems[randomIndex];
+    if (isHost) {
+        // Filter out invalid systems, then damage a random system
+        const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
+            (system) =>
+            systemHealthLevels[team][system] > 0 && system !== "life support"
+        );
+    
+        let randomSystem = blockSystem;
+    
+        if (filteredSystems.length > 0) {
+            // Generate a random index within the valid range of filtered systems
+            const randomIndex = Math.floor(Math.random() * filteredSystems.length);
+            // Use the random index to select a system from the filtered list
+            randomSystem = filteredSystems[randomIndex];
+        }
+    
+        // set the updated health level for the system
+        const updatedHealthLevel = Math.max(
+            systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
+            0
+        );
+    
+        // Damage the system corresponding to the block placed
+        syncStateMessage["systemHealthLevels"] = {
+            ...systemHealthLevels,
+            [team]: {
+            ...systemHealthLevels[team],
+            [randomSystem]: updatedHealthLevel,
+            },
+        };
     }
 
-    // set the updated health level for the system
-    const updatedHealthLevel = Math.max(
-      systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
-      0
-    );
+    // Update the repair matrix and check to see if it is repaired
+    const updatedMatrix = [...repairMatrix[team].map((row) => [...row])];
 
-    // Damage the system corresponding to the block placed
-    syncStateMessage["systemHealthLevels"] = {
-      ...systemHealthLevels,
-      [team]: {
-        ...systemHealthLevels[team],
-        [randomSystem]: updatedHealthLevel,
-      },
+    updatedMatrix[row][column] = {
+      ...updatedMatrix[row][column],
+      system: blockSystem,
     };
 
-    if (systemHealed) {
+    const { isConnected, pathRowIndices, pathColumnIndices } =
+      checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
+
+    if (isConnected) {
+      // Reset the cells along the path to "empty"
+      for (let i = 0; i < pathRowIndices.length; i++) {
+        const pathRow = pathRowIndices[i];
+        const pathCol = pathColumnIndices[i];
+
+        updatedMatrix[pathRow][pathCol] = {
+          ...updatedMatrix[pathRow][pathCol],
+          system: "empty",
+        };
+      }
+
+      if (isHost) {
+        // Choose new random nodes along the outside
+        const selectedCells = pickNewOuterCells(updatedMatrix);
+
+        for (const { row, col } of selectedCells) {
+            updatedMatrix[row][col] = {
+            type: "outer",
+            system: blockSystem,
+            };
+        }
+      }
+
       const notificationMessage = {
         team,
         sameTeamMessage: `${capitalizeFirstLetter(blockSystem)} repaired`,
@@ -333,13 +369,15 @@ export function GameWrapper({ children }) {
       tempMessages.push(notificationMessage);
       tempMessageTimestamp += 1;
 
-      // If the system is comms, keep track of how many enemy movements were before it was disabled
-      if (randomSystem === "comms") {
-        const oppositeTeam = team === "blue" ? "red" : "blue";
-        syncStateMessage["movementCountOnDisable"] = {
-          ...movementCountOnDisable,
-          [oppositeTeam]: movements[oppositeTeam].length,
-        };
+      if (isHost) {
+        // If the system is comms, keep track of how many enemy movements were before it was disabled
+        if (randomSystem === "comms") {
+            const oppositeTeam = team === "blue" ? "red" : "blue";
+            syncStateMessage["movementCountOnDisable"] = {
+            ...movementCountOnDisable,
+            [oppositeTeam]: movements[oppositeTeam].length,
+            };
+        }
       }
     }
 
@@ -353,6 +391,8 @@ export function GameWrapper({ children }) {
       },
     };
 
+    syncStateMessage["repairMatrix"] = {...repairMatrix, [team]: updatedMatrix}
+
     syncStateMessage["engineerCompassMap"] = updatedTeamMap;
 
     // move the sub in the specified direction
@@ -360,6 +400,7 @@ export function GameWrapper({ children }) {
 
     syncStateMessage["subLocations"] = moveSubInfo.subLocations;
     syncStateMessage["gameMap"] = moveSubInfo.gameMap;
+
 
     syncStateMessage["movements"] = {
       ...movements,

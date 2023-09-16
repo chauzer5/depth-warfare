@@ -5,7 +5,7 @@ import theme from "@/app/styles/theme";
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 
 export default function RepairMatrix(props) {
-  const { channel, clearRepairMatrix } = props;
+  const { channel } = props;
 
   const {
     playerTeam,
@@ -16,10 +16,11 @@ export default function RepairMatrix(props) {
     pickNewOuterCells,
     engineerPendingBlock,
     engineerCompassMap,
+    repairMatrix,
+    setRepairMatrix,
   } = useGameContext();
 
   // This creates an empty and random repair matrix
-  const [repairMatrix, setRepairMatrix] = useState(getEmptyRepairMatrix());
   const [resolvedMatrix, setResolvedMatrix] = useState([]);
   const blockSystem =
     engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
@@ -137,24 +138,11 @@ export default function RepairMatrix(props) {
     return false;
   };
 
-  useEffect(() => {
-    if (clearRepairMatrix) {
-      const updatedMatrix = repairMatrix.map((row) =>
-        row.map((cell) => ({
-          ...cell,
-          system: cell.type === "inner" ? "empty" : cell.system,
-        }))
-      );
-      // Update the state with the repaired matrix
-      setRepairMatrix(updatedMatrix);
-    }
-  }, [clearRepairMatrix]);
-
   const clickable =
     pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam]; // Can add other statements to see if it can be clickable
 
   const handleClick = (row, column) => {
-    const updatedMatrix = [...repairMatrix.map((row) => [...row])];
+    const updatedMatrix = [...repairMatrix[playerTeam].map((row) => [...row])];
 
     updatedMatrix[row][column] = {
       ...updatedMatrix[row][column],
@@ -195,9 +183,15 @@ export default function RepairMatrix(props) {
     channel.publish("engineer-place-system-block", { clickedCell, healSystem });
   };
 
+  const handleClick = (row, column) => {
+    clickedCell = { row, column }
+    channel.publish("engineer-place-system-block", { clickedCell })
+  }
+
+
   useEffect(() => {
     if (resolvedMatrix.length > 0) {
-      setRepairMatrix(resolvedMatrix);
+      setRepairMatrix({...repairMatrix, [playerTeam]: resolvedMatrix});
       setResolvedMatrix([]);
     }
   }, [subLocations[playerTeam]]);

@@ -19,6 +19,7 @@ import {
   firstMateDetonateMine,
   syncNetworkState,
   stopSurfacing,
+  engineerClearRepairMatrix
 } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
 
@@ -28,6 +29,8 @@ export default function Game() {
     username,
     currentStage,
     resetMap,
+    setRepairMatrix,
+    getEmptyRepairMatrix,
     selfClientId,
     hostClientId,
   } = useGameContext();
@@ -45,7 +48,10 @@ export default function Game() {
   });
 
   useEffect(() => {
-    resetMap();
+    if (selfClientId === hostClientId) {
+      resetMap();
+      setRepairMatrix({ blue: getEmptyRepairMatrix(), red: getEmptyRepairMatrix() })
+    }
   }, []);
 
   useEffect(() => {
@@ -77,6 +83,13 @@ export default function Game() {
         break;
       case "engineer-place-system-block":
         networkState = engineerPlaceSystemBlock(gameContext, newMessage);
+        syncNetworkState(gameContext, networkState);
+        if (selfClientId === hostClientId) {
+          channel.publish("sync-network-state", networkState);
+        }
+        break;
+      case "engineer-clear-repair-matrix":
+        networkState = engineerClearRepairMatrix(gameContext, newMessage);
         syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
           channel.publish("sync-network-state", networkState);

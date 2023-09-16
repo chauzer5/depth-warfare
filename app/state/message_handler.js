@@ -2,6 +2,8 @@ import {
   getCellSector,
   getCellName,
   keepLastNElements,
+  SYSTEMS_INFO,
+  getSystemMaxCharge
 } from "../utils";
 
 // This function lets the captain pick a starting point
@@ -46,34 +48,62 @@ export function engineerPlaceSystemBlock(context, message) {
     pendingSystemCharge,
     getMessagePlayer,
     engineerPendingBlock,
-    engineerHealSystem,
+    repairMatrix,
     finishTurn,
+    selfClientId,
+    hostClientId,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
+  const isHost = selfClientId === hostClientId
+
   let networkState = {};
 
-  if (!pendingSystemCharge[team]) {
-    networkState = {
-      engineerPendingBlock: {
-        ...engineerPendingBlock,
-        [team]: message.data.clickedCell,
-      },
-      engineerHealSystem: {
-        ...engineerHealSystem,
-        [team]: message.data.healSystem,
-      },
-    };
-  } else {
-    networkState = finishTurn(
-      message.data.healSystem,
-      pendingSystemCharge[team],
-      team
-    );
+  const { row, column } = message.data.clickedCell
+
+  const cell = repairMatrix[team][row][column]
+
+  // Enforce valid block placement
+  if (cell.type === "inner" && cell.system === "empty" && !engineerPendingBlock[team]) {
+    if (!pendingSystemCharge[team]) {
+      networkState = {
+        engineerPendingBlock: {
+          ...engineerPendingBlock,
+          [team]: cell,
+        },
+      };
+    } else {
+      networkState = finishTurn(
+        cell,
+        pendingSystemCharge[team],
+        team,
+        isHost, // If we are on the host, set the random elements
+      );
+    }
   }
 
   return networkState;
+}
+
+export function engineerClearRepairMatrix(context, message) {
+  const {
+    getMessagePlayer,
+    repairMatrix,
+    selfClientId,
+    hostClientId,
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  const updatedMatrix = repairMatrix[team].map((row) =>
+    row.map((cell) => ({
+      ...cell,
+      system: cell.type === "inner" ? "empty" : cell.system,
+    }))
+  );
+
+  return {"repairMatrix": {...repairMatrix, [team]: updatedMatrix}};
 }
 
 // first mate choses something to activate
@@ -84,28 +114,37 @@ export function firstMateChooseSystemCharge(context, message) {
     getMessagePlayer,
     engineerPendingBlock,
     engineerHealSystem,
+    systemChargeLevels,
     finishTurn,
+    selfClientId,
+    hostClientId
   } = context;
+
+  const isHost = selfClientId === hostClientId;
 
   const team = getMessagePlayer(message).team;
 
   let networkState = {};
 
-  if (!engineerPendingBlock[team]) {
-    networkState = {
-      pendingSystemCharge: {
-        ...pendingSystemCharge,
-        [team]: message.data.system,
-      },
-    };
-  } else {
-    // This means we are second to go this turn
-    // engineerHealSystem[team] should already be assigned
-    networkState = finishTurn(
-      engineerHealSystem[team],
-      message.data.system,
-      team
-    );
+  // Enforce that we are able to charge the system we are looking at
+  if (systemChargeLevels[team][message.data.system] < getSystemMaxCharge(message.data.system)) {
+    if (!engineerPendingBlock[team]) {
+      networkState = {
+        pendingSystemCharge: {
+          ...pendingSystemCharge,
+          [team]: message.data.system,
+        },
+      };
+    } else {
+      // This means we are second to go this turn
+      // engineerHealSystem[team] should already be assigned
+      networkState = finishTurn(
+        engineerPendingBlock[team],
+        message.data.system,
+        team,
+        isHost, // If we are on the host, we will set the random elements
+      );
+    }
   }
 
   return networkState;
@@ -718,6 +757,7 @@ export function syncNetworkState(context, networkState) {
     setMessageTimestamp,
     setCurrentlySurfacing,
     setMinesList,
+    setRepairMatrix
   } = context;
 
   if (networkState.hasOwnProperty("currentStage")) {
@@ -767,5 +807,8 @@ export function syncNetworkState(context, networkState) {
   }
   if (networkState.hasOwnProperty("minesList")) {
     setMinesList(networkState.minesList);
+  }
+  if (networkState.hasOwnProperty("repairMatrix")) {
+    setRepairMatrix(networkState.repairMatrix);
   }
 }
