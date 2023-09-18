@@ -70,8 +70,9 @@ export default function CaptainStartingSpot(props) {
         validSpot = true;
       }
     } while (!validSpot);
-
+    
     channel.publish("captain-set-starting-spot", { row, column });
+
   };
 
   return (
