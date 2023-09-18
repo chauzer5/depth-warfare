@@ -37,7 +37,7 @@ export default function CaptainStartingSpot(props) {
   };
 
   const { channel } = props;
-  const { playerTeam, gameMap } = useGameContext();
+  const { playerTeam, gameMap, subLocations } = useGameContext();
 
   const handleClick = (cell, row, column) => {
     if (cell.type === "water") {
@@ -53,10 +53,15 @@ export default function CaptainStartingSpot(props) {
   };
 
   const gameMapRef = useRef(gameMap);
+  const subLocationsRef = useRef(subLocations);
 
   useEffect(() => {
     gameMapRef.current = gameMap;
   }, [gameMap]);
+
+  useEffect(() => {
+    subLocationsRef.current = subLocations;
+  }, [subLocations]);
 
   const handleTimeOut = () => {
     // If the timer runs out, pick a random starting location
@@ -70,8 +75,10 @@ export default function CaptainStartingSpot(props) {
         validSpot = true;
       }
     } while (!validSpot);
-    
-    channel.publish("captain-set-starting-spot", { row, column });
+
+    if (!subLocationsRef.current[playerTeam]) {
+      channel.publish("captain-set-starting-spot", { row, column });
+    }
 
   };
 
