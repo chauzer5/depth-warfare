@@ -9,19 +9,39 @@ import {
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
-  const { moveSub, getMessagePlayer, subLocations } = context;
+  const { getMessagePlayer, subLocations, gameMap } = context;
 
   const team = getMessagePlayer(message).team;
 
   let allDone = false;
 
-  const networkState = moveSub(team, message.data.row, message.data.column);
+  let networkState = {subLocations: {...subLocations, [team]: [message.data.row, message.data.column] }};
 
   if (subLocations[team === "blue" ? "red" : "blue"]) {
     allDone = true;
   }
 
   if (allDone) {
+
+    // Set the gameMap manually based on the sub locations
+    const mapCopy = [...gameMap];
+
+    let prevContents = gameMap[message.data.row][message.data.column];
+    let newContents = {
+      ...prevContents,
+      subPresent: { ...prevContents.subPresent, [team]: true },
+    };
+    mapCopy[message.data.row][message.data.column] = newContents;
+
+    const oppositeTeam = "red" === team ? "blue" : "red"
+    prevContents = gameMap[subLocations[oppositeTeam][0]][subLocations[oppositeTeam][1]];
+    newContents = {
+      ...prevContents,
+      subPresent: { ...prevContents.subPresent, [oppositeTeam]: true },
+    };
+    mapCopy[subLocations[oppositeTeam][0]][subLocations[oppositeTeam][1]] = newContents;
+
+    networkState["gameMap"] = mapCopy
     networkState["currentStage"] = "countdown";
   }
 
@@ -56,8 +76,6 @@ export function engineerPlaceSystemBlock(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  const isHost = selfClientId === hostClientId
-
   let networkState = {};
 
   const { row, column } = message.data.clickedCell
@@ -78,7 +96,6 @@ export function engineerPlaceSystemBlock(context, message) {
         message.data.clickedCell,
         pendingSystemCharge[team],
         team,
-        isHost, // If we are on the host, set the random elements
       );
     }
   }
@@ -116,11 +133,7 @@ export function firstMateChooseSystemCharge(context, message) {
     engineerHealSystem,
     systemChargeLevels,
     finishTurn,
-    selfClientId,
-    hostClientId
   } = context;
-
-  const isHost = selfClientId === hostClientId;
 
   const team = getMessagePlayer(message).team;
 
@@ -142,7 +155,6 @@ export function firstMateChooseSystemCharge(context, message) {
         engineerPendingBlock[team],
         message.data.system,
         team,
-        isHost, // If we are on the host, we will set the random elements
       );
     }
   }

@@ -48,8 +48,8 @@ export default function Game() {
   });
 
   useEffect(() => {
-    resetMap()
-    setRepairMatrix({ blue: getEmptyRepairMatrix(), red: getEmptyRepairMatrix() })
+    console.log("ids", selfClientId, hostClientId)
+    
   }, []);
 
   useEffect(() => {
@@ -59,93 +59,80 @@ export default function Game() {
 
     switch (newMessage?.name) {
       case "captain-set-starting-spot": // Done
-        networkState = captainSetStartingSpot(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = captainSetStartingSpot(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "captain-start-sub-navigate":
-        networkState = captainStartSubNavigate(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = captainStartSubNavigate(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "captain-cancel-sub-navigate":
-        networkState = captainCancelSubNavigate(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = captainCancelSubNavigate(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "engineer-place-system-block":
-        networkState = engineerPlaceSystemBlock(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = engineerPlaceSystemBlock(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "engineer-clear-repair-matrix":
-        networkState = engineerClearRepairMatrix(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = engineerClearRepairMatrix(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "first-mate-choose-system-charge":
-        networkState = firstMateChooseSystemCharge(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = firstMateChooseSystemCharge(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "captain-silence":
-        networkState = captainSilence(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = captainSilence(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "captain-surface":
-        networkState = captainSurface(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = captainSurface(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "stop-surfacing":
-        networkState = stopSurfacing(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = stopSurfacing(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "first-mate-fire-torpedo":
-        networkState = firstMateFireTorpedo(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = firstMateFireTorpedo(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "first-mate-drop-mine":
-        networkState = firstMateDropMine(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = firstMateDropMine(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "first-mate-detonate-mine":
-        networkState = firstMateDetonateMine(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = firstMateDetonateMine(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;
       case "first-mate-scan":
-        networkState = firstMateScan(gameContext, newMessage);
-        syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
+          networkState = firstMateScan(gameContext, newMessage);
           channel.publish("sync-network-state", networkState);
         }
         break;

@@ -3,6 +3,7 @@ import TeamRoleDescription from "./TeamRoleDescription";
 import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
 import { useGameContext } from "@/app/state/game_state";
+import { useEffect, useState, useRef } from "react";
 
 export default function CaptainStartingSpot(props) {
   const styles = {
@@ -51,6 +52,12 @@ export default function CaptainStartingSpot(props) {
     }
   };
 
+  const gameMapRef = useRef(gameMap);
+
+  useEffect(() => {
+    gameMapRef.current = gameMap;
+  }, [gameMap]);
+
   const handleTimeOut = () => {
     // If the timer runs out, pick a random starting location
     let row;
@@ -59,7 +66,7 @@ export default function CaptainStartingSpot(props) {
     do {
       row = Math.floor(Math.random() * process.env.MAP_DIMENSION);
       column = Math.floor(Math.random() * process.env.MAP_DIMENSION);
-      if (gameMap[row][column].type === "water") {
+      if (gameMapRef.current[row][column].type === "water") {
         validSpot = true;
       }
     } while (!validSpot);

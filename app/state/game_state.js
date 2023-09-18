@@ -250,7 +250,7 @@ export function GameWrapper({ children }) {
     };
   }
 
-  function finishTurn(engineerBlockCell, chargedSystem, team, isHost) {
+  function finishTurn(engineerBlockCell, chargedSystem, team) {
     const tempMessages = [];
     let tempMessageTimestamp = messageTimestamp;
 
@@ -268,37 +268,35 @@ export function GameWrapper({ children }) {
     // place the pending matrix block and create an updated version of the repair matrix
     const blockSystem = engineerCompassMap[team][pendingNavigate[team]];
 
-    if (isHost) {
-        // Filter out invalid systems, then damage a random system
-        const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
-            (system) =>
-            systemHealthLevels[team][system] > 0 && system !== "life support"
-        );
-    
-        let randomSystem = blockSystem;
-    
-        if (filteredSystems.length > 0) {
-            // Generate a random index within the valid range of filtered systems
-            const randomIndex = Math.floor(Math.random() * filteredSystems.length);
-            // Use the random index to select a system from the filtered list
-            randomSystem = filteredSystems[randomIndex];
-        }
-    
-        // set the updated health level for the system
-        const updatedHealthLevel = Math.max(
-            systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
-            0
-        );
-    
-        // Damage the system corresponding to the block placed
-        syncStateMessage["systemHealthLevels"] = {
-          ...systemHealthLevels,
-          [team]: {
-          ...systemHealthLevels[team],
-          [randomSystem]: updatedHealthLevel,
-          },
-        };
+    // Filter out invalid systems, then damage a random system
+    const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
+        (system) =>
+        systemHealthLevels[team][system] > 0 && system !== "life support"
+    );
+
+    let randomSystem = blockSystem;
+
+    if (filteredSystems.length > 0) {
+        // Generate a random index within the valid range of filtered systems
+        const randomIndex = Math.floor(Math.random() * filteredSystems.length);
+        // Use the random index to select a system from the filtered list
+        randomSystem = filteredSystems[randomIndex];
     }
+
+    // set the updated health level for the system
+    const updatedHealthLevel = Math.max(
+        systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
+        0
+    );
+
+    // Damage the system corresponding to the block placed
+    syncStateMessage["systemHealthLevels"] = {
+      ...systemHealthLevels,
+      [team]: {
+      ...systemHealthLevels[team],
+      [randomSystem]: updatedHealthLevel,
+      },
+    };
 
     // Update the repair matrix and check to see if it is repaired
     const updatedMatrix = [...repairMatrix[team].map((row) => [...row])];
@@ -325,16 +323,14 @@ export function GameWrapper({ children }) {
         };
       }
 
-      if (isHost) {
-        // Choose new random nodes along the outside
-        const selectedCells = pickNewOuterCells(updatedMatrix);
+      // Choose new random nodes along the outside
+      const selectedCells = pickNewOuterCells(updatedMatrix);
 
-        for (const { row, col } of selectedCells) {
-            updatedMatrix[row][col] = {
-            type: "outer",
-            system: blockSystem,
-            };
-        }
+      for (const { row, col } of selectedCells) {
+          updatedMatrix[row][col] = {
+          type: "outer",
+          system: blockSystem,
+          };
       }
 
       const notificationMessage = {
@@ -350,38 +346,34 @@ export function GameWrapper({ children }) {
       tempMessages.push(notificationMessage);
       tempMessageTimestamp += 1;
 
-      if (isHost) {
-        syncStateMessage["systemHealthLevels"][team][blockSystem] =
-        process.env.MAX_SYSTEM_HEALTH;
-      }
+      syncStateMessage["systemHealthLevels"][team][blockSystem] =
+      process.env.MAX_SYSTEM_HEALTH;
     }
 
-    if (isHost) {
-      if (
-        syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
-        systemHealthLevels[team][randomSystem] > 0
-      ) {
-        // Notify team that system is now disabled
-        const notificationMessage = {
-          team,
-          sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
-          oppTeamMessage: null,
-          intendedPlayer: "all", // You can specify a player here if needed
-          severitySameTeam: "error",
-          severityOppTeam: null,
-          timestamp: tempMessageTimestamp,
-        };
-        tempMessages.push(notificationMessage);
-        tempMessageTimestamp += 1;
-  
-        // If the system is comms, keep track of how many enemy movements were before it was disabled
-        if (randomSystem === "comms") {
-            const oppositeTeam = team === "blue" ? "red" : "blue";
-            syncStateMessage["movementCountOnDisable"] = {
-            ...movementCountOnDisable,
-            [oppositeTeam]: movements[oppositeTeam].length,
-            };
-        }
+    if (
+      syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
+      systemHealthLevels[team][randomSystem] > 0
+    ) {
+      // Notify team that system is now disabled
+      const notificationMessage = {
+        team,
+        sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
+        oppTeamMessage: null,
+        intendedPlayer: "all", // You can specify a player here if needed
+        severitySameTeam: "error",
+        severityOppTeam: null,
+        timestamp: tempMessageTimestamp,
+      };
+      tempMessages.push(notificationMessage);
+      tempMessageTimestamp += 1;
+
+      // If the system is comms, keep track of how many enemy movements were before it was disabled
+      if (randomSystem === "comms") {
+          const oppositeTeam = team === "blue" ? "red" : "blue";
+          syncStateMessage["movementCountOnDisable"] = {
+          ...movementCountOnDisable,
+          [oppositeTeam]: movements[oppositeTeam].length,
+          };
       }
     }
 
@@ -481,7 +473,7 @@ export function GameWrapper({ children }) {
       };
     });
 
-    setGameMap(blankGameMap);
+    return blankGameMap // setGameMap(blankGameMap);
   }
 
   function clearVisitedPath(team) {
