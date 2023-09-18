@@ -76,8 +76,6 @@ export default function RadioOperatorDashboard() {
     playerTeam,
   } = useGameContext();
 
-  const [latestNoteCell, setLatestNoteCell] = useState(null)
-
   const ref = useRef(null);
   const scrollToBottom = () => {
     ref.current.scrollIntoView({ behavior: "smooth" });
@@ -103,20 +101,20 @@ export default function RadioOperatorDashboard() {
           <SectorsKey />
           <div style={styles.shiftControls}>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="north" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
+              <TriangleShiftButton direction="north" />
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="west" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
+              <TriangleShiftButton direction="west" />
               <div style={{ height: "100%", width: "50px" }} />
-              <TriangleShiftButton direction="east" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
+              <TriangleShiftButton direction="east" />
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="south" latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
+              <TriangleShiftButton direction="south" />
             </div>
           </div>
         </div>
         <div>
-          <RadioMap latestNoteCell={latestNoteCell} setLatestNoteCell={setLatestNoteCell}/>
+          <RadioMap />
           <button
             style={styles.clearButton}
             onClick={() => setRadioMapNotes([])}
