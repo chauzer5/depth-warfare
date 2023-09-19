@@ -5,7 +5,7 @@ const nextConfig = {
     GAME_COUNTDOWN_SECONDS: 3,
     MAP_DIMENSION: 15,
     SECTOR_DIMENSION: 5,
-    NUM_REQUIRED_PLAYERS: 8,
+    NUM_REQUIRED_PLAYERS: 5,
     STARTING_SPOT_TIMER_SECONDS: 20,
     STARTING_HIT_POINTS: 4,
     ISLAND_MAP: "map1",
@@ -18,6 +18,7 @@ const nextConfig = {
     MAX_TORPEDO_DAMAGE: 2,
     MAX_MINE_DAMAGE: 2,
     MAX_MESSAGES: 15,
+    TIME_FOR_SURFACING: 30,
   },
   productionBrowserSourceMaps: true,
 };

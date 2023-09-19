@@ -15,7 +15,7 @@ const SurfacingPage = ({ channel, team }) => {
       border: `4px solid ${theme.green}`,
       marginRight: "10px",
       width: rectangleWidth[team],
-      transition: "width 30s ease",
+      transition: `width ${process.env.TIME_FOR_SURFACING}s ease`,
     },
     rectangleBorder: {
       height: "28px",
@@ -32,11 +32,11 @@ const SurfacingPage = ({ channel, team }) => {
         ...prevWidths,
         [team]: "97%",
       }));
-    }, 10);
+    });
 
     const closeTimeout = setTimeout(() => {
       channel.publish("stop-surfacing", {}); // Close the modal after the rectangle is fully grown
-    }, 30000); // Delayed closing after the rectangle is fully grown (100ms delay + 30s animation)
+    }, process.env.TIME_FOR_SURFACING * 1000); // Delayed closing after the rectangle is fully grown
 
     return () => {
       clearTimeout(delayTimeout);

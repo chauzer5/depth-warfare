@@ -133,9 +133,23 @@ export function captainCancelSubNavigate(context, message) {
 // Captain uses the silence ability
 // MESSAGE: {row, column}
 export function captainSilence(context, message) {
-  const { systemChargeLevels, getMessagePlayer, moveSub, movements } = context;
+  const { systemChargeLevels, getMessagePlayer, moveSub, movements, getValidSilenceCells } = context;
 
   const team = getMessagePlayer(message).team;
+
+  //Enforcing silencing
+  const validCells = getValidSilenceCells();
+  const arrayToCheck = [message.data.row, message.data.column];
+  
+  let isValid = validCells.some((arr) => {
+    // Use the `every()` method to check if all elements in the sub-array match
+    return arr.length === arrayToCheck.length && arr.every((element, index) => element === arrayToCheck[index]);
+  });
+
+  if(!isValid){
+    console.log("Silence move has been enforced");
+    //!!!!!What should I return here?
+  }
 
   // Move the sub to the chosen location
   const networkState = moveSub(team, message.data.row, message.data.column);
