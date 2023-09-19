@@ -31,7 +31,7 @@ export default function TeamSelection(props) {
     },
   };
 
-  const { presenceData, updateStatus } = props;
+  const { presenceData, updateStatus, channel } = props;
 
   const {
     username,
@@ -41,6 +41,8 @@ export default function TeamSelection(props) {
     setPlayerRole,
     setPlayerData,
     setHostClientId,
+    resetMap,
+    getEmptyRepairMatrix,
   } = useGameContext();
 
   useEffect(() => {
@@ -75,6 +77,13 @@ export default function TeamSelection(props) {
       setHostClientId(hostClientId);
       setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
+      
+      if (selfClientId === hostClientId) {
+        const newMap = resetMap()
+        const newRepairMatrix = { blue: getEmptyRepairMatrix(), red: getEmptyRepairMatrix() }
+        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix }
+        channel.publish("sync-network-state", networkState);
+    }
     }
   }, [presenceData]);
 

@@ -129,12 +129,8 @@ export default function EngineerDashboard(props) {
   };
 
   const handleClick = () => {
-    setClearRepairMatrix(true);
+    channel.publish("engineer-clear-repair-matrix", {})
   };
-
-  useEffect(() => {
-    setClearRepairMatrix(false);
-  }, [subLocations[playerTeam]]);
 
   return (
     <>
@@ -167,7 +163,6 @@ export default function EngineerDashboard(props) {
           >
             <RepairMatrix
               channel={channel}
-              clearRepairMatrix={clearRepairMatrix}
             />
             <button
               style={{

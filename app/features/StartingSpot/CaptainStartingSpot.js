@@ -3,6 +3,7 @@ import TeamRoleDescription from "./TeamRoleDescription";
 import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
 import { useGameContext } from "@/app/state/game_state";
+import { useEffect, useState, useRef } from "react";
 
 export default function CaptainStartingSpot(props) {
   const styles = {
@@ -36,7 +37,7 @@ export default function CaptainStartingSpot(props) {
   };
 
   const { channel } = props;
-  const { playerTeam, gameMap } = useGameContext();
+  const { playerTeam, gameMap, subLocations } = useGameContext();
 
   const handleClick = (cell, row, column) => {
     if (cell.type === "water") {
@@ -51,6 +52,17 @@ export default function CaptainStartingSpot(props) {
     }
   };
 
+  const gameMapRef = useRef(gameMap);
+  const subLocationsRef = useRef(subLocations);
+
+  useEffect(() => {
+    gameMapRef.current = gameMap;
+  }, [gameMap]);
+
+  useEffect(() => {
+    subLocationsRef.current = subLocations;
+  }, [subLocations]);
+
   const handleTimeOut = () => {
     // If the timer runs out, pick a random starting location
     let row;
@@ -59,12 +71,15 @@ export default function CaptainStartingSpot(props) {
     do {
       row = Math.floor(Math.random() * process.env.MAP_DIMENSION);
       column = Math.floor(Math.random() * process.env.MAP_DIMENSION);
-      if (gameMap[row][column].type === "water") {
+      if (gameMapRef.current[row][column].type === "water") {
         validSpot = true;
       }
     } while (!validSpot);
 
-    channel.publish("captain-set-starting-spot", { row, column });
+    if (!subLocationsRef.current[playerTeam]) {
+      channel.publish("captain-set-starting-spot", { row, column });
+    }
+
   };
 
   return (
