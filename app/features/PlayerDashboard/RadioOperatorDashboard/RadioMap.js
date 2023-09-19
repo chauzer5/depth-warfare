@@ -135,8 +135,8 @@ export default function RadioMap() {
                   ) && (
                     <span
                       style={
-                        rowIndex === radioMapNotes.at(-1)[0] &&
-                        columnIndex === radioMapNotes.at(-1)[1]
+                        rowIndex === radioMapNotes[radioMapNotes.length - 1][0] && 
+                        columnIndex === radioMapNotes[radioMapNotes.length - 1][1]
                           ? styles.latestNote
                           : styles.note
                       }

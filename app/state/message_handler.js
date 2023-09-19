@@ -9,7 +9,7 @@ import {
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
-  const { getMessagePlayer, subLocations} = context;
+  const { getMessagePlayer, moveSub, subLocations } = context;
 
   const team = getMessagePlayer(message).team;
 
