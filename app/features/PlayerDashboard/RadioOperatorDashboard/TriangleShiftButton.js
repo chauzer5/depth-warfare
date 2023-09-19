@@ -3,7 +3,7 @@ import theme from "@/app/styles/theme";
 import useKeypress from "react-use-keypress";
 
 export default function TriangleShiftButton(props) {
-  const { direction, latestNoteCell, setLatestNoteCell } = props;
+  const { direction } = props;
   const { radioMapNotes, setRadioMapNotes } = useGameContext();
 
   const w = "30";
@@ -45,27 +45,15 @@ export default function TriangleShiftButton(props) {
   const handleClick = () => {
     switch (direction) {
       case "north":
-        if (latestNoteCell) {
-          setLatestNoteCell([latestNoteCell[0] - 1, latestNoteCell[1]])
-        }
         setRadioMapNotes(radioMapNotes.map((note) => [note[0] - 1, note[1]]));
         break;
       case "south":
-        if (latestNoteCell) {
-          setLatestNoteCell([latestNoteCell[0] + 1, latestNoteCell[1]])
-        }
         setRadioMapNotes(radioMapNotes.map((note) => [note[0] + 1, note[1]]));
         break;
       case "west":
-        if (latestNoteCell) {
-          setLatestNoteCell([latestNoteCell[0], latestNoteCell[1] - 1])
-        }
         setRadioMapNotes(radioMapNotes.map((note) => [note[0], note[1] - 1]));
         break;
       case "east":
-        if (latestNoteCell) {
-          setLatestNoteCell([latestNoteCell[0], latestNoteCell[1] + 1])
-        }
         setRadioMapNotes(radioMapNotes.map((note) => [note[0], note[1] + 1]));
         break;
       default:
