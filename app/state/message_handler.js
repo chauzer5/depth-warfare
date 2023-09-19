@@ -9,52 +9,21 @@ import {
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
-  const { getMessagePlayer, subLocations, gameMap, resetMap } = context;
+  const { getMessagePlayer, subLocations} = context;
 
   const team = getMessagePlayer(message).team;
 
   let allDone = false;
 
-  let mapCopy = [...gameMap]
-  const networkState = {subLocations: {...subLocations, [team]: [message.data.row, message.data.column] }};
-  let prevContents = gameMap[message.data.row][message.data.column];
-  let newContents = {
-    ...prevContents,
-    subPresent: { ...prevContents.subPresent, [team]: true },
-  };
-  mapCopy[message.data.row][message.data.column] = newContents;
+  const networkState = moveSub(team, message.data.row, message.data.column)
 
   if (subLocations[team === "blue" ? "red" : "blue"]) {
     allDone = true;
   }
 
-  const oppositeTeam = "red" === team ? "blue" : "red"
-  console.log("subLocations", team, [message.data.row, message.data.column], oppositeTeam, subLocations[oppositeTeam])
-
   if (allDone) {
-
-    // Set the gameMap manually based on the sub locations
-    // This clears the map and makes sure we only have one sub per location
-    mapCopy = resetMap()
-
-    let prevContents = gameMap[message.data.row][message.data.column];
-    let newContents = {
-      ...prevContents,
-      subPresent: { ...prevContents.subPresent, [team]: true },
-    };
-    mapCopy[message.data.row][message.data.column] = newContents;
-
-    
-    prevContents = gameMap[subLocations[oppositeTeam][0]][subLocations[oppositeTeam][1]];
-    newContents = {
-      ...prevContents,
-      subPresent: { ...prevContents.subPresent, [oppositeTeam]: true },
-    };
-    mapCopy[subLocations[oppositeTeam][0]][subLocations[oppositeTeam][1]] = newContents;
     networkState["currentStage"] = "countdown";
   }
-
-  networkState["gameMap"] = mapCopy
 
   return networkState;
 }
