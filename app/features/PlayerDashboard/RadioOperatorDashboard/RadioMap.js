@@ -4,10 +4,8 @@ import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
 import { useState } from "react";
 
-export default function RadioMap(props) {
-  const { gameMap, radioMapNotes, setRadioMapNotes} = useGameContext();
-  const { latestNoteCell, setLatestNoteCell } = props;
-
+export default function RadioMap() {
+  const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -98,7 +96,6 @@ export default function RadioMap(props) {
       );
     } else {
       // Add note
-      setLatestNoteCell([row, column]);
       setRadioMapNotes([...radioMapNotes, [row, column]]);
     }
   };
@@ -138,8 +135,8 @@ export default function RadioMap(props) {
                   ) && (
                     <span
                       style={
-                        rowIndex === latestNoteCell[0] &&
-                        columnIndex === latestNoteCell[1]
+                        rowIndex === radioMapNotes[radioMapNotes.length - 1][0] && 
+                        columnIndex === radioMapNotes[radioMapNotes.length - 1][1]
                           ? styles.latestNote
                           : styles.note
                       }
