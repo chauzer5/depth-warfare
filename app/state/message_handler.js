@@ -32,9 +32,13 @@ export function captainSetStartingSpot(context, message) {
 // This should trigger when the engineer and first mate can start their decisions
 // MESSAGE: {direction}
 export function captainStartSubNavigate(context, message) {
-  const { pendingNavigate, getMessagePlayer } = context;
+  const { pendingNavigate, getMessagePlayer, currentlySurfacing } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   return {
     pendingNavigate: { ...pendingNavigate, [team]: message.data.direction },
@@ -52,10 +56,14 @@ export function engineerPlaceSystemBlock(context, message) {
     finishTurn,
     selfClientId,
     hostClientId,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
+  if(currentlySurfacing[team]){
+    return{}
+  }
   let networkState = {};
 
   const { row, column } = message.data.clickedCell
@@ -89,9 +97,14 @@ export function engineerClearRepairMatrix(context, message) {
     repairMatrix,
     selfClientId,
     hostClientId,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   const updatedMatrix = repairMatrix[team].map((row) =>
     row.map((cell) => ({
@@ -113,9 +126,14 @@ export function firstMateChooseSystemCharge(context, message) {
     engineerHealSystem,
     systemChargeLevels,
     finishTurn,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   let networkState = {};
 
@@ -150,9 +168,14 @@ export function captainCancelSubNavigate(context, message) {
     pendingSystemCharge,
     getMessagePlayer,
     engineerPendingBlock,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   return {
     pendingNavigate: { ...pendingNavigate, [team]: null },
@@ -164,22 +187,32 @@ export function captainCancelSubNavigate(context, message) {
 // Captain uses the silence ability
 // MESSAGE: {row, column}
 export function captainSilence(context, message) {
-  const { systemChargeLevels, getMessagePlayer, moveSub, movements, getValidSilenceCells } = context;
+  const 
+  { systemChargeLevels,
+    getMessagePlayer, 
+    moveSub,
+    movements,
+    getValidSilenceCells,
+    currentlySurfacing,
+  } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   //Enforcing silencing
   const validCells = getValidSilenceCells();
   const arrayToCheck = [message.data.row, message.data.column];
   
   let isValid = validCells.some((arr) => {
-    // Use the `every()` method to check if all elements in the sub-array match
     return arr.length === arrayToCheck.length && arr.every((element, index) => element === arrayToCheck[index]);
   });
 
   if(!isValid){
     console.log("Silence move has been enforced");
-    //!!!!!What should I return here?
+    return {};
   }
 
   // Move the sub to the chosen location
@@ -263,10 +296,15 @@ export function firstMateFireTorpedo(context, message) {
     detonateWeapon,
     messageTimestamp,
     notificationMessages,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   const syncNetworkMessage = {
     systemChargeLevels: {
@@ -480,9 +518,13 @@ export function firstMateDropMine(context, message) {
     minesList,
     notificationMessages,
     messageTimestamp,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   const syncNetworkMessage = {
     systemChargeLevels: {
@@ -532,6 +574,7 @@ export function firstMateDetonateMine(context, message) {
     detonateWeapon,
     messageTimestamp,
     notificationMessages,
+    currentlySurfacing,
   } = context;
 
   let tempMessages = [];
@@ -540,6 +583,10 @@ export function firstMateDetonateMine(context, message) {
   // Define the teams
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
   let updatedOwnMinesList = JSON.parse(JSON.stringify(minesList[team]));
@@ -713,9 +760,14 @@ export function firstMateScan(context, message) {
     systemChargeLevels,
     messageTimestamp,
     notificationMessages,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    return{}
+  }
 
   const notificationMessage = {
     team,
