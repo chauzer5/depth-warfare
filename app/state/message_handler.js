@@ -55,6 +55,7 @@ export function engineerPlaceSystemBlock(context, message) {
     engineerPendingBlock,
     repairMatrix,
     finishTurn,
+    pendingNavigate,
     selfClientId,
     hostClientId,
     currentlySurfacing,
@@ -72,7 +73,7 @@ export function engineerPlaceSystemBlock(context, message) {
   const cell = repairMatrix[team][row][column]
 
   // Enforce valid block placement
-  if (cell.type === "inner" && cell.system === "empty" && !engineerPendingBlock[team]) {
+  if (cell.type === "inner" && cell.system === "empty" && !engineerPendingBlock[team] && pendingNavigate[team]) {
     if (!pendingSystemCharge[team]) {
       networkState = {
         engineerPendingBlock: {
@@ -125,9 +126,9 @@ export function firstMateChooseSystemCharge(context, message) {
     pendingSystemCharge,
     getMessagePlayer,
     engineerPendingBlock,
-    engineerHealSystem,
     systemChargeLevels,
     finishTurn,
+    pendingNavigate,
     currentlySurfacing,
   } = context;
 
@@ -141,7 +142,9 @@ export function firstMateChooseSystemCharge(context, message) {
   let networkState = {};
 
   // Enforce that we are able to charge the system we are looking at
-  if (systemChargeLevels[team][message.data.system] < getSystemMaxCharge(message.data.system)) {
+  if (systemChargeLevels[team][message.data.system] < getSystemMaxCharge(message.data.system) && 
+  pendingNavigate[team] && 
+  !pendingSystemCharge[team]) {
     if (!engineerPendingBlock[team]) {
       networkState = {
         pendingSystemCharge: {
