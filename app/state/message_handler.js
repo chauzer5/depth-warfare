@@ -37,6 +37,7 @@ export function captainStartSubNavigate(context, message) {
   const team = getMessagePlayer(message).team;
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -103,6 +104,7 @@ export function engineerClearRepairMatrix(context, message) {
   const team = getMessagePlayer(message).team;
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -132,6 +134,7 @@ export function firstMateChooseSystemCharge(context, message) {
   const team = getMessagePlayer(message).team;
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -174,6 +177,7 @@ export function captainCancelSubNavigate(context, message) {
   const team = getMessagePlayer(message).team;
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -199,6 +203,7 @@ export function captainSilence(context, message) {
   const team = getMessagePlayer(message).team;
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -303,6 +308,7 @@ export function firstMateFireTorpedo(context, message) {
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -523,6 +529,7 @@ export function firstMateDropMine(context, message) {
 
   const team = getMessagePlayer(message).team;
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -585,6 +592,7 @@ export function firstMateDetonateMine(context, message) {
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
@@ -766,6 +774,7 @@ export function firstMateScan(context, message) {
   const team = getMessagePlayer(message).team;
 
   if(currentlySurfacing[team]){
+    console.log("restricted");
     return{}
   }
 
