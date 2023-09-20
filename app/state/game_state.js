@@ -188,6 +188,16 @@ export function GameWrapper({ children }) {
   function moveSub(team, row, column) {
     const mapCopy = [...gameMap];
 
+    //Enforcing the sub movements 
+    if(row === -1 || row === process.env.MAP_DIMENSION +1 || column === -1 || column === process.env.MAP_DIMENSION+1
+    || mapCopy[row][column].type === "island" || mapCopy[row][column].visited[team]){
+
+        return {
+        subLocations: subLocations,
+        gameMap: mapCopy,
+        };
+    }    
+
     // remove the old position and make the path visited
     if (subLocations[team]) {
       const prevContents =
