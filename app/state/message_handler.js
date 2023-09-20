@@ -50,6 +50,7 @@ export function engineerPlaceSystemBlock(context, message) {
     engineerPendingBlock,
     repairMatrix,
     finishTurn,
+    pendingNavigate,
     selfClientId,
     hostClientId,
   } = context;
@@ -110,9 +111,9 @@ export function firstMateChooseSystemCharge(context, message) {
     pendingSystemCharge,
     getMessagePlayer,
     engineerPendingBlock,
-    engineerHealSystem,
     systemChargeLevels,
     finishTurn,
+    pendingNavigate,
   } = context;
 
   const team = getMessagePlayer(message).team;
