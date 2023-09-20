@@ -15,25 +15,25 @@ export default function TriangleShiftButton(props) {
 
   switch (direction) {
     case "north":
-      if (radioMapNotes[playerTeam].find((note) => note[0] === 0)) {
+      if (radioMapNotes[playerTeam].some((note) => note[0] === 0)) {
         disabled = true;
       }
       break;
     case "south":
       if (
-        radioMapNotes[playerTeam].find((note) => note[0] === process.env.MAP_DIMENSION - 1)
+        radioMapNotes[playerTeam].some((note) => note[0] === process.env.MAP_DIMENSION - 1)
       ) {
         disabled = true;
       }
       break;
     case "west":
-      if (radioMapNotes[playerTeam].find((note) => note[1] === 0)) {
+      if (radioMapNotes[playerTeam].some((note) => note[1] === 0)) {
         disabled = true;
       }
       break;
     case "east":
       if (
-        radioMapNotes[playerTeam].find((note) => note[1] === process.env.MAP_DIMENSION - 1)
+        radioMapNotes[playerTeam].some((note) => note[1] === process.env.MAP_DIMENSION - 1)
       ) {
         disabled = true;
       }

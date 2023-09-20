@@ -736,12 +736,20 @@ export function firstMateScan(context, message) {
 export function radioOperatorAddRemoveNote(context, message){
   const {
     radioMapNotes,
-    getMessagePlayer
+    getMessagePlayer,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+  if(currentlySurfacing[team]){
+    return {};
+  }
+
   const row = message.data.row;
   const column = message.data.column;
+  if(row < 0 || row >= process.env.MAP_DIMENSION || column < 0 || column >= process.env.MAP_DIMENSION){
+    return {};
+  }
 
   if (radioMapNotes[team].find((note) => note[0] === row && note[1] === column)) {
     return {
@@ -765,10 +773,14 @@ export function radioOperatorAddRemoveNote(context, message){
 export function radioOperatorClearNotes(context, message){
   const {
     radioMapNotes,
-    getMessagePlayer
+    getMessagePlayer,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+  if(currentlySurfacing[team]){
+    return {};
+  }
 
   return {
     radioMapNotes: {
@@ -783,11 +795,32 @@ export function radioOperatorClearNotes(context, message){
 export function radioOperatorShiftNotes(context, message){
   const {
     radioMapNotes,
-    getMessagePlayer
+    getMessagePlayer,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+  if(currentlySurfacing[team]){
+    return {};
+  }
+
   const direction = message.data.direction;
+
+  if(!["north", "south", "east", "west"].includes(direction)){
+    return {};
+  }
+  if(direction === "north" && radioMapNotes[team].some((note) => note[0] === 0)){
+    return {};
+  }
+  if(direction === "south" && radioMapNotes[team].some((note) => note[0] === process.env.MAP_DIMENSION - 1)){
+    return {};
+  }
+  if(direction === "west" && radioMapNotes[team].some((note) => note[1] === 0)){
+    return {};
+  }
+  if(direction === "east" && radioMapNotes[team].some((note) => note[1] === process.env.MAP_DIMENSION - 1)){
+    return {};
+  }
 
   const updatedNotes = radioMapNotes[team].map((note) => {
     switch (direction) {
