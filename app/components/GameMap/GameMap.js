@@ -165,6 +165,10 @@ export default function GameMap(props) {
     channel?.publish("captain-silence", { row, column });
   };
 
+  if (typeof gameMap === 'undefined'){
+    return (<div></div>)
+  } else
+  {
   return (
     <table style={styles.table}>
       <tbody>
@@ -290,4 +294,5 @@ export default function GameMap(props) {
       </tbody>
     </table>
   );
+  }
 }

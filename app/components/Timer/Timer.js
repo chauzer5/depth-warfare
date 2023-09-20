@@ -28,7 +28,7 @@ export default function Timer(props) {
           onFinish();
         }
 
-        return prev - 1;
+        return Math.max(0, prev - 1);
       });
     }, 1000);
 

@@ -128,8 +128,8 @@ export default function RadioMap(props) {
                   ) && (
                     <span
                       style={
-                        rowIndex === radioMapNotes[playerTeam].at(-1)[0] &&
-                        columnIndex === radioMapNotes[playerTeam].at(-1)[1]
+                        rowIndex === radioMapNotes[playerTeam][radioMapNotes[playerTeam].length - 1][0] &&
+                        columnIndex === radioMapNotes[playerTeam][radioMapNotes[playerTeam].length - 1][1]
                           ? styles.latestNote
                           : styles.note
                       }
