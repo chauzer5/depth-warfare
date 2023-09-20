@@ -87,7 +87,7 @@ export function GameWrapper({ children }) {
       "life support": process.env.MAX_SYSTEM_HEALTH,
     },
   });
-  const [radioMapNotes, setRadioMapNotes] = useState([]);
+  const [radioMapNotes, setRadioMapNotes] = useState({ blue: [], red: [] });
   const [movements, setMovements] = useState({ blue: [], red: [] });
   const [movementCountOnDisable, setMovementCountOnDisable] = useState({
     blue: 0,

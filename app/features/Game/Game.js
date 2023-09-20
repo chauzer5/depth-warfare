@@ -19,6 +19,9 @@ import {
   firstMateDetonateMine,
   syncNetworkState,
   stopSurfacing,
+  radioOperatorAddRemoveNote,
+  radioOperatorClearNotes,
+  radioOperatorShiftNotes,
 } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
 
@@ -133,6 +136,27 @@ export default function Game() {
         break;
       case "first-mate-scan":
         networkState = firstMateScan(gameContext, newMessage);
+        syncNetworkState(gameContext, networkState);
+        if (selfClientId === hostClientId) {
+          channel.publish("sync-network-state", networkState);
+        }
+        break;
+      case "radio-operator-add-remove-note":
+        networkState = radioOperatorAddRemoveNote(gameContext, newMessage);
+        syncNetworkState(gameContext, networkState);
+        if (selfClientId === hostClientId) {
+          channel.publish("sync-network-state", networkState);
+        }
+        break;
+      case "radio-operator-clear-notes":
+        networkState = radioOperatorClearNotes(gameContext, newMessage);
+        syncNetworkState(gameContext, networkState);
+        if (selfClientId === hostClientId) {
+          channel.publish("sync-network-state", networkState);
+        }
+        break;
+      case "radio-operator-shift-notes":
+        networkState = radioOperatorShiftNotes(gameContext, newMessage);
         syncNetworkState(gameContext, networkState);
         if (selfClientId === hostClientId) {
           channel.publish("sync-network-state", networkState);

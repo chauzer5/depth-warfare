@@ -3,8 +3,8 @@ import theme from "@/app/styles/theme";
 import useKeypress from "react-use-keypress";
 
 export default function TriangleShiftButton(props) {
-  const { direction } = props;
-  const { radioMapNotes, setRadioMapNotes } = useGameContext();
+  const { direction, channel } = props;
+  const { radioMapNotes, playerTeam } = useGameContext();
 
   const w = "30";
   const h = "30";
@@ -15,25 +15,25 @@ export default function TriangleShiftButton(props) {
 
   switch (direction) {
     case "north":
-      if (radioMapNotes.find((note) => note[0] === 0)) {
+      if (radioMapNotes[playerTeam].find((note) => note[0] === 0)) {
         disabled = true;
       }
       break;
     case "south":
       if (
-        radioMapNotes.find((note) => note[0] === process.env.MAP_DIMENSION - 1)
+        radioMapNotes[playerTeam].find((note) => note[0] === process.env.MAP_DIMENSION - 1)
       ) {
         disabled = true;
       }
       break;
     case "west":
-      if (radioMapNotes.find((note) => note[1] === 0)) {
+      if (radioMapNotes[playerTeam].find((note) => note[1] === 0)) {
         disabled = true;
       }
       break;
     case "east":
       if (
-        radioMapNotes.find((note) => note[1] === process.env.MAP_DIMENSION - 1)
+        radioMapNotes[playerTeam].find((note) => note[1] === process.env.MAP_DIMENSION - 1)
       ) {
         disabled = true;
       }
@@ -43,22 +43,7 @@ export default function TriangleShiftButton(props) {
   }
 
   const handleClick = () => {
-    switch (direction) {
-      case "north":
-        setRadioMapNotes(radioMapNotes.map((note) => [note[0] - 1, note[1]]));
-        break;
-      case "south":
-        setRadioMapNotes(radioMapNotes.map((note) => [note[0] + 1, note[1]]));
-        break;
-      case "west":
-        setRadioMapNotes(radioMapNotes.map((note) => [note[0], note[1] - 1]));
-        break;
-      case "east":
-        setRadioMapNotes(radioMapNotes.map((note) => [note[0], note[1] + 1]));
-        break;
-      default:
-        console.error(`Unrecognized direction: ${direction}`);
-    }
+    channel.publish("radio-operator-shift-notes", { direction });
   };
 
   const keyName =

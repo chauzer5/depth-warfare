@@ -7,7 +7,7 @@ import { Box } from "@mui/material";
 import theme from "@/app/styles/theme";
 import { useEffect, useRef, useState } from "react";
 
-export default function RadioOperatorDashboard() {
+export default function RadioOperatorDashboard(props) {
   const styles = {
     main: {
       width: "100%",
@@ -69,12 +69,13 @@ export default function RadioOperatorDashboard() {
   };
 
   const {
-    setRadioMapNotes,
     movements,
     systemHealthLevels,
     movementCountOnDisable,
     playerTeam,
   } = useGameContext();
+
+  const { channel } = props;
 
   const ref = useRef(null);
   const scrollToBottom = () => {
@@ -101,23 +102,23 @@ export default function RadioOperatorDashboard() {
           <SectorsKey />
           <div style={styles.shiftControls}>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="north" />
+              <TriangleShiftButton direction="north" channel={channel}/>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="west" />
+              <TriangleShiftButton direction="west" channel={channel}/>
               <div style={{ height: "100%", width: "50px" }} />
-              <TriangleShiftButton direction="east" />
+              <TriangleShiftButton direction="east"channel={channel} />
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="south" />
+              <TriangleShiftButton direction="south" channel={channel}/>
             </div>
           </div>
         </div>
         <div>
-          <RadioMap />
+          <RadioMap channel={channel}/>
           <button
             style={styles.clearButton}
-            onClick={() => setRadioMapNotes([])}
+            onClick={() => channel.publish("clear-radio-map-notes", {})}
           >
             Clear
           </button>

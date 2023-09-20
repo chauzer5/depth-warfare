@@ -700,6 +700,87 @@ export function firstMateScan(context, message) {
   };
 }
 
+// Radio operator adds or removes a note from a cell
+// MESSAGE: {row, column}
+export function radioOperatorAddRemoveNote(context, message){
+  const {
+    radioMapNotes,
+    getMessagePlayer
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+  const row = message.data.row;
+  const column = message.data.column;
+
+  if (radioMapNotes[team].find((note) => note[0] === row && note[1] === column)) {
+    return {
+      radioMapNotes: {
+        ...radioMapNotes,
+        [team]: radioMapNotes[team].filter((note) => note[0] !== row || note[1] !== column),
+      }
+    };
+  } else {
+    return {
+      radioMapNotes: {
+        ...radioMapNotes,
+        [team]: [...radioMapNotes[team], [row, column]],
+      },
+    };
+  }
+}
+
+// Radio operator clears all of his notes
+// MESSAGE: {}
+export function radioOperatorClearNotes(context, message){
+  const {
+    radioMapNotes,
+    getMessagePlayer
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+
+  return {
+    radioMapNotes: {
+      ...radioMapNotes,
+      [team]: []
+    }
+  };
+}
+
+// Radio operator shifts all the notes in a direction
+// MESSAGE: {direction}
+export function radioOperatorShiftNotes(context, message){
+  const {
+    radioMapNotes,
+    getMessagePlayer
+  } = context;
+
+  const team = getMessagePlayer(message).team;
+  const direction = message.data.direction;
+
+  const updatedNotes = radioMapNotes[team].map((note) => {
+    switch (direction) {
+      case "north":
+        return [note[0] - 1, note[1]];
+      case "south":
+        return [note[0] + 1, note[1]];
+      case "west":
+        return [note[0], note[1] - 1];
+      case "east":
+        return [note[0], note[1] + 1];
+      default:
+        console.error(`Unrecognized direction: ${direction}`);
+    }
+  });
+
+  return {
+    radioMapNotes: {
+      ...radioMapNotes,
+      [team]: updatedNotes,
+    },
+  };
+}
+
 export function syncNetworkState(context, networkState) {
   const {
     setCurrentStage,
@@ -718,6 +799,7 @@ export function syncNetworkState(context, networkState) {
     setMessageTimestamp,
     setCurrentlySurfacing,
     setMinesList,
+    setRadioMapNotes,
   } = context;
 
   if (networkState.hasOwnProperty("currentStage")) {
@@ -767,5 +849,8 @@ export function syncNetworkState(context, networkState) {
   }
   if (networkState.hasOwnProperty("minesList")) {
     setMinesList(networkState.minesList);
+  }
+  if (networkState.hasOwnProperty("radioMapNotes")) {
+    setRadioMapNotes(networkState.radioMapNotes);
   }
 }

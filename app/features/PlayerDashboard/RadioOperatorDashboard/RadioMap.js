@@ -4,8 +4,9 @@ import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
 import { useState } from "react";
 
-export default function RadioMap() {
-  const { gameMap, radioMapNotes, setRadioMapNotes } = useGameContext();
+export default function RadioMap(props) {
+  const { gameMap, radioMapNotes, playerTeam } = useGameContext();
+  const { channel } = props;
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -89,15 +90,7 @@ export default function RadioMap() {
   };
 
   const handleClick = (row, column) => {
-    if (radioMapNotes.find((note) => note[0] === row && note[1] === column)) {
-      // Remove note
-      setRadioMapNotes(
-        radioMapNotes.filter((note) => note[0] !== row || note[1] !== column)
-      );
-    } else {
-      // Add note
-      setRadioMapNotes([...radioMapNotes, [row, column]]);
-    }
+    channel.publish("radio-operator-add-remove-note", {row, column});
   };
 
   return (
@@ -130,13 +123,13 @@ export default function RadioMap() {
                   sx={cell.type === "island" ? styles.island : styles.water}
                   onClick={() => handleClick(rowIndex, columnIndex)}
                 >
-                  {radioMapNotes.find(
+                  {radioMapNotes[playerTeam].find(
                     (note) => note[0] === rowIndex && note[1] === columnIndex
                   ) && (
                     <span
                       style={
-                        rowIndex === radioMapNotes.at(-1)[0] &&
-                        columnIndex === radioMapNotes.at(-1)[1]
+                        rowIndex === radioMapNotes[playerTeam].at(-1)[0] &&
+                        columnIndex === radioMapNotes[playerTeam].at(-1)[1]
                           ? styles.latestNote
                           : styles.note
                       }
