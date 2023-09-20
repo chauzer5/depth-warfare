@@ -118,7 +118,7 @@ export default function RadioOperatorDashboard(props) {
           <RadioMap channel={channel}/>
           <button
             style={styles.clearButton}
-            onClick={() => channel.publish("clear-radio-map-notes", {})}
+            onClick={() => channel.publish("radio-operator-clear-notes", {})}
           >
             Clear
           </button>
