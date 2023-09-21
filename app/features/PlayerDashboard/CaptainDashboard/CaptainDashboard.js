@@ -87,106 +87,17 @@ export default function CaptainDashboard(props) {
     systemHealthLevels,
     gameMap,
     subLocations,
+    randomEnabledDirection,
+    isNavigationDisabled,
   } = useGameContext();
 
-  //function to see which direction is disabled
-  function isNavigationDisabled(direction) {
-    if (pendingNavigate[playerTeam]) {
-      return true;
-    }
-
-    switch (direction) {
-      case "north":
-        if (subLocations[playerTeam][0] === 0) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]]
-            .type === "island"
-        ) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0] - 1][subLocations[playerTeam][1]]
-            .visited[playerTeam]
-        ) {
-          return true;
-        }
-        break;
-      case "south":
-        if (subLocations[playerTeam][0] === process.env.MAP_DIMENSION - 1) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]]
-            .type === "island"
-        ) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0] + 1][subLocations[playerTeam][1]]
-            .visited[playerTeam]
-        ) {
-          return true;
-        }
-        break;
-      case "west":
-        if (subLocations[playerTeam][1] === 0) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1]
-            .type === "island"
-        ) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] - 1]
-            .visited[playerTeam]
-        ) {
-          return true;
-        }
-        break;
-      case "east":
-        if (subLocations[playerTeam][1] === process.env.MAP_DIMENSION - 1) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1]
-            .type === "island"
-        ) {
-          return true;
-        } else if (
-          gameMap[subLocations[playerTeam][0]][subLocations[playerTeam][1] + 1]
-            .visited[playerTeam]
-        ) {
-          return true;
-        }
-        break;
-      default:
-        console.error(`Unrecognized direction: ${direction}`);
-        return false;
-    }
-
-    return false;
-  }
-  //check to see if engine is broken
-  const [brokenEngine, setBrokenEngine] = useState(false);
-  const [randomEnabledDirection, setRandomEnabledDirection] = useState(null);
-
+  //check to see if engine is broken  
   const directions = ["north", "south", "west", "east"];
-  const directionStates = {};
+  const disabledDirectionStates = {};
 
   directions.forEach((direction) => {
-    directionStates[direction] = isNavigationDisabled(direction, brokenEngine);
+    disabledDirectionStates[direction] = isNavigationDisabled(direction, playerTeam, gameMap, subLocations);
   });
-
-  useEffect(() => {
-    if (systemHealthLevels[playerTeam].engine > 0) {
-      setBrokenEngine(false);
-    } else {
-      setBrokenEngine(true);
-      const trueDirections = Object.keys(directionStates).filter(
-        (direction) => directionStates[direction] === false
-      );
-
-      const randomIndex = Math.floor(Math.random() * trueDirections.length);
-      setRandomEnabledDirection(trueDirections[randomIndex]);
-    }
-  }, [systemHealthLevels[playerTeam]]);
 
   const [silenceActivated, setSilenceActivated] = useState(false);
 
@@ -195,16 +106,16 @@ export default function CaptainDashboard(props) {
     SYSTEMS_INFO.find((system) => system.name === "silence").maxCharge;
 
   const silenceStateStyle = {
-    color: !silenceCharged
+    color: (!silenceCharged || pendingNavigate[playerTeam])
       ? theme.gray
       : silenceActivated
       ? theme.purple
       : theme.white,
-    cursor: silenceCharged ? "pointer" : "default",
+    cursor: (silenceCharged && !pendingNavigate[playerTeam]) ? "pointer" : "default",
   };
 
   const handleClickSilence = () => {
-    if (silenceCharged) {
+    if (silenceCharged && !pendingNavigate[playerTeam]) {
       setSilenceActivated(!silenceActivated);
     }
   };
@@ -219,6 +130,8 @@ export default function CaptainDashboard(props) {
       setSilenceActivated(false);
     }
   }, [systemChargeLevels[playerTeam].silence]);
+
+  const brokenEngine = systemHealthLevels[playerTeam].engine === 0
 
   return (
     <div style={styles.main}>
@@ -241,8 +154,8 @@ export default function CaptainDashboard(props) {
                 direction="north"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={directionStates["north"]}
-                enabledDirection={randomEnabledDirection}
+                disabled={disabledDirectionStates["north"] || pendingNavigate[playerTeam] || silenceActivated}
+                enabledDirection={randomEnabledDirection[playerTeam]}
               />
             </div>
             <div style={styles.navRow}>
@@ -251,16 +164,16 @@ export default function CaptainDashboard(props) {
                 direction="west"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={directionStates["west"]}
-                enabledDirection={randomEnabledDirection}
+                disabled={disabledDirectionStates["west"] || pendingNavigate[playerTeam] || silenceActivated}
+                enabledDirection={randomEnabledDirection[playerTeam]}
               />
               <div style={{ height: "100%", width: "50px" }} />
               <TriangleMoveButton
                 direction="east"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={directionStates["east"]}
-                enabledDirection={randomEnabledDirection}
+                disabled={disabledDirectionStates["east"] || pendingNavigate[playerTeam] || silenceActivated}
+                enabledDirection={randomEnabledDirection[playerTeam]}
               />
               <span style={styles.directionText}>East</span>
             </div>
@@ -269,8 +182,8 @@ export default function CaptainDashboard(props) {
                 direction="south"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={directionStates["south"]}
-                enabledDirection={randomEnabledDirection}
+                disabled={disabledDirectionStates["south"] || pendingNavigate[playerTeam] || silenceActivated}
+                enabledDirection={randomEnabledDirection[playerTeam]}
               />
             </div>
             <div style={styles.navRow}>
@@ -282,7 +195,7 @@ export default function CaptainDashboard(props) {
               style={{ ...styles.silenceButton, ...silenceStateStyle }}
               onClick={handleClickSilence}
             >
-              {silenceActivated ? "Cancel" : "Activate Silence"}
+              {!silenceCharged ? "Charge Silence" : pendingNavigate[playerTeam] ? "Pending Navigate" : silenceActivated ? "Cancel" : "Activate Silence"}
             </button>
             <SystemChargeMeter systemName="silence" />
           </div>
