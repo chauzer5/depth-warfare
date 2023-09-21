@@ -77,10 +77,14 @@ export function engineerPlaceSystemBlock(context, message) {
     pendingNavigate,
     selfClientId,
     hostClientId,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
+  if(currentlySurfacing[team]){
+    return{}
+  }
   let networkState = {};
 
   const { row, column } = message.data.clickedCell
@@ -114,9 +118,15 @@ export function engineerClearRepairMatrix(context, message) {
     repairMatrix,
     selfClientId,
     hostClientId,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   const updatedMatrix = repairMatrix[team].map((row) =>
     row.map((cell) => ({
@@ -138,9 +148,15 @@ export function firstMateChooseSystemCharge(context, message) {
     systemChargeLevels,
     finishTurn,
     pendingNavigate,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   let networkState = {};
 
@@ -177,9 +193,15 @@ export function captainCancelSubNavigate(context, message) {
     pendingSystemCharge,
     getMessagePlayer,
     engineerPendingBlock,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   return {
     pendingNavigate: { ...pendingNavigate, [team]: null },
@@ -323,10 +345,16 @@ export function firstMateFireTorpedo(context, message) {
     detonateWeapon,
     messageTimestamp,
     notificationMessages,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
+
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   const syncNetworkMessage = {
     systemChargeLevels: {
@@ -540,9 +568,14 @@ export function firstMateDropMine(context, message) {
     minesList,
     notificationMessages,
     messageTimestamp,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   const syncNetworkMessage = {
     systemChargeLevels: {
@@ -592,6 +625,7 @@ export function firstMateDetonateMine(context, message) {
     detonateWeapon,
     messageTimestamp,
     notificationMessages,
+    currentlySurfacing,
   } = context;
 
   let tempMessages = [];
@@ -600,6 +634,11 @@ export function firstMateDetonateMine(context, message) {
   // Define the teams
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
+
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
   let updatedOwnMinesList = JSON.parse(JSON.stringify(minesList[team]));
@@ -773,9 +812,15 @@ export function firstMateScan(context, message) {
     systemChargeLevels,
     messageTimestamp,
     notificationMessages,
+    currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
+
+  if(currentlySurfacing[team]){
+    console.log("restricted");
+    return{}
+  }
 
   const notificationMessage = {
     team,
