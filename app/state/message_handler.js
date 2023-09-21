@@ -305,14 +305,35 @@ export function firstMateFireTorpedo(context, message) {
     messageTimestamp,
     notificationMessages,
     currentlySurfacing,
+    getCellsDistanceAway,
   } = context;
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
   if(currentlySurfacing[team]){
-    console.log("restricted");
-    return{}
+    return {};
+  }
+
+  // If the torpedo isn't fully charged, don't do anything
+  if (systemChargeLevels[team].torpedo < SYSTEMS_INFO.find((system) => system.name === "torpedo").maxCharge) {
+    return {};
+  }
+
+  // If the torpedo is disabled, don't do anything
+  if (systemHealthLevels[team].weapons < 1) {
+    return {};
+  }
+
+  // If the cell isn't within range, don't do anything
+  const possibleTorpedoCells = getCellsDistanceAway(
+    subLocations[team][0],
+    subLocations[team][1],
+    process.env.TORPEDO_RANGE
+  );
+
+  if (!possibleTorpedoCells.find((cell) => cell[0] === message.data.row && cell[1] === message.data.column)) {
+    return {};
   }
 
   const syncNetworkMessage = {
