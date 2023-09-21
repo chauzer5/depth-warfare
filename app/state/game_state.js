@@ -32,6 +32,7 @@ export function GameWrapper({ children }) {
   const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
   const [playerData, setPlayerData] = useState();
   const [subLocations, setSubLocations] = useState({ blue: null, red: null });
+  const [randomEnabledDirection, setRandomEnabledDirection] = useState({blue: null, red: null});
   const [engineerPendingBlock, setEngineerPendingBlock] = useState({
     blue: null,
     red: null,
@@ -113,6 +114,77 @@ export function GameWrapper({ children }) {
   const getFirstMateSystem = (inputSystem) => {
     return SYSTEMS_INFO.find((system) => system.name === inputSystem);
   };
+
+  //function to see which direction is disabled
+  function isNavigationDisabled(direction, team, gameMap, subLocations) {
+    switch (direction) {
+      case "north":
+        if (subLocations[team][0] === 0) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0] - 1][subLocations[team][1]]
+            .type === "island"
+        ) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0] - 1][subLocations[team][1]]
+            .visited[team]
+        ) {
+          return true;
+        }
+        break;
+      case "south":
+        if (subLocations[team][0] === process.env.MAP_DIMENSION - 1) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0] + 1][subLocations[team][1]]
+            .type === "island"
+        ) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0] + 1][subLocations[team][1]]
+            .visited[team]
+        ) {
+          return true;
+        }
+        break;
+      case "west":
+        if (subLocations[team][1] === 0) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0]][subLocations[team][1] - 1]
+            .type === "island"
+        ) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0]][subLocations[team][1] - 1]
+            .visited[team]
+        ) {
+          return true;
+        }
+        break;
+      case "east":
+        if (subLocations[team][1] === process.env.MAP_DIMENSION - 1) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0]][subLocations[team][1] + 1]
+            .type === "island"
+        ) {
+          return true;
+        } else if (
+          gameMap[subLocations[team][0]][subLocations[team][1] + 1]
+            .visited[team]
+        ) {
+          return true;
+        }
+        break;
+      default:
+        console.error(`Unrecognized direction: ${direction}`);
+        return false;
+    }
+
+    return false;
+  }
 
   function detonateWeapon(
     listToDetonate,
@@ -350,6 +422,12 @@ export function GameWrapper({ children }) {
       process.env.MAX_SYSTEM_HEALTH;
     }
 
+    // move the sub in the specified direction
+    const moveSubInfo = moveSubDirection(team, pendingNavigate[team]);
+
+    syncStateMessage["subLocations"] = moveSubInfo.subLocations;
+    syncStateMessage["gameMap"] = moveSubInfo.gameMap;
+
     if (
       syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
       systemHealthLevels[team][randomSystem] > 0
@@ -377,6 +455,21 @@ export function GameWrapper({ children }) {
       }
     }
 
+    const directions = ["north", "south", "west", "east"];
+    const disabledDirectionStates = {};
+
+    directions.forEach((direction) => {
+      disabledDirectionStates[direction] = isNavigationDisabled(direction, team, moveSubInfo.gameMap, moveSubInfo.subLocations);
+    });
+
+    const trueDirections = Object.keys(disabledDirectionStates).filter(
+      (direction) => disabledDirectionStates[direction] === false
+    );
+
+    const randomIndex = Math.floor(Math.random() * trueDirections.length);
+
+    syncStateMessage["randomEnabledDirection"] = {...randomEnabledDirection, [team]: trueDirections[randomIndex]}
+
     // Update the state with the new matrix containing reset cells
     const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
 
@@ -391,11 +484,7 @@ export function GameWrapper({ children }) {
 
     syncStateMessage["engineerCompassMap"] = updatedTeamMap;
 
-    // move the sub in the specified direction
-    const moveSubInfo = moveSubDirection(team, pendingNavigate[team]);
-
-    syncStateMessage["subLocations"] = moveSubInfo.subLocations;
-    syncStateMessage["gameMap"] = moveSubInfo.gameMap;
+    
 
 
     syncStateMessage["movements"] = {
@@ -939,6 +1028,9 @@ export function GameWrapper({ children }) {
         clearVisitedPath,
         pickNewOuterCells,
         getValidSilenceCells,
+        randomEnabledDirection,
+        isNavigationDisabled,
+        setRandomEnabledDirection,
         setCurrentStage,
         setUsername,
         setGameId,
