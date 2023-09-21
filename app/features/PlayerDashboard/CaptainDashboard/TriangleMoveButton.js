@@ -3,24 +3,14 @@ import theme from "@/app/styles/theme";
 
 export default function TriangleMoveButton(props) {
   let { direction, channel, brokenEngine, disabled, enabledDirection } = props;
-  const { playerTeam, pendingNavigate } = useGameContext();
+
+  const broken = brokenEngine && enabledDirection !== direction
 
   const w = "30";
   const h = "30";
   const color = theme.green;
   const disabledColor = theme.darkGreen;
   const brokenColor = theme.black;
-
-  if (brokenEngine) {
-    if (direction === enabledDirection) {
-      disabled = false;
-      brokenEngine = false;
-    }
-  }
-
-  if (pendingNavigate[playerTeam]) {
-    disabled = true;
-  }
 
   const handleClick = () => {
     channel.publish("captain-start-sub-navigate", { direction });
@@ -35,14 +25,14 @@ export default function TriangleMoveButton(props) {
 
   return (
     <svg
-      cursor={disabled || brokenEngine ? "not-allowed" : "pointer"}
+      cursor={disabled || broken ? "not-allowed" : "pointer"}
       width={w}
       height={h}
-      onClick={disabled || brokenEngine ? null : handleClick}
+      onClick={disabled || broken ? null : handleClick}
     >
       <polygon
         points={points[direction].join(" ")}
-        fill={brokenEngine ? brokenColor : disabled ? disabledColor : color}
+        fill={broken ? brokenColor : disabled ? disabledColor : color}
       />
     </svg>
   );

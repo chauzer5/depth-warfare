@@ -154,7 +154,7 @@ export default function CaptainDashboard(props) {
                 direction="north"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={disabledDirectionStates["north"] || pendingNavigate[playerTeam]}
+                disabled={disabledDirectionStates["north"] || pendingNavigate[playerTeam] || silenceActivated}
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
             </div>
@@ -164,7 +164,7 @@ export default function CaptainDashboard(props) {
                 direction="west"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={disabledDirectionStates["west"] || pendingNavigate[playerTeam]}
+                disabled={disabledDirectionStates["west"] || pendingNavigate[playerTeam] || silenceActivated}
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
               <div style={{ height: "100%", width: "50px" }} />
@@ -172,7 +172,7 @@ export default function CaptainDashboard(props) {
                 direction="east"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={disabledDirectionStates["east"] || pendingNavigate[playerTeam]}
+                disabled={disabledDirectionStates["east"] || pendingNavigate[playerTeam] || silenceActivated}
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
               <span style={styles.directionText}>East</span>
@@ -182,7 +182,7 @@ export default function CaptainDashboard(props) {
                 direction="south"
                 channel={channel}
                 brokenEngine={brokenEngine}
-                disabled={disabledDirectionStates["south"] || pendingNavigate[playerTeam]}
+                disabled={disabledDirectionStates["south"] || pendingNavigate[playerTeam] || silenceActivated}
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
             </div>
