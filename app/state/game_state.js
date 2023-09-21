@@ -805,8 +805,8 @@ export function GameWrapper({ children }) {
     return shuffled;
   }
 
-  function getValidSilenceCells() {
-    const [row, column] = subLocations[playerTeam];
+  function getValidSilenceCells(team) {
+    const [row, column] = subLocations[team];
     const validCells = [];
 
     // Check 4 cells in the north direction
@@ -817,7 +817,7 @@ export function GameWrapper({ children }) {
       if (gameMap[row - i][column].type === "island") {
         break;
       }
-      if (gameMap[row - i][column].visited[playerTeam]) {
+      if (gameMap[row - i][column].visited[team]) {
         break;
       }
 
@@ -832,7 +832,7 @@ export function GameWrapper({ children }) {
       if (gameMap[row][column + i].type === "island") {
         break;
       }
-      if (gameMap[row][column + i].visited[playerTeam]) {
+      if (gameMap[row][column + i].visited[team]) {
         break;
       }
 
@@ -847,7 +847,7 @@ export function GameWrapper({ children }) {
       if (gameMap[row + i][column].type === "island") {
         break;
       }
-      if (gameMap[row + i][column].visited[playerTeam]) {
+      if (gameMap[row + i][column].visited[team]) {
         break;
       }
 
@@ -862,7 +862,7 @@ export function GameWrapper({ children }) {
       if (gameMap[row][column - i].type === "island") {
         break;
       }
-      if (gameMap[row][column - i].visited[playerTeam]) {
+      if (gameMap[row][column - i].visited[team]) {
         break;
       }
 

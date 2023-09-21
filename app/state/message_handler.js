@@ -237,7 +237,7 @@ export function captainSilence(context, message) {
   }
 
   //Enforcing silencing
-  const validCells = getValidSilenceCells();
+  const validCells = getValidSilenceCells(team);
   const arrayToCheck = [message.data.row, message.data.column];
   
   let isValid = validCells.some((arr) => {
