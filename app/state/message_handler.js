@@ -3,7 +3,7 @@ import {
   getCellName,
   keepLastNElements,
   SYSTEMS_INFO,
-  getSystemMaxCharge
+  getSystemMaxCharge,
 } from "../utils";
 
 // This function lets the captain pick a starting point
@@ -15,7 +15,7 @@ export function captainSetStartingSpot(context, message) {
 
   let allDone = false;
 
-  const networkState = moveSub(team, message.data.row, message.data.column)
+  const networkState = moveSub(team, message.data.row, message.data.column);
 
   if (subLocations[team === "blue" ? "red" : "blue"]) {
     allDone = true;
@@ -36,9 +36,9 @@ export function captainStartSubNavigate(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
   }
 
   return {
@@ -63,17 +63,22 @@ export function engineerPlaceSystemBlock(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
-    return{}
+  if (currentlySurfacing[team]) {
+    return {};
   }
   let networkState = {};
 
-  const { row, column } = message.data.clickedCell
+  const { row, column } = message.data.clickedCell;
 
-  const cell = repairMatrix[team][row][column]
+  const cell = repairMatrix[team][row][column];
 
   // Enforce valid block placement
-  if (cell.type === "inner" && cell.system === "empty" && !engineerPendingBlock[team] && pendingNavigate[team]) {
+  if (
+    cell.type === "inner" &&
+    cell.system === "empty" &&
+    !engineerPendingBlock[team] &&
+    pendingNavigate[team]
+  ) {
     if (!pendingSystemCharge[team]) {
       networkState = {
         engineerPendingBlock: {
@@ -85,7 +90,7 @@ export function engineerPlaceSystemBlock(context, message) {
       networkState = finishTurn(
         message.data.clickedCell,
         pendingSystemCharge[team],
-        team,
+        team
       );
     }
   }
@@ -104,9 +109,9 @@ export function engineerClearRepairMatrix(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
   }
 
   const updatedMatrix = repairMatrix[team].map((row) =>
@@ -116,7 +121,7 @@ export function engineerClearRepairMatrix(context, message) {
     }))
   );
 
-  return {"repairMatrix": {...repairMatrix, [team]: updatedMatrix}};
+  return { repairMatrix: { ...repairMatrix, [team]: updatedMatrix } };
 }
 
 // first mate choses something to activate
@@ -134,17 +139,20 @@ export function firstMateChooseSystemCharge(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
   }
 
   let networkState = {};
 
   // Enforce that we are able to charge the system we are looking at
-  if (systemChargeLevels[team][message.data.system] < getSystemMaxCharge(message.data.system) && 
-  pendingNavigate[team] && 
-  !pendingSystemCharge[team]) {
+  if (
+    systemChargeLevels[team][message.data.system] <
+      getSystemMaxCharge(message.data.system) &&
+    pendingNavigate[team] &&
+    !pendingSystemCharge[team]
+  ) {
     if (!engineerPendingBlock[team]) {
       networkState = {
         pendingSystemCharge: {
@@ -158,7 +166,7 @@ export function firstMateChooseSystemCharge(context, message) {
       networkState = finishTurn(
         engineerPendingBlock[team],
         message.data.system,
-        team,
+        team
       );
     }
   }
@@ -179,9 +187,9 @@ export function captainCancelSubNavigate(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
   }
 
   return {
@@ -194,9 +202,9 @@ export function captainCancelSubNavigate(context, message) {
 // Captain uses the silence ability
 // MESSAGE: {row, column}
 export function captainSilence(context, message) {
-  const 
-  { systemChargeLevels,
-    getMessagePlayer, 
+  const {
+    systemChargeLevels,
+    getMessagePlayer,
     moveSub,
     movements,
     getValidSilenceCells,
@@ -205,20 +213,23 @@ export function captainSilence(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
   }
 
   //Enforcing silencing
   const validCells = getValidSilenceCells();
   const arrayToCheck = [message.data.row, message.data.column];
-  
+
   let isValid = validCells.some((arr) => {
-    return arr.length === arrayToCheck.length && arr.every((element, index) => element === arrayToCheck[index]);
+    return (
+      arr.length === arrayToCheck.length &&
+      arr.every((element, index) => element === arrayToCheck[index])
+    );
   });
 
-  if(!isValid){
+  if (!isValid) {
     console.log("Silence move has been enforced");
     return {};
   }
@@ -305,14 +316,57 @@ export function firstMateFireTorpedo(context, message) {
     messageTimestamp,
     notificationMessages,
     currentlySurfacing,
+    getCellsDistanceAway,
+    gameMap,
   } = context;
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
-  if(currentlySurfacing[team]){
-    console.log("restricted");
-    return{}
+  if (currentlySurfacing[team]) {
+    return {};
+  }
+
+  // If the torpedo isn't fully charged, don't do anything
+  if (
+    systemChargeLevels[team].torpedo <
+    SYSTEMS_INFO.find((system) => system.name === "torpedo").maxCharge
+  ) {
+    return {};
+  }
+
+  // If the torpedo is disabled, don't do anything
+  if (systemHealthLevels[team].weapons < 1) {
+    return {};
+  }
+
+  // If the cell isn't within range, don't do anything
+  const possibleTorpedoCells = getCellsDistanceAway(
+    subLocations[team][0],
+    subLocations[team][1],
+    process.env.TORPEDO_RANGE
+  );
+  if (
+    !possibleTorpedoCells.find(
+      (cell) => cell[0] === message.data.row && cell[1] === message.data.column
+    )
+  ) {
+    return {};
+  }
+
+  // If the cell is out of the map bounds, don't do anything
+  if (
+    message.data.column < 0 ||
+    message.data.column >= process.env.MAP_DIMENSION ||
+    message.data.row < 0 ||
+    message.data.row >= process.env.MAP_DIMENSION
+  ) {
+    return {};
+  }
+
+  // If the cell is occupied by an island, don't do anything
+  if (gameMap[message.data.row][message.data.column] === "island") {
+    return {};
   }
 
   const syncNetworkMessage = {
@@ -528,12 +582,62 @@ export function firstMateDropMine(context, message) {
     notificationMessages,
     messageTimestamp,
     currentlySurfacing,
+    getCellsDistanceAway,
+    gameMap,
+    systemHealthLevels,
+    subLocations,
   } = context;
 
   const team = getMessagePlayer(message).team;
-  if(currentlySurfacing[team]){
-    console.log("restricted");
-    return{}
+  if (currentlySurfacing[team]) {
+    return {};
+  }
+
+  // If the torpedo isn't fully charged, don't do anything
+  if (
+    systemChargeLevels[team].mine <
+    SYSTEMS_INFO.find((system) => system.name === "mine").maxCharge
+  ) {
+    return {};
+  }
+
+  // If weapons are disabled, don't do anything
+  if (systemHealthLevels[team].weapons < 1) {
+    return {};
+  }
+
+  // If the cell isn't within range, don't do anything
+  const possibleMineCells = getCellsDistanceAway(
+    subLocations[team][0],
+    subLocations[team][1],
+    process.env.DROP_MINE_RANGE
+  );
+  if (
+    !possibleMineCells.find(
+      (cell) => cell[0] === message.data.row && cell[1] === message.data.column
+    )
+  ) {
+    return {};
+  }
+
+  // If the cell is out of the map bounds, don't do anything
+  if (
+    message.data.column < 0 ||
+    message.data.column >= process.env.MAP_DIMENSION ||
+    message.data.row < 0 ||
+    message.data.row >= process.env.MAP_DIMENSION
+  ) {
+    return {};
+  }
+
+  // If the cell is occupied by an island, don't do anything
+  if (gameMap[message.data.row][message.data.column] === "island") {
+    return {};
+  }
+
+  // If there's already a mine there, don't do anything
+  if (gameMap[message.data.row][message.data.column].minePresent[team]) {
+    return {};
   }
 
   const syncNetworkMessage = {
@@ -594,9 +698,14 @@ export function firstMateDetonateMine(context, message) {
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
+  }
+
+  // If there isn't a mine there, don't do anything
+  if (!minesList[team].find(([row, col]) => row === message.data.row && col === message.data.column)) {
+    return {};
   }
 
   let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
@@ -776,9 +885,9 @@ export function firstMateScan(context, message) {
 
   const team = getMessagePlayer(message).team;
 
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     console.log("restricted");
-    return{}
+    return {};
   }
 
   const notificationMessage = {
@@ -811,30 +920,35 @@ export function firstMateScan(context, message) {
 
 // Radio operator adds or removes a note from a cell
 // MESSAGE: {row, column}
-export function radioOperatorAddRemoveNote(context, message){
-  const {
-    radioMapNotes,
-    getMessagePlayer,
-    currentlySurfacing,
-  } = context;
+export function radioOperatorAddRemoveNote(context, message) {
+  const { radioMapNotes, getMessagePlayer, currentlySurfacing } = context;
 
   const team = getMessagePlayer(message).team;
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     return {};
   }
 
   const row = message.data.row;
   const column = message.data.column;
-  if(row < 0 || row >= process.env.MAP_DIMENSION || column < 0 || column >= process.env.MAP_DIMENSION){
+  if (
+    row < 0 ||
+    row >= process.env.MAP_DIMENSION ||
+    column < 0 ||
+    column >= process.env.MAP_DIMENSION
+  ) {
     return {};
   }
 
-  if (radioMapNotes[team].find((note) => note[0] === row && note[1] === column)) {
+  if (
+    radioMapNotes[team].find((note) => note[0] === row && note[1] === column)
+  ) {
     return {
       radioMapNotes: {
         ...radioMapNotes,
-        [team]: radioMapNotes[team].filter((note) => note[0] !== row || note[1] !== column),
-      }
+        [team]: radioMapNotes[team].filter(
+          (note) => note[0] !== row || note[1] !== column
+        ),
+      },
     };
   } else {
     return {
@@ -848,55 +962,63 @@ export function radioOperatorAddRemoveNote(context, message){
 
 // Radio operator clears all of his notes
 // MESSAGE: {}
-export function radioOperatorClearNotes(context, message){
-  const {
-    radioMapNotes,
-    getMessagePlayer,
-    currentlySurfacing,
-  } = context;
+export function radioOperatorClearNotes(context, message) {
+  const { radioMapNotes, getMessagePlayer, currentlySurfacing } = context;
 
   const team = getMessagePlayer(message).team;
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     return {};
   }
 
   return {
     radioMapNotes: {
       ...radioMapNotes,
-      [team]: []
-    }
+      [team]: [],
+    },
   };
 }
 
 // Radio operator shifts all the notes in a direction
 // MESSAGE: {direction}
-export function radioOperatorShiftNotes(context, message){
-  const {
-    radioMapNotes,
-    getMessagePlayer,
-    currentlySurfacing,
-  } = context;
+export function radioOperatorShiftNotes(context, message) {
+  const { radioMapNotes, getMessagePlayer, currentlySurfacing } = context;
 
   const team = getMessagePlayer(message).team;
-  if(currentlySurfacing[team]){
+  if (currentlySurfacing[team]) {
     return {};
   }
 
   const direction = message.data.direction;
 
-  if(!["north", "south", "east", "west"].includes(direction)){
+  if (!["north", "south", "east", "west"].includes(direction)) {
     return {};
   }
-  if(direction === "north" && radioMapNotes[team].some((note) => note[0] === 0)){
+  if (
+    direction === "north" &&
+    radioMapNotes[team].some((note) => note[0] === 0)
+  ) {
     return {};
   }
-  if(direction === "south" && radioMapNotes[team].some((note) => note[0] === process.env.MAP_DIMENSION - 1)){
+  if (
+    direction === "south" &&
+    radioMapNotes[team].some(
+      (note) => note[0] === process.env.MAP_DIMENSION - 1
+    )
+  ) {
     return {};
   }
-  if(direction === "west" && radioMapNotes[team].some((note) => note[1] === 0)){
+  if (
+    direction === "west" &&
+    radioMapNotes[team].some((note) => note[1] === 0)
+  ) {
     return {};
   }
-  if(direction === "east" && radioMapNotes[team].some((note) => note[1] === process.env.MAP_DIMENSION - 1)){
+  if (
+    direction === "east" &&
+    radioMapNotes[team].some(
+      (note) => note[1] === process.env.MAP_DIMENSION - 1
+    )
+  ) {
     return {};
   }
 
@@ -942,7 +1064,7 @@ export function syncNetworkState(context, networkState) {
     setCurrentlySurfacing,
     setMinesList,
     setRadioMapNotes,
-    setRepairMatrix
+    setRepairMatrix,
   } = context;
 
   if (networkState.hasOwnProperty("currentStage")) {
