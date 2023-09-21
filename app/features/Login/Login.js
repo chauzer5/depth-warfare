@@ -51,6 +51,7 @@ export default function Login() {
         type="text"
         onChange={handleChangeUsername}
         autoFocus
+        maxLength={20}
       />
       <button style={styles.lobbyButton} type="submit">
         Enter Lobby
