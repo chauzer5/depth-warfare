@@ -702,6 +702,11 @@ export function firstMateDetonateMine(context, message) {
     return {};
   }
 
+  // If there isn't a mine there, don't do anything
+  if (!minesList[team].find(([row, col]) => row === message.data.row && col === message.data.column)) {
+    return {};
+  }
+
   let updatedOppMinesList = JSON.parse(JSON.stringify(minesList[oppositeTeam]));
   let updatedOwnMinesList = JSON.parse(JSON.stringify(minesList[team]));
 
