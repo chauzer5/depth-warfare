@@ -9,13 +9,28 @@ import {
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
-  const { getMessagePlayer, moveSub, subLocations } = context;
+  const { getMessagePlayer, moveSub, subLocations, isNavigationDisabled, randomEnabledDirection } = context;
 
   const team = getMessagePlayer(message).team;
 
   let allDone = false;
 
   const networkState = moveSub(team, message.data.row, message.data.column);
+
+  const directions = ["north", "south", "west", "east"];
+  const disabledDirectionStates = {};
+
+  directions.forEach((direction) => {
+    disabledDirectionStates[direction] = isNavigationDisabled(direction, team, networkState.gameMap, networkState.subLocations);
+  });
+
+  const trueDirections = Object.keys(disabledDirectionStates).filter(
+    (direction) => disabledDirectionStates[direction] === false
+  );
+
+  const randomIndex = Math.floor(Math.random() * trueDirections.length);
+
+  networkState["randomEnabledDirection"] = {...randomEnabledDirection, [team]: trueDirections[randomIndex]}
 
   if (subLocations[team === "blue" ? "red" : "blue"]) {
     allDone = true;
@@ -32,13 +47,17 @@ export function captainSetStartingSpot(context, message) {
 // This should trigger when the engineer and first mate can start their decisions
 // MESSAGE: {direction}
 export function captainStartSubNavigate(context, message) {
-  const { pendingNavigate, getMessagePlayer, currentlySurfacing } = context;
+  const { pendingNavigate, getMessagePlayer, currentlySurfacing, isNavigationDisabled, gameMap, subLocations } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
     console.log("restricted");
     return {};
+  }
+
+  if (isNavigationDisabled(message.data.direction, team, gameMap, subLocations)) {
+    return{}
   }
 
   return {
@@ -209,17 +228,24 @@ export function captainSilence(context, message) {
     movements,
     getValidSilenceCells,
     currentlySurfacing,
+    pendingNavigate,
+    isNavigationDisabled,
+    randomEnabledDirection
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
     console.log("restricted");
-    return {};
+    return {}
+  }
+
+  if (pendingNavigate[team]) {
+    return {}
   }
 
   //Enforcing silencing
-  const validCells = getValidSilenceCells();
+  const validCells = getValidSilenceCells(team);
   const arrayToCheck = [message.data.row, message.data.column];
 
   let isValid = validCells.some((arr) => {
@@ -236,6 +262,21 @@ export function captainSilence(context, message) {
 
   // Move the sub to the chosen location
   const networkState = moveSub(team, message.data.row, message.data.column);
+
+  const directions = ["north", "south", "west", "east"];
+  const disabledDirectionStates = {};
+
+  directions.forEach((direction) => {
+    disabledDirectionStates[direction] = isNavigationDisabled(direction, team, networkState.gameMap, networkState.subLocations);
+  });
+
+  const trueDirections = Object.keys(disabledDirectionStates).filter(
+    (direction) => disabledDirectionStates[direction] === false
+  );
+
+  const randomIndex = Math.floor(Math.random() * trueDirections.length);
+
+  networkState["randomEnabledDirection"] = {...randomEnabledDirection, [team]: trueDirections[randomIndex]}
 
   networkState["systemChargeLevels"] = {
     ...systemChargeLevels,
@@ -1065,6 +1106,7 @@ export function syncNetworkState(context, networkState) {
     setMinesList,
     setRadioMapNotes,
     setRepairMatrix,
+    setRandomEnabledDirection
   } = context;
 
   if (networkState.hasOwnProperty("currentStage")) {
@@ -1120,5 +1162,8 @@ export function syncNetworkState(context, networkState) {
   }
   if (networkState.hasOwnProperty("repairMatrix")) {
     setRepairMatrix(networkState.repairMatrix);
+  }
+  if (networkState.hasOwnProperty("randomEnabledDirection")) {
+    setRandomEnabledDirection(networkState.randomEnabledDirection);
   }
 }
