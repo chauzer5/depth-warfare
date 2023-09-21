@@ -584,11 +584,12 @@ export function firstMateDropMine(context, message) {
     currentlySurfacing,
     getCellsDistanceAway,
     gameMap,
+    systemHealthLevels,
+    subLocations,
   } = context;
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
