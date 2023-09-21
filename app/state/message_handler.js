@@ -582,11 +582,60 @@ export function firstMateDropMine(context, message) {
     notificationMessages,
     messageTimestamp,
     currentlySurfacing,
+    getCellsDistanceAway,
+    gameMap,
   } = context;
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
     console.log("restricted");
+    return {};
+  }
+
+  // If the torpedo isn't fully charged, don't do anything
+  if (
+    systemChargeLevels[team].mine <
+    SYSTEMS_INFO.find((system) => system.name === "mine").maxCharge
+  ) {
+    return {};
+  }
+
+  // If weapons are disabled, don't do anything
+  if (systemHealthLevels[team].weapons < 1) {
+    return {};
+  }
+
+  // If the cell isn't within range, don't do anything
+  const possibleMineCells = getCellsDistanceAway(
+    subLocations[team][0],
+    subLocations[team][1],
+    process.env.DROP_MINE_RANGE
+  );
+  if (
+    !possibleMineCells.find(
+      (cell) => cell[0] === message.data.row && cell[1] === message.data.column
+    )
+  ) {
+    return {};
+  }
+
+  // If the cell is out of the map bounds, don't do anything
+  if (
+    message.data.column < 0 ||
+    message.data.column >= process.env.MAP_DIMENSION ||
+    message.data.row < 0 ||
+    message.data.row >= process.env.MAP_DIMENSION
+  ) {
+    return {};
+  }
+
+  // If the cell is occupied by an island, don't do anything
+  if (gameMap[message.data.row][message.data.column] === "island") {
+    return {};
+  }
+
+  // If there's already a mine there, don't do anything
+  if (gameMap[message.data.row][message.data.column].minePresent[team]) {
     return {};
   }
 
