@@ -230,7 +230,9 @@ export function captainSilence(context, message) {
     currentlySurfacing,
     pendingNavigate,
     isNavigationDisabled,
-    randomEnabledDirection
+    randomEnabledDirection,
+    subLocations,
+    gameMap
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -245,7 +247,7 @@ export function captainSilence(context, message) {
   }
 
   //Enforcing silencing
-  const validCells = getValidSilenceCells(team);
+  const validCells = getValidSilenceCells(team, subLocations, gameMap);
   const arrayToCheck = [message.data.row, message.data.column];
 
   let isValid = validCells.some((arr) => {
@@ -546,10 +548,10 @@ export function firstMateFireTorpedo(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Opponent sub received ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Your sub recieved ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
@@ -564,10 +566,10 @@ export function firstMateFireTorpedo(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Your sub received ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Opponent sub recieved ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
@@ -843,10 +845,10 @@ export function firstMateDetonateMine(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Opponent sub received ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Your sub recieved ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
@@ -861,10 +863,10 @@ export function firstMateDetonateMine(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Your sub received ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Opponent sub recieved ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",

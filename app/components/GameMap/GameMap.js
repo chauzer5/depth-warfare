@@ -156,7 +156,7 @@ export default function GameMap(props) {
 
   useEffect(() => {
     if (silence) {
-      const newSilenceCells = getValidSilenceCells(playerTeam);
+      const newSilenceCells = getValidSilenceCells(playerTeam, subLocations, gameMap);
       setSilenceCells(newSilenceCells);
     }
   }, [silence]);
