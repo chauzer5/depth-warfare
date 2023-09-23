@@ -805,7 +805,7 @@ export function GameWrapper({ children }) {
     return shuffled;
   }
 
-  function getValidSilenceCells(team) {
+  function getValidSilenceCells(team, subLocations, gameMap) {
     const [row, column] = subLocations[team];
     const validCells = [];
 
@@ -984,7 +984,7 @@ export function GameWrapper({ children }) {
     );
   }
 
-  function scanForEnemySub(row, column, scanType) {
+  function scanForEnemySub(row, column, scanType, subLocations) {
     const enemySubLocations =
       subLocations[playerTeam === "blue" ? "red" : "blue"];
     const enemySubRow = enemySubLocations[0];

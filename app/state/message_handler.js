@@ -230,7 +230,9 @@ export function captainSilence(context, message) {
     currentlySurfacing,
     pendingNavigate,
     isNavigationDisabled,
-    randomEnabledDirection
+    randomEnabledDirection,
+    subLocations,
+    gameMap
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -245,7 +247,7 @@ export function captainSilence(context, message) {
   }
 
   //Enforcing silencing
-  const validCells = getValidSilenceCells(team);
+  const validCells = getValidSilenceCells(team, subLocations, gameMap);
   const arrayToCheck = [message.data.row, message.data.column];
 
   let isValid = validCells.some((arr) => {

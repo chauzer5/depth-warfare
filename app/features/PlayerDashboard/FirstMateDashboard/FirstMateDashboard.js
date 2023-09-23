@@ -88,7 +88,7 @@ export default function FirstMateDashboard(props) {
     subLocations,
     scanForEnemySub,
     minesList,
-    systemHealthLevels,
+    systemHealthLevels
   } = useGameContext();
 
   const [toggledSystem, setToggledSystem] = useState("torpedo");
@@ -149,7 +149,8 @@ export default function FirstMateDashboard(props) {
       const scanResult = scanForEnemySub(
         clickedCell.row,
         clickedCell.column,
-        scanType
+        scanType,
+        subLocations
       );
       channel.publish("first-mate-scan", { scanResult });
     }
@@ -163,7 +164,7 @@ export default function FirstMateDashboard(props) {
     }
   };
 
-  const isSystemCharged = (systemName) => {
+  const isSystemCharged = (systemName, systemChargeLevels) => {
     return (
       systemChargeLevels[playerTeam][systemName] ===
       getFirstMateSystem(systemName).maxCharge
@@ -311,17 +312,17 @@ export default function FirstMateDashboard(props) {
               ...styles.bigButton,
               backgroundColor: isSystemDisabled(toggledSystem)
                 ? "gray"
-                : isSystemCharged("torpedo") &&
+                : isSystemCharged("torpedo", systemChargeLevels) &&
                   validTorpedoSelection &&
                   toggledSystem === "torpedo"
                 ? "red"
-                : isSystemCharged("mine") &&
+                : isSystemCharged("mine", systemChargeLevels) &&
                   validDropMine &&
                   toggledSystem === "mine"
                 ? getFirstMateSystem("mine").color
                 : validDetonateMine && toggledSystem === "mine"
                 ? getFirstMateSystem("mine").color
-                : isSystemCharged("scan") &&
+                : isSystemCharged("scan", systemChargeLevels) &&
                   validScanSelection &&
                   toggledSystem === "scan"
                 ? getFirstMateSystem("scan").color
@@ -330,13 +331,13 @@ export default function FirstMateDashboard(props) {
             disabled={
               (toggledSystem === "mine" &&
                 !validDetonateMine &&
-                !isSystemCharged("mine")) ||
+                !isSystemCharged("mine", systemChargeLevels)) ||
               (toggledSystem === "mine" &&
                 !validDetonateMine &&
                 !validDropMine) ||
-              (!isSystemCharged("torpedo") && toggledSystem === "torpedo") ||
+              (!isSystemCharged("torpedo", systemChargeLevels) && toggledSystem === "torpedo") ||
               (toggledSystem === "torpedo" && !validTorpedoSelection) ||
-              (!isSystemCharged("scan") && toggledSystem === "scan") ||
+              (!isSystemCharged("scan", systemChargeLevels) && toggledSystem === "scan") ||
               (toggledSystem === "scan" && !validScanSelection) ||
               isSystemDisabled(toggledSystem)
             }
@@ -346,17 +347,17 @@ export default function FirstMateDashboard(props) {
               ? "Disabled"
               : toggledSystem === "torpedo" &&
                 validTorpedoSelection &&
-                isSystemCharged("torpedo")
+                isSystemCharged("torpedo", systemChargeLevels)
               ? "Launch Torpedo"
               : toggledSystem === "torpedo" &&
-                isSystemCharged("torpedo") &&
+                isSystemCharged("torpedo", systemChargeLevels) &&
                 !validTorpedoSelection
               ? "Invalid Selection"
               : toggledSystem === "scan" &&
-                isSystemCharged("scan") &&
+                isSystemCharged("scan", systemChargeLevels) &&
                 !validScanSelection
               ? "Invalid Selection"
-              : toggledSystem === "scan" && isSystemCharged("scan")
+              : toggledSystem === "scan" && isSystemCharged("scan", systemChargeLevels)
               ? "Scan"
               : toggledSystem === "mine" && validDetonateMine // Detonate happens before drop
               ? "Detonate Mine"
@@ -364,7 +365,7 @@ export default function FirstMateDashboard(props) {
               ? "Invalid Selection"
               : toggledSystem === "mine" &&
                 validDropMine &&
-                isSystemCharged("mine")
+                isSystemCharged("mine", systemChargeLevels)
               ? "Drop Mine"
               : `Charge ${capitalizeFirstLetter(toggledSystem)}`}
           </button>
