@@ -979,7 +979,7 @@ export function GameWrapper({ children }) {
   function updateLifeSupport(team, hits) {
     return Math.max(
       systemHealthLevels[team]["life support"] -
-        process.env.SYSTEM_DAMAGE_AMOUNT * hits,
+        process.env.LIFE_SUPPORT_DAMAGE_AMOUNT * hits,
       0
     );
   }

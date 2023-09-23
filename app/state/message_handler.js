@@ -548,10 +548,10 @@ export function firstMateFireTorpedo(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Opponent sub received ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Your sub recieved ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
@@ -566,10 +566,10 @@ export function firstMateFireTorpedo(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Your sub received ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Opponent sub recieved ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
@@ -845,10 +845,10 @@ export function firstMateDetonateMine(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Opponent sub received ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Your sub recieved ${
-        oppHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
@@ -863,10 +863,10 @@ export function firstMateDetonateMine(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Your sub received ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       oppTeamMessage: `Opponent sub recieved ${
-        ownHits * process.env.SYSTEM_DAMAGE_AMOUNT
+        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
