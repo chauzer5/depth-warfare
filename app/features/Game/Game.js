@@ -3,7 +3,7 @@ import { useGameContext } from "../../state/game_state";
 import TeamSelection from "../TeamSelection/TeamSelection";
 import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
 import {
   captainCancelSubNavigate,
@@ -36,6 +36,24 @@ export default function Game() {
     getEmptyRepairMatrix,
     selfClientId,
     hostClientId,
+    subLocations,
+    gameMap,
+    systemChargeLevels,
+    movementCountOnDisable,
+    systemHealthLevels,
+    engineerCompassMap,
+    movements,
+    pendingSystemCharge,
+    engineerPendingBlock,
+    pendingNavigate,
+    engineerHealSystem,
+    notificationMessages,
+    messageTimestamp,
+    currentlySurfacing,
+    minesList,
+    radioMapNotes,
+    repairMatrix,
+    randomEnabledDirection
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -50,14 +68,36 @@ export default function Game() {
     setMessagesList((prev) => [...prev, { ...message }]);
   });
 
-  const sendCompleteStateUpdate = (completeState) => {
-    channel.publish("sync-network-state", completeState);
+  const sendCompleteStateUpdate = () => {
+    console.log("completeState", completeStateRef.current)
+    channel.publish("sync-network-state", completeStateRef.current);
   }
 
-  const [completeState, setCompleteState] = useState(null)
+  // const [completeState, setCompleteState] = useState(null)
+  const completeStateRef = useRef({
+    currentStage,
+    subLocations,
+    gameMap,
+    systemChargeLevels,
+    movementCountOnDisable,
+    systemHealthLevels,
+    engineerCompassMap,
+    movements,
+    pendingSystemCharge,
+    engineerPendingBlock,
+    pendingNavigate,
+    engineerHealSystem,
+    notificationMessages,
+    messageTimestamp,
+    currentlySurfacing,
+    minesList,
+    radioMapNotes,
+    repairMatrix,
+    randomEnabledDirection,
+  });
 
   useEffect(() => {
-    setCompleteState({
+    completeStateRef.current = {
       currentStage,
       subLocations,
       gameMap,
@@ -77,7 +117,7 @@ export default function Game() {
       radioMapNotes,
       repairMatrix,
       randomEnabledDirection,
-    })
+    }
   }, [currentStage,
     subLocations,
     gameMap,
@@ -98,14 +138,14 @@ export default function Game() {
     repairMatrix,
     randomEnabledDirection])
 
-  const completeStateRef = useRef(completeState);
+  
 
   useEffect(() => {
     console.log("ids", selfClientId, hostClientId)
     
     if(selfClientId === hostClientId && currentStage === "main") {
       setInterval(() => {
-        sendCompleteStateUpdate(completeStateRef.current);
+        sendCompleteStateUpdate();
       }, process.env.COMPLETE_STATE_UPDATE_INTERVAL);
     }
   }, [hostClientId, currentStage]);
