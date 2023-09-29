@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ROLE_MAP } from "@/app/utils";
 
 export default function DashboardHeader() {
-  const { playerRole, playerTeam } = useGameContext();
+  const { playerRole, playerTeam, selfClientId, hostClientId } = useGameContext();
 
   const styles = {
     main: {
@@ -46,6 +46,7 @@ export default function DashboardHeader() {
         } Team`}</span>
         {` ${ROLE_MAP[playerRole]}`}
       </h4>
+      {selfClientId === hostClientId && <h4 style={styles.role}>Host</h4>}
       <h4 style={styles.clock}>{`${clock} ${timeZone}`}</h4>
     </div>
   );
