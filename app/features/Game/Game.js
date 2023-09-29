@@ -36,6 +36,24 @@ export default function Game() {
     getEmptyRepairMatrix,
     selfClientId,
     hostClientId,
+    subLocations,
+    gameMap,
+    systemChargeLevels,
+    movementCountOnDisable,
+    systemHealthLevels,
+    engineerCompassMap,
+    movements,
+    pendingSystemCharge,
+    engineerPendingBlock,
+    pendingNavigate,
+    engineerHealSystem,
+    notificationMessages,
+    messageTimestamp,
+    currentlySurfacing,
+    minesList,
+    radioMapNotes,
+    repairMatrix,
+    randomEnabledDirection
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -50,10 +68,41 @@ export default function Game() {
     setMessagesList((prev) => [...prev, { ...message }]);
   });
 
+  const sendCompleteStateUpdate = () => {
+    const completeState = {
+      currentStage,
+      subLocations,
+      gameMap,
+      systemChargeLevels,
+      movementCountOnDisable,
+      systemHealthLevels,
+      engineerCompassMap,
+      movements,
+      pendingSystemCharge,
+      engineerPendingBlock,
+      pendingNavigate,
+      engineerHealSystem,
+      notificationMessages,
+      messageTimestamp,
+      currentlySurfacing,
+      minesList,
+      radioMapNotes,
+      repairMatrix,
+      randomEnabledDirection,
+    };
+
+    channel.publish("sync-network-state", completeState);
+  }
+
   useEffect(() => {
     console.log("ids", selfClientId, hostClientId)
     
-  }, []);
+    if(selfClientId === hostClientId && currentStage === "main") {
+      setInterval(() => {
+        sendCompleteStateUpdate();
+      }, process.env.COMPLETE_STATE_UPDATE_INTERVAL);
+    }
+  }, [hostClientId, currentStage]);
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
