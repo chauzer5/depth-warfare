@@ -21,7 +21,7 @@ const nextConfig = {
     MAX_MINE_DAMAGE: 2,
     MAX_MESSAGES: 15,
     TIME_FOR_SURFACING: 30,
-    COMPLETE_STATE_UPDATE_INTERVAL: 1000,
+    COMPLETE_STATE_UPDATE_INTERVAL: 500,
   },
   productionBrowserSourceMaps: true,
 };

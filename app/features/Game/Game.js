@@ -138,22 +138,57 @@ export default function Game() {
     repairMatrix,
     randomEnabledDirection])
 
+  // useEffect(() => {
+  //   console.log("ids", selfClientId, hostClientId)
+    
+  //   if(selfClientId === hostClientId && currentStage === "main") {
+  //     setInterval(() => {
+  //       sendCompleteStateUpdate();
+  //       console.log("sending message from host")
+  //     }, process.env.COMPLETE_STATE_UPDATE_INTERVAL);
+  //   }
+  // }, [hostClientId, currentStage]);
+
   useEffect(() => {
-    console.log("ids", selfClientId, hostClientId)
+    console.log('Current Stage:', currentStage);
+  }, [currentStage]);
+
+  useEffect(() => {
+    console.log("ids", selfClientId, hostClientId);
+    
+    console.log("Checking condition", selfClientId === hostClientId, currentStage === "main");
     
     if(selfClientId === hostClientId && currentStage === "main") {
-      setInterval(() => {
-        sendCompleteStateUpdate();
-        console.log("sending message from host")
-      }, process.env.COMPLETE_STATE_UPDATE_INTERVAL);
+        console.log("Condition met");
+        // Create a new worker
+        const worker = new Worker('/worker.js');
+
+        // Send the interval to the worker
+        worker.postMessage({ interval: process.env.COMPLETE_STATE_UPDATE_INTERVAL });
+
+        // Set up a message handler to receive messages from the worker
+        worker.onmessage = (e) => {
+            if(e.data === 'sendCompleteStateUpdate') {
+                sendCompleteStateUpdate();
+                console.log("sending message from host");
+            }
+        };
+
+        // Clean up the worker when the component is unmounted or when it's no longer needed
+        return () => {
+            worker.terminate();
+        }
+    } else {
+      console.log("Condition not met");
     }
-  }, [hostClientId, currentStage]);
+
+}, [hostClientId, currentStage]);
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
     // console.log("sent message", newMessage)
     if (newMessage?.name === "sync-network-state"){
-      console.log("recieved message", newMessage)
+      console.log("recieved message", newMessage.id)
     }
       
     let networkState = {};
