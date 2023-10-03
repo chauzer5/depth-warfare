@@ -108,24 +108,28 @@ export default function TeamSelection(props) {
         <div style={styles.selectors}>
           <div style={styles.team}>
             <TeamRoleButton
+              id="blueCaptain"
               presenceData={presenceData}
               handleClick={handleClick}
               team="blue"
               role="captain"
             />
             <TeamRoleButton
+              id="blueFirstMate"
               presenceData={presenceData}
               handleClick={handleClick}
               team="blue"
               role="first-mate"
             />
             <TeamRoleButton
+              id="blueEngineer"
               presenceData={presenceData}
               handleClick={handleClick}
               team="blue"
               role="engineer"
             />
             <TeamRoleButton
+              id="blueRadioOperator"
               presenceData={presenceData}
               handleClick={handleClick}
               team="blue"
@@ -134,24 +138,28 @@ export default function TeamSelection(props) {
           </div>
           <div style={styles.team}>
             <TeamRoleButton
+              id="redCaptain"
               presenceData={presenceData}
               handleClick={handleClick}
               team="red"
               role="captain"
             />
             <TeamRoleButton
+              id="redFirstMate"
               presenceData={presenceData}
               handleClick={handleClick}
               team="red"
               role="first-mate"
             />
             <TeamRoleButton
+              id="redEngineer"
               presenceData={presenceData}
               handleClick={handleClick}
               team="red"
               role="engineer"
             />
             <TeamRoleButton
+              id="redRadioOperator"
               presenceData={presenceData}
               handleClick={handleClick}
               team="red"

@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    ABLY_API_KEY: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", // Use if this API_KEY doesn't work: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY"
-    // ABLY_API_KEY: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY",
+    // ABLY_API_KEY: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", // Use if this API_KEY doesn't work: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY"
+    ABLY_API_KEY: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY", //Jamison key
+    // ABLY_API_KEY: "4DgG4w.aAimlA:kdKzu4HgukdZCT4w8Xgp5Ejeg1yviggZu28cDpNIQV0", //Jess key
     GAME_COUNTDOWN_SECONDS: 3,
     MAP_DIMENSION: 15,
     SECTOR_DIMENSION: 5,
