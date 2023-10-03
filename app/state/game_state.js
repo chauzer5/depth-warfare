@@ -819,10 +819,18 @@ export function GameWrapper({ children }) {
     for (let i = 0; i < dimension + 2; i++) {
       let row = [];
       for (let j = 0; j < dimension + 2; j++) {
-        row.push({
-          type: "inner",
-          system: "empty",
-        });
+        if (i === 0 || i === dimension + 1 || j === 0 || j === dimension + 1) {
+          // Cells in the first row, last row, first column, and last column are "outer" cells
+          row.push({
+            type: "outer",
+            system: "empty",
+          });
+        } else {
+          row.push({
+            type: "inner",
+            system: "empty",
+          });
+        }
       }
       blankRepairMatrix.push(row);
     }
