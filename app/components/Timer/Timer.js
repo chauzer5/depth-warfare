@@ -21,19 +21,39 @@ export default function Timer(props) {
 
   const [secondsLeft, setSecondsLeft] = useState(seconds);
 
+  // In Timer component
+  console.log('Timer component is rendered');
+
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 0) {
-          onFinish();
-        }
+    // Creating a new instance of the Worker
+    const worker = new Worker(`/timerWorker.js`);
 
-        return Math.max(0, prev - 1);
-      });
-    }, 1000);
+    // Sending a message to the worker to start the timer with the specified seconds
+    worker.postMessage({
+      command: 'start',
+      seconds: seconds,
+    });
 
-    return () => clearInterval(interval);
-  }, []);
+    // Setting up a message handler to receive messages from the worker
+    worker.onmessage = (e) => {
+      // Updating the secondsLeft state with the received seconds from the worker
+      if (e.data.secondsLeft !== undefined) {
+        setSecondsLeft(e.data.secondsLeft);
+      }
+
+      // Calling the onFinish callback when the timer finishes
+      if (e.data.finished) {
+        onFinish();
+      }
+    };
+
+    // Cleaning up the worker when the component is unmounted or when it's no longer needed
+    return () => {
+      worker.postMessage({ command: 'stop' });
+      worker.terminate();
+    };
+  }, [seconds, onFinish]);
 
   return (
     <div style={styles.main}>
