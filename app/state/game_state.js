@@ -332,6 +332,56 @@ export function GameWrapper({ children }) {
     };
   }
 
+  function calculateNodeDistance(row1, col1, row2, col2, matrixLength) {
+    let realRowIndices = []
+    let realColumnIndices = []
+    const rowIndices = [row1, row2]
+    const columnIndices = [col1, col2]
+
+    rowIndices.forEach((rowIndex, i) => {
+      const row = rowIndices[i]
+      const col = columnIndices[i]
+      let realRow = row
+      let realCol = col
+      if (row === 0) {
+        realRow += 1
+      }
+      if (col === 0) {
+        realCol += 1
+      }
+      if (row === matrixLength - 1) {
+        realRow -= 1
+      }
+      if (col === matrixLength - 1) {
+        realCol -= 1
+      }
+      realRowIndices.push(realRow)
+      realColumnIndices.push(realCol)
+    })
+
+    return manhattanDistance(realRowIndices[0], realColumnIndices[0], realRowIndices[1], realColumnIndices[1]) + 1
+  }
+  
+  function calculateSystemDamageAmount(matrix, system) {
+    const rowIndices = [];
+    const columnIndices = [];
+
+    for (let row = 0; row < matrix.length; row++) {
+      for (let col = 0; col < matrix[0].length; col++) {
+        const cell = matrix[row][col];
+        if (cell.type === "outer" && cell.system === system) {
+          rowIndices.push(row);
+          columnIndices.push(col);
+        }
+      }
+    }
+
+    const dist = calculateNodeDistance(rowIndices[0], columnIndices[0], rowIndices[1], columnIndices[1], matrix.length)
+    console.log(system, dist, Math.ceil(100 / dist))
+
+    return Math.ceil(100 / dist)
+  }
+
   function finishTurn(engineerBlockCell, chargedSystem, team) {
     const tempMessages = [];
     let tempMessageTimestamp = messageTimestamp;
@@ -365,9 +415,12 @@ export function GameWrapper({ children }) {
         randomSystem = filteredSystems[randomIndex];
     }
 
+    // Update the repair matrix and check to see if it is repaired
+    const updatedMatrix = [...repairMatrix[team].map((row) => [...row])];
+
     // set the updated health level for the system
     const updatedHealthLevel = Math.max(
-        systemHealthLevels[team][randomSystem] - process.env.SYSTEM_DAMAGE_AMOUNT,
+        systemHealthLevels[team][randomSystem] - calculateSystemDamageAmount(updatedMatrix, randomSystem), // process.env.SYSTEM_DAMAGE_AMOUNT,
         0
     );
 
@@ -379,9 +432,6 @@ export function GameWrapper({ children }) {
       [randomSystem]: updatedHealthLevel,
       },
     };
-
-    // Update the repair matrix and check to see if it is repaired
-    const updatedMatrix = [...repairMatrix[team].map((row) => [...row])];
 
     const { row, column } = engineerBlockCell
 
@@ -640,8 +690,17 @@ export function GameWrapper({ children }) {
     }
 
     // Randomly select two empty outer cells
-    const randomIndices = getRandomIndices(emptyOuterCells.length, 2);
-    const selectedCells = randomIndices.map((index) => emptyOuterCells[index]);
+    let randomIndices;
+    let selectedCells;
+    let nodeDist;
+    for (let i = 0; i < 10000; i++) {
+      randomIndices = getRandomIndices(emptyOuterCells.length, 2);
+      selectedCells = randomIndices.map((index) => emptyOuterCells[index]);
+      nodeDist = calculateNodeDistance(selectedCells[0].row, selectedCells[0].col, selectedCells[1].row, selectedCells[1].col, matrix.length)
+      if (nodeDist <= process.env.MAX_NODE_DISTANCE && nodeDist >= process.env.MIN_NODE_DISTANCE) {
+        break;
+      }
+    }
 
     return selectedCells;
   };
@@ -746,17 +805,14 @@ export function GameWrapper({ children }) {
 
   function getEmptyRepairMatrix() {
     const dimension = process.env.REPAIR_MATRIX_DIMENSION;
-    const systems = ENGINEER_SYSTEMS_INFO.filter(
-      (system) => system.name !== "life support"
-    ).map((system) => system.name);
-    const doubledSystems = systems.concat(systems.slice());
-    const extra_elements = dimension * 4;
+    
 
-    while (doubledSystems.length < extra_elements) {
-      doubledSystems.push("empty");
-    }
+    // const doubledSystems = systems.concat(systems.slice());
+    // const extra_elements = dimension * 4;
 
-    const shuffledSystems = shuffleArray(doubledSystems);
+    // while (doubledSystems.length < extra_elements) {
+    //   doubledSystems.push("empty");
+    // }
 
     let blankRepairMatrix = [];
 
@@ -765,22 +821,9 @@ export function GameWrapper({ children }) {
       for (let j = 0; j < dimension + 2; j++) {
         if (i === 0 || i === dimension + 1 || j === 0 || j === dimension + 1) {
           // Cells in the first row, last row, first column, and last column are "outer" cells
-          let system;
-
-          if (
-            (i === 0 && j === 0) ||
-            (i === 0 && j === dimension + 1) ||
-            (i === dimension + 1 && j === 0) ||
-            (i === dimension + 1 && j === dimension + 1)
-          ) {
-            system = "empty";
-          } else {
-            system = shuffledSystems.pop();
-          }
-
           row.push({
             type: "outer",
-            system: system,
+            system: "empty",
           });
         } else {
           row.push({
@@ -791,6 +834,28 @@ export function GameWrapper({ children }) {
       }
       blankRepairMatrix.push(row);
     }
+
+    const systems = ENGINEER_SYSTEMS_INFO.filter(
+      (system) => system.name !== "life support"
+    ).map((system) => system.name);
+
+    const shuffledSystems = shuffleArray(systems);
+
+    let selectedCells;
+    shuffledSystems.forEach((system, i) => {
+      // Choose new random nodes along the outside
+      console.log("blankRepairMatrix", blankRepairMatrix)
+      selectedCells = pickNewOuterCells(blankRepairMatrix);
+
+      console.log("selectedCells", selectedCells)
+
+      for (const { row, col } of selectedCells) {
+          blankRepairMatrix[row][col] = {
+          type: "outer",
+          system: system,
+          };
+      }
+    })
 
     return blankRepairMatrix;
   }
