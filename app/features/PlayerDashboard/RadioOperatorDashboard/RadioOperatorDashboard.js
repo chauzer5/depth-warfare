@@ -38,7 +38,7 @@ export default function RadioOperatorDashboard(props) {
       marginRight: "20px",
     },
     shiftControls: {
-      width: "120px",
+      width: "300px",
       height: "120px",
     },
     shiftRow: {
@@ -47,6 +47,12 @@ export default function RadioOperatorDashboard(props) {
       display: "flex",
       flexDirection: "row",
       justifyContent: "center",
+      alignItems: "center",
+      whiteSpace: "nowrap",
+    },
+    directionText:{
+      margin:"10px",
+      color: theme.white,
     },
     clearButton: {
       fontFamily: "VT323, monospace",
@@ -102,15 +108,23 @@ export default function RadioOperatorDashboard(props) {
           <SectorsKey />
           <div style={styles.shiftControls}>
             <div style={styles.shiftRow}>
+              <span style={{color:theme.white}}>North</span>
+            </div>
+            <div style={styles.shiftRow}>
               <TriangleShiftButton direction="north" channel={channel}/>
             </div>
             <div style={styles.shiftRow}>
+            <span style={{...styles.directionText, width: '50px'}}>West</span>
               <TriangleShiftButton direction="west" channel={channel}/>
               <div style={{ height: "100%", width: "50px" }} />
               <TriangleShiftButton direction="east"channel={channel} />
+              <span style={styles.directionText}>East</span>
             </div>
             <div style={styles.shiftRow}>
               <TriangleShiftButton direction="south" channel={channel}/>
+            </div>
+            <div style={styles.shiftRow}>
+              <span style={{color:theme.white}}>South</span>
             </div>
           </div>
         </div>
