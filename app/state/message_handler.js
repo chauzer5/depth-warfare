@@ -333,7 +333,7 @@ export function captainSurface(context, message) {
     movements,
     currentlySurfacing,
     repairMatrix,
-
+    calculateMaxSystemHealth,
   } = context;
 
   const team = getMessagePlayer(message).team;
