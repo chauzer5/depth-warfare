@@ -332,6 +332,8 @@ export function captainSurface(context, message) {
     subLocations,
     movements,
     currentlySurfacing,
+    repairMatrix,
+
   } = context;
 
   const team = getMessagePlayer(message).team;
@@ -347,10 +349,10 @@ export function captainSurface(context, message) {
     systemHealthLevels: {
       ...systemHealthLevels,
       [team]: {
-        weapons: process.env.MAX_SYSTEM_HEALTH,
-        scan: process.env.MAX_SYSTEM_HEALTH,
-        engine: process.env.MAX_SYSTEM_HEALTH,
-        comms: process.env.MAX_SYSTEM_HEALTH,
+        weapons: calculateMaxSystemHealth(repairMatrix[team], "weapons"),
+        scan: calculateMaxSystemHealth(repairMatrix[team], "scan"),
+        engine: calculateMaxSystemHealth(repairMatrix[team], "engine"),
+        comms: calculateMaxSystemHealth(repairMatrix[team], "comms"),
         "life support": systemHealthLevels[team]["life support"],
       },
     },
@@ -565,10 +567,10 @@ export function firstMateFireTorpedo(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Opponent sub received ${
-        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
-      oppTeamMessage: `Your sub recieved ${
-        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+      oppTeamMessage: `Your sub received ${
+        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
@@ -583,10 +585,10 @@ export function firstMateFireTorpedo(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Your sub received ${
-        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
-      oppTeamMessage: `Opponent sub recieved ${
-        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+      oppTeamMessage: `Opponent sub received ${
+        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
@@ -865,10 +867,10 @@ export function firstMateDetonateMine(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Opponent sub received ${
-        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
-      oppTeamMessage: `Your sub recieved ${
-        oppHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+      oppTeamMessage: `Your sub received ${
+        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
@@ -883,10 +885,10 @@ export function firstMateDetonateMine(context, message) {
     const notificationMessage = {
       team,
       sameTeamMessage: `Your sub received ${
-        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
-      oppTeamMessage: `Opponent sub recieved ${
-        ownHits * process.env.LIFE_SUPPORT_DAMAGE_AMOUNT
+      oppTeamMessage: `Opponent sub received ${
+        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
       }% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
