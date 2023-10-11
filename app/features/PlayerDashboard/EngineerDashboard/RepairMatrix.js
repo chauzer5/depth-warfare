@@ -3,10 +3,9 @@ import { Box } from "@mui/material";
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function RepairMatrix(props) {
-  const { channel } = props;
-
+export default function RepairMatrix() {
   const {
     playerTeam,
     pendingNavigate,
@@ -14,6 +13,8 @@ export default function RepairMatrix(props) {
     engineerCompassMap,
     repairMatrix,
   } = useGameContext();
+
+  const { channel } = useAblyContext();
 
   const blockSystem =
     engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
@@ -75,7 +76,7 @@ export default function RepairMatrix(props) {
 
   function getColorByName(systemName) {
     const systemInfo = ENGINEER_SYSTEMS_INFO.find(
-      (system) => system.name === systemName
+      (system) => system.name === systemName,
     );
     return systemInfo ? systemInfo.color : null;
   }

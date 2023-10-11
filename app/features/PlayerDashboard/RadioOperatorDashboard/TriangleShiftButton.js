@@ -1,10 +1,12 @@
+import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import useKeypress from "react-use-keypress";
 
 export default function TriangleShiftButton(props) {
-  const { direction, channel } = props;
+  const { direction } = props;
   const { radioMapNotes, playerTeam } = useGameContext();
+  const { channel } = useAblyContext();
 
   const w = "30";
   const h = "30";
@@ -22,7 +24,7 @@ export default function TriangleShiftButton(props) {
     case "south":
       if (
         radioMapNotes[playerTeam].some(
-          (note) => note[0] === process.env.MAP_DIMENSION - 1
+          (note) => note[0] === process.env.MAP_DIMENSION - 1,
         )
       ) {
         disabled = true;
@@ -36,7 +38,7 @@ export default function TriangleShiftButton(props) {
     case "east":
       if (
         radioMapNotes[playerTeam].some(
-          (note) => note[1] === process.env.MAP_DIMENSION - 1
+          (note) => note[1] === process.env.MAP_DIMENSION - 1,
         )
       ) {
         disabled = true;

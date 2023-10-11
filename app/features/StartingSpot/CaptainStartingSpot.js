@@ -4,8 +4,9 @@ import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
 import { useGameContext } from "@/app/state/game_state";
 import { useEffect, useRef } from "react";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function CaptainStartingSpot(props) {
+export default function CaptainStartingSpot() {
   const styles = {
     main: {
       width: "100%",
@@ -36,7 +37,7 @@ export default function CaptainStartingSpot(props) {
     },
   };
 
-  const { channel } = props;
+  const { channel } = useAblyContext();
   const { playerTeam, gameMap, subLocations } = useGameContext();
 
   const handleClick = (cell, row, column) => {

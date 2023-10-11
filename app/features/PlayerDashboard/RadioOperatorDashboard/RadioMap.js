@@ -2,10 +2,11 @@ import { Box } from "@mui/material";
 import { useGameContext } from "@/app/state/game_state";
 import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function RadioMap(props) {
+export default function RadioMap() {
   const { gameMap, radioMapNotes, playerTeam } = useGameContext();
-  const { channel } = props;
+  const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -123,7 +124,7 @@ export default function RadioMap(props) {
                   onClick={() => handleClick(rowIndex, columnIndex)}
                 >
                   {radioMapNotes[playerTeam].find(
-                    (note) => note[0] === rowIndex && note[1] === columnIndex
+                    (note) => note[0] === rowIndex && note[1] === columnIndex,
                   ) && (
                     <span
                       style={

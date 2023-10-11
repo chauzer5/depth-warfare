@@ -10,14 +10,9 @@ import EngineerDashboard from "./EngineerDashboard/EngineerDashboard";
 import FirstMateDashboard from "./FirstMateDashboard/FirstMateDashboard";
 import RadioOperatorDashboard from "./RadioOperatorDashboard/RadioOperatorDashboard";
 
-export default function PlayerDashboard(props) {
-  const {
-    playerRole,
-    currentlySurfacing,
-    playerTeam,
-    notificationMessages,
-  } = useGameContext();
-  const { channel } = props;
+export default function PlayerDashboard() {
+  const { playerRole, currentlySurfacing, playerTeam, notificationMessages } =
+    useGameContext();
   const { enqueueSnackbar } = useSnackbar();
 
   const styles = {
@@ -89,7 +84,7 @@ export default function PlayerDashboard(props) {
     // Update the last seen message to the highest timestamp among new messages
     if (filteredMessages.length > 0) {
       const highestTimestamp = Math.max(
-        ...filteredMessages.map((message) => message.timestamp)
+        ...filteredMessages.map((message) => message.timestamp),
       );
       setLastSeenMessage(highestTimestamp);
     }
@@ -153,19 +148,19 @@ export default function PlayerDashboard(props) {
             style={customModalStyles}
             shouldCloseOnOverlayClick={false}
           >
-            <SurfacingPage channel={channel} team={playerTeam}></SurfacingPage>
+            <SurfacingPage team={playerTeam}></SurfacingPage>
           </Modal>
         </div>
       )}
       {/* Render dashboard based on player role */}
       {playerRole === "captain" ? (
-        <CaptainDashboard channel={channel} />
+        <CaptainDashboard />
       ) : playerRole === "engineer" ? (
-        <EngineerDashboard channel={channel} />
+        <EngineerDashboard />
       ) : playerRole === "first-mate" ? (
-        <FirstMateDashboard channel={channel} />
+        <FirstMateDashboard />
       ) : playerRole === "radio-operator" ? (
-        <RadioOperatorDashboard channel={channel} />
+        <RadioOperatorDashboard />
       ) : null}
     </div>
   );

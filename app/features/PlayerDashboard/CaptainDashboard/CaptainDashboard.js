@@ -7,8 +7,9 @@ import { useGameContext } from "@/app/state/game_state";
 import TriangleMoveButton from "./TriangleMoveButton";
 import { SYSTEMS_INFO } from "@/app/utils";
 import { useEffect, useState } from "react";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function CaptainDashboard(props) {
+export default function CaptainDashboard() {
   const styles = {
     main: {
       width: "100%",
@@ -78,8 +79,6 @@ export default function CaptainDashboard(props) {
     },
   };
 
-  const { channel } = props;
-
   const {
     playerTeam,
     pendingNavigate,
@@ -91,6 +90,8 @@ export default function CaptainDashboard(props) {
     isNavigationDisabled,
   } = useGameContext();
 
+  const { channel } = useAblyContext();
+
   //check to see if engine is broken
   const directions = ["north", "south", "west", "east"];
   const disabledDirectionStates = {};
@@ -100,7 +101,7 @@ export default function CaptainDashboard(props) {
       direction,
       playerTeam,
       gameMap,
-      subLocations
+      subLocations,
     );
   });
 
@@ -144,14 +145,12 @@ export default function CaptainDashboard(props) {
     <div style={styles.main}>
       <div style={styles.container}>
         <SectorsKey />
-        <GameMap silence={silenceActivated} channel={channel} />
+        <GameMap silence={silenceActivated} />
         <div style={styles.controls}>
           {brokenEngine ? (
             <h3 style={{ color: "red" }}>Engine is Broken</h3>
           ) : null}
-          {pendingNavigate[playerTeam] && (
-            <MovementPendingCard channel={channel} />
-          )}
+          {pendingNavigate[playerTeam] && <MovementPendingCard />}
           <div style={styles.navButtons}>
             <div style={styles.navRow}>
               <span>North</span>
@@ -159,7 +158,6 @@ export default function CaptainDashboard(props) {
             <div style={styles.navRow}>
               <TriangleMoveButton
                 direction="north"
-                channel={channel}
                 brokenEngine={brokenEngine}
                 disabled={
                   disabledDirectionStates["north"] ||
@@ -173,7 +171,6 @@ export default function CaptainDashboard(props) {
               <span style={styles.directionText}>West</span>
               <TriangleMoveButton
                 direction="west"
-                channel={channel}
                 brokenEngine={brokenEngine}
                 disabled={
                   disabledDirectionStates["west"] ||
@@ -185,7 +182,6 @@ export default function CaptainDashboard(props) {
               <div style={{ height: "100%", width: "50px" }} />
               <TriangleMoveButton
                 direction="east"
-                channel={channel}
                 brokenEngine={brokenEngine}
                 disabled={
                   disabledDirectionStates["east"] ||
@@ -199,7 +195,6 @@ export default function CaptainDashboard(props) {
             <div style={styles.navRow}>
               <TriangleMoveButton
                 direction="south"
-                channel={channel}
                 brokenEngine={brokenEngine}
                 disabled={
                   disabledDirectionStates["south"] ||

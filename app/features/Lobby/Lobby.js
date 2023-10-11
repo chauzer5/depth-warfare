@@ -1,5 +1,6 @@
 "use client";
 
+import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "@/app/state/game_state";
 import { useChannel, usePresence } from "@ably-labs/react-hooks";
 import { useEffect } from "react";
@@ -27,8 +28,8 @@ export default function Lobby() {
     },
   };
 
-  const { username, selfClientId, setGameId, setCurrentStage } =
-    useGameContext();
+  const { username, setGameId, setCurrentStage } = useGameContext();
+  const { selfClientId } = useAblyContext();
 
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
     if (message.name === "start-game") {

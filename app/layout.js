@@ -1,3 +1,4 @@
+import { AblyWrapper } from "./state/ably_state";
 import { GameWrapper } from "./state/game_state";
 import theme from "@/app/styles/theme";
 
@@ -33,7 +34,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body style={styles.body}>
-        <GameWrapper>{children}</GameWrapper>
+        <AblyWrapper>
+          <GameWrapper>{children}</GameWrapper>
+        </AblyWrapper>
       </body>
     </html>
   );

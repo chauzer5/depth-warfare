@@ -6,8 +6,9 @@ import { capitalizeFirstLetter } from "@/app/utils";
 import { Box } from "@mui/material";
 import theme from "@/app/styles/theme";
 import { useEffect, useRef, useState } from "react";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function RadioOperatorDashboard(props) {
+export default function RadioOperatorDashboard() {
   const styles = {
     main: {
       width: "100%",
@@ -77,7 +78,7 @@ export default function RadioOperatorDashboard(props) {
   const { movements, systemHealthLevels, movementCountOnDisable, playerTeam } =
     useGameContext();
 
-  const { channel } = props;
+  const { channel } = useAblyContext();
 
   const ref = useRef(null);
   const scrollToBottom = () => {
@@ -107,19 +108,19 @@ export default function RadioOperatorDashboard(props) {
               <span style={{ color: theme.white }}>North</span>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="north" channel={channel} />
+              <TriangleShiftButton direction="north" />
             </div>
             <div style={styles.shiftRow}>
               <span style={{ ...styles.directionText, width: "50px" }}>
                 West
               </span>
-              <TriangleShiftButton direction="west" channel={channel} />
+              <TriangleShiftButton direction="west" />
               <div style={{ height: "100%", width: "50px" }} />
-              <TriangleShiftButton direction="east" channel={channel} />
+              <TriangleShiftButton direction="east" />
               <span style={styles.directionText}>East</span>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="south" channel={channel} />
+              <TriangleShiftButton direction="south" />
             </div>
             <div style={styles.shiftRow}>
               <span style={{ color: theme.white }}>South</span>
@@ -127,7 +128,7 @@ export default function RadioOperatorDashboard(props) {
           </div>
         </div>
         <div>
-          <RadioMap channel={channel} />
+          <RadioMap />
           <button
             style={styles.clearButton}
             onClick={() => channel.publish("radio-operator-clear-notes", {})}
@@ -159,7 +160,7 @@ export default function RadioOperatorDashboard(props) {
                       : capitalizeFirstLetter(movement)
                   }`}
                 </div>
-              )
+              ),
             )}
             <div ref={ref} />
           </Box>

@@ -1,8 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { configureAbly } from "@ably-labs/react-hooks";
-import { v4 as uuidv4 } from "uuid";
 import { maps } from "../maps";
 import {
   columnToIndex,
@@ -14,9 +12,6 @@ import {
   keepLastNElements,
   capitalizeFirstLetter,
 } from "../utils";
-
-const selfClientId = uuidv4();
-configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });
 
 const GameContext = createContext();
 
@@ -197,7 +192,7 @@ export function GameWrapper({ children }) {
     listToDetonate,
     listToUpdate,
     updatedDamageMap,
-    damage
+    damage,
   ) {
     let allHitCells = [];
 
@@ -214,7 +209,7 @@ export function GameWrapper({ children }) {
         detonationCell[0],
         detonationCell[1],
         damage - 1,
-        false
+        false,
       );
 
       // Update all of the hits
@@ -259,7 +254,7 @@ export function GameWrapper({ children }) {
 
   function getMessagePlayer(message) {
     const messageSender = playerData?.find(
-      (player) => player.clientId === message.clientId
+      (player) => player.clientId === message.clientId,
     );
     return messageSender;
   }
@@ -376,7 +371,7 @@ export function GameWrapper({ children }) {
         realRowIndices[0],
         realColumnIndices[0],
         realRowIndices[1],
-        realColumnIndices[1]
+        realColumnIndices[1],
       ) + 1
     );
   }
@@ -400,7 +395,7 @@ export function GameWrapper({ children }) {
       columnIndices[0],
       rowIndices[1],
       columnIndices[1],
-      matrix.length
+      matrix.length,
     );
 
     return Math.ceil(100 / dist);
@@ -425,7 +420,7 @@ export function GameWrapper({ children }) {
       columnIndices[0],
       rowIndices[1],
       columnIndices[1],
-      repairMatrix[playerTeam].length
+      repairMatrix[playerTeam].length,
     );
   }
 
@@ -450,7 +445,7 @@ export function GameWrapper({ children }) {
     // Filter out invalid systems, then damage a random system
     const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
       (system) =>
-        systemHealthLevels[team][system] > 0 && system !== "life support"
+        systemHealthLevels[team][system] > 0 && system !== "life support",
     );
 
     let randomSystem = blockSystem;
@@ -469,7 +464,7 @@ export function GameWrapper({ children }) {
     const updatedHealthLevel = Math.max(
       systemHealthLevels[team][randomSystem] -
         calculateSystemDamageAmount(updatedMatrix, randomSystem), // process.env.SYSTEM_DAMAGE_AMOUNT,
-      0
+      0,
     );
 
     // Damage the system corresponding to the block placed
@@ -571,12 +566,12 @@ export function GameWrapper({ children }) {
         direction,
         team,
         moveSubInfo.gameMap,
-        moveSubInfo.subLocations
+        moveSubInfo.subLocations,
       );
     });
 
     const trueDirections = Object.keys(disabledDirectionStates).filter(
-      (direction) => disabledDirectionStates[direction] === false
+      (direction) => disabledDirectionStates[direction] === false,
     );
 
     const randomIndex = Math.floor(Math.random() * trueDirections.length);
@@ -622,7 +617,7 @@ export function GameWrapper({ children }) {
     };
     syncStateMessage["notificationMessages"] = keepLastNElements(
       [...notificationMessages, ...tempMessages],
-      process.env.MAX_MESSAGES
+      process.env.MAX_MESSAGES,
     );
     syncStateMessage["messageTimestamp"] = tempMessageTimestamp;
 
@@ -757,7 +752,7 @@ export function GameWrapper({ children }) {
         selectedCells[0].col,
         selectedCells[1].row,
         selectedCells[1].col,
-        matrix.length
+        matrix.length,
       );
       if (
         nodeDist <= process.env.MAX_NODE_DISTANCE &&
@@ -775,7 +770,7 @@ export function GameWrapper({ children }) {
     startRow,
     startCol,
     targetRow,
-    targetCol
+    targetCol,
   ) {
     const visited = new Array(matrix.length)
       .fill(false)
@@ -861,7 +856,7 @@ export function GameWrapper({ children }) {
         startRow,
         startCol,
         targetRow,
-        targetCol
+        targetCol,
       );
     } else {
       return { isConnected: false, pathRowIndices: [], pathColumnIndices: [] };
@@ -900,7 +895,7 @@ export function GameWrapper({ children }) {
     }
 
     const systems = ENGINEER_SYSTEMS_INFO.filter(
-      (system) => system.name !== "life support"
+      (system) => system.name !== "life support",
     ).map((system) => system.name);
 
     const shuffledSystems = shuffleArray(systems);
@@ -1004,7 +999,7 @@ export function GameWrapper({ children }) {
     distance,
     visited,
     validCells,
-    currentDistance = 0
+    currentDistance = 0,
   ) {
     if (
       row < 0 ||
@@ -1029,7 +1024,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
-      currentDistance + 1
+      currentDistance + 1,
     ); // Down
     explorePaths(
       row - 1,
@@ -1037,7 +1032,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
-      currentDistance + 1
+      currentDistance + 1,
     ); // Up
     explorePaths(
       row,
@@ -1045,7 +1040,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
-      currentDistance + 1
+      currentDistance + 1,
     ); // Right
     explorePaths(
       row,
@@ -1053,7 +1048,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
-      currentDistance + 1
+      currentDistance + 1,
     ); // Left
 
     visited[row][col] = false;
@@ -1063,7 +1058,7 @@ export function GameWrapper({ children }) {
     startRow,
     startCol,
     maxDistance,
-    removeStart = true
+    removeStart = true,
   ) {
     const rows = gameMap.length;
     const cols = gameMap[0].length;
@@ -1079,7 +1074,7 @@ export function GameWrapper({ children }) {
     // Find the index of the starting cell in validCells and remove it
     if (removeStart) {
       const startingCellIndex = validCells.findIndex(
-        ([row, col]) => row === startRow && col === startCol
+        ([row, col]) => row === startRow && col === startCol,
       );
       if (startingCellIndex !== -1) {
         validCells.splice(startingCellIndex, 1);
@@ -1106,7 +1101,7 @@ export function GameWrapper({ children }) {
     return Math.max(
       systemHealthLevels[team]["life support"] -
         process.env.LIFE_SUPPORT_DAMAGE_AMOUNT * hits,
-      0
+      0,
     );
   }
 
@@ -1134,7 +1129,6 @@ export function GameWrapper({ children }) {
   return (
     <GameContext.Provider
       value={{
-        selfClientId,
         currentStage,
         username,
         gameId,

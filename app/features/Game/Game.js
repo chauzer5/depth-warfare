@@ -25,13 +25,13 @@ import {
   radioOperatorShiftNotes,
 } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
+import { useAblyContext } from "@/app/state/ably_state";
 
 export default function Game() {
   const {
     gameId,
     username,
     currentStage,
-    selfClientId,
     hostClientId,
     subLocations,
     gameMap,
@@ -54,6 +54,7 @@ export default function Game() {
   } = useGameContext();
 
   const gameContext = useGameContext();
+  const { selfClientId, channel, setChannel } = useAblyContext();
 
   const [messagesList, setMessagesList] = useState([]);
   const [presenceData, updateStatus] = usePresence(`dw-${gameId}`, {
@@ -61,9 +62,13 @@ export default function Game() {
     team: null,
     role: null,
   });
-  const [channel] = useChannel(`dw-${gameId}`, (message) => {
+  const [gameChannel] = useChannel(`dw-${gameId}`, (message) => {
     setMessagesList((prev) => [...prev, { ...message }]);
   });
+
+  useEffect(() => {
+    setChannel(gameChannel);
+  }, [gameChannel]);
 
   const completeStateRef = useRef({
     currentStage,
@@ -145,7 +150,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -155,7 +160,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -165,7 +170,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -175,7 +180,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -185,7 +190,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -195,7 +200,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -205,7 +210,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -215,7 +220,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -225,7 +230,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -235,7 +240,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -245,7 +250,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -255,7 +260,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -265,7 +270,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -275,7 +280,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -285,7 +290,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -295,7 +300,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkState);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState)
+            Object.assign(completeStateRef.current, networkState),
           );
         }
         break;
@@ -319,14 +324,13 @@ export default function Game() {
         <TeamSelection
           presenceData={presenceData}
           updateStatus={updateStatus}
-          channel={channel}
         />
       ) : currentStage === "starting-spot" ? (
-        <StartingSpot channel={channel} />
+        <StartingSpot />
       ) : currentStage === "countdown" ? (
         <Countdown />
       ) : currentStage === "main" ? (
-        <PlayerDashboard channel={channel} />
+        <PlayerDashboard />
       ) : currentStage === "game-end" ? (
         <GameEnd />
       ) : null}

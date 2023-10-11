@@ -8,7 +8,6 @@ import Image from "next/image";
 
 export default function GameMap(props) {
   const {
-    channel,
     handleClick,
     silence,
     toggledSystem,
@@ -159,7 +158,7 @@ export default function GameMap(props) {
       const newSilenceCells = getValidSilenceCells(
         playerTeam,
         subLocations,
-        gameMap
+        gameMap,
       );
       setSilenceCells(newSilenceCells);
     }
@@ -229,13 +228,13 @@ export default function GameMap(props) {
                         : toggledSystem === "torpedo" &&
                           torpedoCells.find(
                             (cell) =>
-                              cell[0] === rowIndex && cell[1] === columnIndex
+                              cell[0] === rowIndex && cell[1] === columnIndex,
                           )
                         ? styles.inRangeCell
                         : toggledSystem === "mine" &&
                           dropMineCells.find(
                             (cell) =>
-                              cell[0] === rowIndex && cell[1] === columnIndex
+                              cell[0] === rowIndex && cell[1] === columnIndex,
                           )
                         ? styles.inRangeCell
                         : styles.water
@@ -268,13 +267,13 @@ export default function GameMap(props) {
                     {toggledSystem === "mine" &&
                       minesList[playerTeam].find(
                         (cell) =>
-                          cell[0] === rowIndex && cell[1] === columnIndex
+                          cell[0] === rowIndex && cell[1] === columnIndex,
                       ) && <span style={styles.mineCell}>M</span>}
 
                     {silence &&
                       silenceCells.find(
                         (cell) =>
-                          cell[0] === rowIndex && cell[1] === columnIndex
+                          cell[0] === rowIndex && cell[1] === columnIndex,
                       ) && (
                         <Box
                           sx={{

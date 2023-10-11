@@ -1,6 +1,7 @@
 import TeamRoleButton from "./TeamRoleButton";
 import { useGameContext } from "../../state/game_state";
 import { useEffect } from "react";
+import { useAblyContext } from "@/app/state/ably_state";
 
 export default function TeamSelection(props) {
   const styles = {
@@ -31,11 +32,10 @@ export default function TeamSelection(props) {
     },
   };
 
-  const { presenceData, updateStatus, channel } = props;
+  const { presenceData, updateStatus } = props;
 
   const {
     username,
-    selfClientId,
     setCurrentStage,
     setPlayerTeam,
     setPlayerRole,
@@ -45,6 +45,10 @@ export default function TeamSelection(props) {
     getEmptyRepairMatrix,
   } = useGameContext();
 
+  const { channel } = useAblyContext();
+
+  const { selfClientId } = useAblyContext();
+
   useEffect(() => {
     if (
       presenceData.length === process.env.NUM_REQUIRED_PLAYERS &&
@@ -52,11 +56,11 @@ export default function TeamSelection(props) {
     ) {
       setPlayerTeam(
         presenceData.find((player) => player.clientId === selfClientId).data
-          .team
+          .team,
       );
       setPlayerRole(
         presenceData.find((player) => player.clientId === selfClientId).data
-          .role
+          .role,
       );
 
       const newPlayerData = presenceData.map((player) => {

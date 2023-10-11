@@ -2,8 +2,9 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import CheckIcon from "@mui/icons-material/Check";
 import theme from "@/app/styles/theme";
 import { useGameContext } from "@/app/state/game_state";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function MovementPendingCard(props) {
+export default function MovementPendingCard() {
   const styles = {
     main: {
       width: "100%",
@@ -79,7 +80,7 @@ export default function MovementPendingCard(props) {
     engineerPendingBlock,
   } = useGameContext();
 
-  const { channel } = props;
+  const { channel } = useAblyContext();
 
   const handleCancelNavigate = () => {
     channel.publish("captain-cancel-sub-navigate", {});

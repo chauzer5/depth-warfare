@@ -31,12 +31,12 @@ export function captainSetStartingSpot(context, message) {
       direction,
       team,
       networkState.gameMap,
-      networkState.subLocations
+      networkState.subLocations,
     );
   });
 
   const trueDirections = Object.keys(disabledDirectionStates).filter(
-    (direction) => disabledDirectionStates[direction] === false
+    (direction) => disabledDirectionStates[direction] === false,
   );
 
   const randomIndex = Math.floor(Math.random() * trueDirections.length);
@@ -97,8 +97,6 @@ export function engineerPlaceSystemBlock(context, message) {
     repairMatrix,
     finishTurn,
     pendingNavigate,
-    selfClientId,
-    hostClientId,
     currentlySurfacing,
   } = context;
 
@@ -131,7 +129,7 @@ export function engineerPlaceSystemBlock(context, message) {
       networkState = finishTurn(
         message.data.clickedCell,
         pendingSystemCharge[team],
-        team
+        team,
       );
     }
   }
@@ -140,11 +138,7 @@ export function engineerPlaceSystemBlock(context, message) {
 }
 
 export function engineerClearRepairMatrix(context, message) {
-  const {
-    getMessagePlayer,
-    repairMatrix,
-    currentlySurfacing,
-  } = context;
+  const { getMessagePlayer, repairMatrix, currentlySurfacing } = context;
 
   const team = getMessagePlayer(message).team;
 
@@ -156,7 +150,7 @@ export function engineerClearRepairMatrix(context, message) {
     row.map((cell) => ({
       ...cell,
       system: cell.type === "inner" ? "empty" : cell.system,
-    }))
+    })),
   );
 
   return { repairMatrix: { ...repairMatrix, [team]: updatedMatrix } };
@@ -203,7 +197,7 @@ export function firstMateChooseSystemCharge(context, message) {
       networkState = finishTurn(
         engineerPendingBlock[team],
         message.data.system,
-        team
+        team,
       );
     }
   }
@@ -288,12 +282,12 @@ export function captainSilence(context, message) {
       direction,
       team,
       networkState.gameMap,
-      networkState.subLocations
+      networkState.subLocations,
     );
   });
 
   const trueDirections = Object.keys(disabledDirectionStates).filter(
-    (direction) => disabledDirectionStates[direction] === false
+    (direction) => disabledDirectionStates[direction] === false,
   );
 
   const randomIndex = Math.floor(Math.random() * trueDirections.length);
@@ -410,11 +404,11 @@ export function firstMateFireTorpedo(context, message) {
   const possibleTorpedoCells = getCellsDistanceAway(
     subLocations[team][0],
     subLocations[team][1],
-    process.env.TORPEDO_RANGE
+    process.env.TORPEDO_RANGE,
   );
   if (
     !possibleTorpedoCells.find(
-      (cell) => cell[0] === message.data.row && cell[1] === message.data.column
+      (cell) => cell[0] === message.data.row && cell[1] === message.data.column,
     )
   ) {
     return {};
@@ -461,11 +455,11 @@ export function firstMateFireTorpedo(context, message) {
     team,
     sameTeamMessage: `Torpedo Launched at ${getCellName(
       message.data.row,
-      message.data.column
+      message.data.column,
     )}`,
     oppTeamMessage: `Opponent torpedo launched at ${getCellName(
       message.data.row,
-      message.data.column
+      message.data.column,
     )}`,
     intendedPlayer: "all", // You can specify a player here if needed
     severitySameTeam: "info",
@@ -513,7 +507,7 @@ export function firstMateFireTorpedo(context, message) {
       ownTorpedoDetonated,
       [],
       updatedDamageMap,
-      process.env.MAX_TORPEDO_DAMAGE
+      process.env.MAX_TORPEDO_DAMAGE,
     );
     updatedDamageMap = ownTorpedoResult.updatedDamageMap;
 
@@ -521,7 +515,7 @@ export function firstMateFireTorpedo(context, message) {
       ownMinesDetonated,
       updatedOwnMinesList,
       updatedDamageMap,
-      process.env.MAX_MINE_DAMAGE
+      process.env.MAX_MINE_DAMAGE,
     );
     updatedOwnMinesList = ownMinesResult.listToUpdate;
     updatedDamageMap = ownMinesResult.updatedDamageMap;
@@ -530,7 +524,7 @@ export function firstMateFireTorpedo(context, message) {
       oppMinesDetonated,
       updatedOppMinesList,
       updatedDamageMap,
-      process.env.MAX_MINE_DAMAGE
+      process.env.MAX_MINE_DAMAGE,
     );
     updatedOppMinesList = oppMinesResult.listToUpdate;
     updatedDamageMap = ownMinesResult.updatedDamageMap;
@@ -545,7 +539,7 @@ export function firstMateFireTorpedo(context, message) {
     ownMinesDetonated = combinedHitCells.filter(([row, col]) => {
       // Check if the cell [row, col] is present in updatedOwnMinesList
       return updatedOwnMinesList.some(
-        ([mineRow, mineCol]) => mineRow === row && mineCol === col
+        ([mineRow, mineCol]) => mineRow === row && mineCol === col,
       );
     });
 
@@ -553,7 +547,7 @@ export function firstMateFireTorpedo(context, message) {
     oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
       // Check if the cell [row, col] is present in updatedOwnMinesList
       return updatedOppMinesList.some(
-        ([mineRow, mineCol]) => mineRow === row && mineCol === col
+        ([mineRow, mineCol]) => mineRow === row && mineCol === col,
       );
     });
 
@@ -632,7 +626,7 @@ export function firstMateFireTorpedo(context, message) {
   syncNetworkMessage["messageTimestamp"] = tempTimestamp;
   syncNetworkMessage["notificationMessages"] = keepLastNElements(
     [...notificationMessages, ...tempMessages],
-    process.env.MAX_MESSAGES
+    process.env.MAX_MESSAGES,
   );
 
   return syncNetworkMessage;
@@ -676,11 +670,11 @@ export function firstMateDropMine(context, message) {
   const possibleMineCells = getCellsDistanceAway(
     subLocations[team][0],
     subLocations[team][1],
-    process.env.DROP_MINE_RANGE
+    process.env.DROP_MINE_RANGE,
   );
   if (
     !possibleMineCells.find(
-      (cell) => cell[0] === message.data.row && cell[1] === message.data.column
+      (cell) => cell[0] === message.data.row && cell[1] === message.data.column,
     )
   ) {
     return {};
@@ -720,7 +714,7 @@ export function firstMateDropMine(context, message) {
     team,
     sameTeamMessage: `Successfully Dropped Mine on ${getCellName(
       message.data.row,
-      message.data.column
+      message.data.column,
     )}`,
     oppTeamMessage: null,
     intendedPlayer: "all", // You can specify a player here if needed
@@ -732,7 +726,7 @@ export function firstMateDropMine(context, message) {
   syncNetworkMessage["messageTimestamp"] = messageTimestamp + 1;
   syncNetworkMessage["notificationMessages"] = keepLastNElements(
     [...notificationMessages, notificationMessage],
-    process.env.MAX_MESSAGES
+    process.env.MAX_MESSAGES,
   );
   syncNetworkMessage["minesList"] = {
     ...minesList,
@@ -771,7 +765,7 @@ export function firstMateDetonateMine(context, message) {
   // If there isn't a mine there, don't do anything
   if (
     !minesList[team].find(
-      ([row, col]) => row === message.data.row && col === message.data.column
+      ([row, col]) => row === message.data.row && col === message.data.column,
     )
   ) {
     return {};
@@ -824,7 +818,7 @@ export function firstMateDetonateMine(context, message) {
       ownMinesDetonated,
       updatedOwnMinesList,
       updatedDamageMap,
-      process.env.MAX_MINE_DAMAGE
+      process.env.MAX_MINE_DAMAGE,
     );
     updatedOwnMinesList = ownMinesResult.listToUpdate;
     updatedDamageMap = ownMinesResult.updatedDamageMap;
@@ -833,7 +827,7 @@ export function firstMateDetonateMine(context, message) {
       oppMinesDetonated,
       updatedOppMinesList,
       updatedDamageMap,
-      process.env.MAX_MINE_DAMAGE
+      process.env.MAX_MINE_DAMAGE,
     );
     updatedOppMinesList = oppMinesResult.listToUpdate;
     updatedDamageMap = ownMinesResult.updatedDamageMap;
@@ -847,7 +841,7 @@ export function firstMateDetonateMine(context, message) {
     ownMinesDetonated = combinedHitCells.filter(([row, col]) => {
       // Check if the cell [row, col] is present in updatedOwnMinesList
       return updatedOwnMinesList.some(
-        ([mineRow, mineCol]) => mineRow === row && mineCol === col
+        ([mineRow, mineCol]) => mineRow === row && mineCol === col,
       );
     });
 
@@ -855,7 +849,7 @@ export function firstMateDetonateMine(context, message) {
     oppMinesDetonated = combinedHitCells.filter(([row, col]) => {
       // Check if the cell [row, col] is present in updatedOwnMinesList
       return updatedOppMinesList.some(
-        ([mineRow, mineCol]) => mineRow === row && mineCol === col
+        ([mineRow, mineCol]) => mineRow === row && mineCol === col,
       );
     });
   }
@@ -935,7 +929,7 @@ export function firstMateDetonateMine(context, message) {
   syncNetworkMessage["messageTimestamp"] = tempTimestamp;
   syncNetworkMessage["notificationMessages"] = keepLastNElements(
     [...notificationMessages, ...tempMessages],
-    process.env.MAX_MESSAGES
+    process.env.MAX_MESSAGES,
   );
 
   return syncNetworkMessage;
@@ -974,7 +968,7 @@ export function firstMateScan(context, message) {
     messageTimestamp: messageTimestamp + 1,
     notificationMessages: keepLastNElements(
       [...notificationMessages, notificationMessage],
-      process.env.MAX_MESSAGES
+      process.env.MAX_MESSAGES,
     ),
     systemChargeLevels: {
       ...systemChargeLevels,
@@ -1014,7 +1008,7 @@ export function radioOperatorAddRemoveNote(context, message) {
       radioMapNotes: {
         ...radioMapNotes,
         [team]: radioMapNotes[team].filter(
-          (note) => note[0] !== row || note[1] !== column
+          (note) => note[0] !== row || note[1] !== column,
         ),
       },
     };
@@ -1070,7 +1064,7 @@ export function radioOperatorShiftNotes(context, message) {
   if (
     direction === "south" &&
     radioMapNotes[team].some(
-      (note) => note[0] === process.env.MAP_DIMENSION - 1
+      (note) => note[0] === process.env.MAP_DIMENSION - 1,
     )
   ) {
     return {};
@@ -1084,7 +1078,7 @@ export function radioOperatorShiftNotes(context, message) {
   if (
     direction === "east" &&
     radioMapNotes[team].some(
-      (note) => note[1] === process.env.MAP_DIMENSION - 1
+      (note) => note[1] === process.env.MAP_DIMENSION - 1,
     )
   ) {
     return {};

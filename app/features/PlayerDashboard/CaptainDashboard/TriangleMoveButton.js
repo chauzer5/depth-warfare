@@ -1,7 +1,10 @@
+import { useAblyContext } from "@/app/state/ably_state";
 import theme from "@/app/styles/theme";
 
 export default function TriangleMoveButton(props) {
-  let { direction, channel, brokenEngine, disabled, enabledDirection } = props;
+  let { direction, brokenEngine, disabled, enabledDirection } = props;
+
+  const { channel } = useAblyContext();
 
   const broken = brokenEngine && enabledDirection !== direction;
 

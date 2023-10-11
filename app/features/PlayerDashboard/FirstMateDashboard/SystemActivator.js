@@ -1,10 +1,11 @@
 import SystemChargeMeter from "@/app/components/SystemChargeMeter/SystemChargeMeter";
+import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import { capitalizeFirstLetter } from "@/app/utils";
 
 export default function SystemActivator(props) {
-  const { system, channel } = props;
+  const { system } = props;
 
   const styles = {
     main: {
@@ -54,6 +55,8 @@ export default function SystemActivator(props) {
     pendingSystemCharge,
     playerTeam,
   } = useGameContext();
+
+  const { channel } = useAblyContext();
 
   const clickable =
     pendingNavigate[playerTeam] &&

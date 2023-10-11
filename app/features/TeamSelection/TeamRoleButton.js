@@ -1,3 +1,4 @@
+import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "../../state/game_state";
 import theme from "@/app/styles/theme";
 import { ROLE_MAP } from "@/app/utils";
@@ -5,7 +6,7 @@ import { ROLE_MAP } from "@/app/utils";
 export default function TeamRoleButton(props) {
   const { id, presenceData, handleClick, team, role } = props;
 
-  const { selfClientId } = useGameContext();
+  const { selfClientId } = useAblyContext();
 
   const playerSelected = presenceData.find((player) => {
     return player.data.team === team && player.data.role === role;

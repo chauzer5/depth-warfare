@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import SystemDamage from "./SystemDamage";
 import RepairMatrix from "./RepairMatrix";
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 import TriangleKey from "./TriangleKey";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function EngineerDashboard(props) {
-  const { channel } = props;
-
+export default function EngineerDashboard() {
   const {
     pendingNavigate,
     playerTeam,
     engineerCompassMap,
     engineerPendingBlock,
   } = useGameContext();
+
+  const { channel } = useAblyContext();
 
   // Calculate the length difference between "west" and "east" words
   const westWordLength = engineerCompassMap[playerTeam]["west"].length;
@@ -121,7 +121,7 @@ export default function EngineerDashboard(props) {
 
   const findSystem = (direction) => {
     return ENGINEER_SYSTEMS_INFO.find(
-      (system) => system.name === engineerCompassMap[playerTeam][direction]
+      (system) => system.name === engineerCompassMap[playerTeam][direction],
     );
   };
 
@@ -158,7 +158,7 @@ export default function EngineerDashboard(props) {
               alignItems: "center",
             }}
           >
-            <RepairMatrix channel={channel} />
+            <RepairMatrix />
             <button
               style={{
                 ...styles.systemButton,
@@ -175,9 +175,7 @@ export default function EngineerDashboard(props) {
         <div style={styles.containerColumn}>
           <div style={styles.containerColumn}>
             {ENGINEER_SYSTEMS_INFO.map((system, index) => {
-              return (
-                <SystemDamage key={index} system={system} channel={channel} />
-              );
+              return <SystemDamage key={index} system={system} />;
             })}
           </div>
           <div style={styles.containerRow}>

@@ -5,8 +5,9 @@ import GameMap from "@/app/components/GameMap/GameMap";
 import theme from "@/app/styles/theme";
 import { SYSTEMS_INFO, capitalizeFirstLetter } from "@/app/utils";
 import { useState, useEffect } from "react";
+import { useAblyContext } from "@/app/state/ably_state";
 
-export default function FirstMateDashboard(props) {
+export default function FirstMateDashboard() {
   const styles = {
     main: {
       width: "100%",
@@ -76,7 +77,7 @@ export default function FirstMateDashboard(props) {
     },
   };
 
-  const { channel } = props;
+  const { channel } = useAblyContext();
 
   const {
     pendingNavigate,
@@ -104,18 +105,18 @@ export default function FirstMateDashboard(props) {
     const newTorpedoCells = getCellsDistanceAway(
       startRow,
       startCol,
-      process.env.TORPEDO_RANGE
+      process.env.TORPEDO_RANGE,
     );
     setTorpedoCells(newTorpedoCells);
     const newDropMineCells = getCellsDistanceAway(
       startRow,
       startCol,
-      process.env.DROP_MINE_RANGE
+      process.env.DROP_MINE_RANGE,
     );
     const filteredDropMineCells = newDropMineCells.filter((cell) => {
       if (
         minesList[playerTeam].some(
-          ([row, col]) => row === cell[0] && col === cell[1]
+          ([row, col]) => row === cell[0] && col === cell[1],
         )
       ) {
         return false; // Don't include the cell in filteredDropMineCells
@@ -150,7 +151,7 @@ export default function FirstMateDashboard(props) {
         clickedCell.row,
         clickedCell.column,
         scanType,
-        subLocations
+        subLocations,
       );
       channel.publish("first-mate-scan", { scanResult });
     }
@@ -187,27 +188,25 @@ export default function FirstMateDashboard(props) {
   const validTorpedoSelection =
     clickedCell &&
     torpedoCells.find(
-      (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column
+      (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column,
     );
   const validScanSelection = !!clickedCell;
   const validDropMine =
     clickedCell &&
     dropMineCells.find(
-      (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column
+      (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column,
     );
   const validDetonateMine =
     clickedCell &&
     minesList[playerTeam].find(
-      (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column
+      (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column,
     );
 
   return (
     <div style={styles.main}>
       <div style={styles.systemsRow}>
         {SYSTEMS_INFO.map((system, index) => {
-          return (
-            <SystemActivator key={index} system={system} channel={channel} />
-          );
+          return <SystemActivator key={index} system={system} />;
         })}
         {pendingNavigate[playerTeam] && !pendingSystemCharge[playerTeam] && (
           <div>

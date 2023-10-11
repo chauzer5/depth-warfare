@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import theme from "@/app/styles/theme";
+import { useAblyContext } from "@/app/state/ably_state";
 
-const SurfacingPage = ({ channel, team }) => {
+const SurfacingPage = ({ team }) => {
   const [rectangleWidth, setRectangleWidth] = useState({
     red: "0%",
     blue: "0%",
@@ -25,6 +26,8 @@ const SurfacingPage = ({ channel, team }) => {
       marginRight: "10px",
     },
   };
+
+  const { channel } = useAblyContext();
 
   useEffect(() => {
     const delayTimeout = setTimeout(() => {

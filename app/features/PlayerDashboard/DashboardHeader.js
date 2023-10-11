@@ -2,10 +2,11 @@ import { useGameContext } from "@/app/state/game_state";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { ROLE_MAP } from "@/app/utils";
+import { useAblyContext } from "@/app/state/ably_state";
 
 export default function DashboardHeader() {
-  const { playerRole, playerTeam, selfClientId, hostClientId } =
-    useGameContext();
+  const { playerRole, playerTeam, hostClientId } = useGameContext();
+  const { selfClientId } = useAblyContext();
 
   const styles = {
     main: {
