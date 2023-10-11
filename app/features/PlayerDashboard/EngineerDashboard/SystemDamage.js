@@ -82,13 +82,26 @@ export default function SystemDamage(props) {
     systemHealthLevels,
     calculateSystemNodeDistance,
     repairMatrix,
+    calculateMaxSystemHealth
   } = useGameContext();
 
   const [numChunks, setNumChunks] = useState(0);
+  const [barWidth, setBarWidth] = useState(0)
+
+  console.log("life support", systemHealthLevels[playerTeam]["life support"])
+  console.log("systemHealthLevels", systemHealthLevels)
 
   useEffect(() => {
     setNumChunks(calculateSystemNodeDistance(system.name));
   }, [system, repairMatrix]);
+
+  useEffect(() => {
+    if (system.name === "life support") {
+      setBarWidth(Math.ceil((systemHealthLevels[playerTeam][system.name] * 100) / process.env.STARTING_LIFE_SUPPORT))
+    } else {
+      setBarWidth(Math.ceil((systemHealthLevels[playerTeam][system.name] * 100) / calculateMaxSystemHealth(repairMatrix[playerTeam], system.name)))
+    }
+  }, [systemHealthLevels[playerTeam][system.name]])
 
   return (
     <div style={styles.container}>
@@ -101,7 +114,7 @@ export default function SystemDamage(props) {
         <div
           style={{
             ...styles.rectangle,
-            width: `${systemHealthLevels[playerTeam][system.name]}%`,
+            width: `${barWidth}%`,
           }}
         ></div>
         {system.name != "life support" && numChunks > 0 && (
@@ -115,7 +128,7 @@ export default function SystemDamage(props) {
                     style={{
                       width: "2px",
                       height: "15px",
-                      backgroundColor: theme.black,
+                      backgroundColor: index > systemHealthLevels[playerTeam][system.name] - 2 ? "#00000000": theme.black,
                     }}
                   ></div>
                 );
@@ -125,7 +138,7 @@ export default function SystemDamage(props) {
 
         {system.name === "life support" && (
           <div style={styles.dividersContainer}>
-            {Array(process.env.STARTING_HIT_POINTS - 1)
+            {Array(process.env.STARTING_LIFE_SUPPORT - 1)
               .fill(0)
               .map((chunk, index) => {
                 return (
@@ -134,7 +147,7 @@ export default function SystemDamage(props) {
                     style={{
                       width: "2px",
                       height: "15px",
-                      backgroundColor: theme.black,
+                      backgroundColor: index > systemHealthLevels[playerTeam][system.name] - 2 ? "#00000000": theme.black,
                     }}
                   ></div>
                 );

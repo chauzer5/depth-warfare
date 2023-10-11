@@ -43,6 +43,8 @@ export default function TeamSelection(props) {
     setHostClientId,
     resetMap,
     getEmptyRepairMatrix,
+    systemHealthLevels,
+    calculateMaxSystemHealth
   } = useGameContext();
 
   const { channel } = useAblyContext();
@@ -84,11 +86,29 @@ export default function TeamSelection(props) {
 
       if (selfClientId === hostClientId) {
         const newMap = resetMap();
+        const redRepairMatrix = getEmptyRepairMatrix()
+        const blueRepairMatrix = getEmptyRepairMatrix()
         const newRepairMatrix = {
-          blue: getEmptyRepairMatrix(),
-          red: getEmptyRepairMatrix(),
+          blue: blueRepairMatrix,
+          red: redRepairMatrix,
         };
-        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix };
+        const newSystemHealthLevels = {
+          blue: {
+            weapons: calculateMaxSystemHealth(blueRepairMatrix, "weapons"),
+            scan: calculateMaxSystemHealth(blueRepairMatrix, "scan"),
+            engine: calculateMaxSystemHealth(blueRepairMatrix, "engine"),
+            comms: calculateMaxSystemHealth(blueRepairMatrix, "comms"),
+            "life support": systemHealthLevels["blue"]["life support"],
+          },
+          red: {
+            weapons: calculateMaxSystemHealth(redRepairMatrix, "weapons"),
+            scan: calculateMaxSystemHealth(redRepairMatrix, "scan"),
+            engine: calculateMaxSystemHealth(redRepairMatrix, "engine"),
+            comms: calculateMaxSystemHealth(redRepairMatrix, "comms"),
+            "life support": systemHealthLevels["red"]["life support"],
+          },
+        }
+        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
         channel.publish("sync-network-state", networkState);
       }
     }
