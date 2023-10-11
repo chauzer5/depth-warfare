@@ -9,7 +9,13 @@ import {
 // This function lets the captain pick a starting point
 // MESSAGE: {row, column}
 export function captainSetStartingSpot(context, message) {
-  const { getMessagePlayer, moveSub, subLocations, isNavigationDisabled, randomEnabledDirection } = context;
+  const {
+    getMessagePlayer,
+    moveSub,
+    subLocations,
+    isNavigationDisabled,
+    randomEnabledDirection,
+  } = context;
 
   const team = getMessagePlayer(message).team;
 
@@ -21,7 +27,12 @@ export function captainSetStartingSpot(context, message) {
   const disabledDirectionStates = {};
 
   directions.forEach((direction) => {
-    disabledDirectionStates[direction] = isNavigationDisabled(direction, team, networkState.gameMap, networkState.subLocations);
+    disabledDirectionStates[direction] = isNavigationDisabled(
+      direction,
+      team,
+      networkState.gameMap,
+      networkState.subLocations
+    );
   });
 
   const trueDirections = Object.keys(disabledDirectionStates).filter(
@@ -30,7 +41,10 @@ export function captainSetStartingSpot(context, message) {
 
   const randomIndex = Math.floor(Math.random() * trueDirections.length);
 
-  networkState["randomEnabledDirection"] = {...randomEnabledDirection, [team]: trueDirections[randomIndex]}
+  networkState["randomEnabledDirection"] = {
+    ...randomEnabledDirection,
+    [team]: trueDirections[randomIndex],
+  };
 
   if (subLocations[team === "blue" ? "red" : "blue"]) {
     allDone = true;
@@ -47,17 +61,25 @@ export function captainSetStartingSpot(context, message) {
 // This should trigger when the engineer and first mate can start their decisions
 // MESSAGE: {direction}
 export function captainStartSubNavigate(context, message) {
-  const { pendingNavigate, getMessagePlayer, currentlySurfacing, isNavigationDisabled, gameMap, subLocations } = context;
+  const {
+    pendingNavigate,
+    getMessagePlayer,
+    currentlySurfacing,
+    isNavigationDisabled,
+    gameMap,
+    subLocations,
+  } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
-  if (isNavigationDisabled(message.data.direction, team, gameMap, subLocations)) {
-    return{}
+  if (
+    isNavigationDisabled(message.data.direction, team, gameMap, subLocations)
+  ) {
+    return {};
   }
 
   return {
@@ -121,15 +143,12 @@ export function engineerClearRepairMatrix(context, message) {
   const {
     getMessagePlayer,
     repairMatrix,
-    selfClientId,
-    hostClientId,
     currentlySurfacing,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
@@ -159,7 +178,6 @@ export function firstMateChooseSystemCharge(context, message) {
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
@@ -207,7 +225,6 @@ export function captainCancelSubNavigate(context, message) {
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
@@ -232,18 +249,17 @@ export function captainSilence(context, message) {
     isNavigationDisabled,
     randomEnabledDirection,
     subLocations,
-    gameMap
+    gameMap,
   } = context;
 
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
-    return {}
+    return {};
   }
 
   if (pendingNavigate[team]) {
-    return {}
+    return {};
   }
 
   //Enforcing silencing
@@ -258,7 +274,6 @@ export function captainSilence(context, message) {
   });
 
   if (!isValid) {
-    console.log("Silence move has been enforced");
     return {};
   }
 
@@ -269,7 +284,12 @@ export function captainSilence(context, message) {
   const disabledDirectionStates = {};
 
   directions.forEach((direction) => {
-    disabledDirectionStates[direction] = isNavigationDisabled(direction, team, networkState.gameMap, networkState.subLocations);
+    disabledDirectionStates[direction] = isNavigationDisabled(
+      direction,
+      team,
+      networkState.gameMap,
+      networkState.subLocations
+    );
   });
 
   const trueDirections = Object.keys(disabledDirectionStates).filter(
@@ -278,7 +298,10 @@ export function captainSilence(context, message) {
 
   const randomIndex = Math.floor(Math.random() * trueDirections.length);
 
-  networkState["randomEnabledDirection"] = {...randomEnabledDirection, [team]: trueDirections[randomIndex]}
+  networkState["randomEnabledDirection"] = {
+    ...randomEnabledDirection,
+    [team]: trueDirections[randomIndex],
+  };
 
   networkState["systemChargeLevels"] = {
     ...systemChargeLevels,
@@ -742,12 +765,15 @@ export function firstMateDetonateMine(context, message) {
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
   // If there isn't a mine there, don't do anything
-  if (!minesList[team].find(([row, col]) => row === message.data.row && col === message.data.column)) {
+  if (
+    !minesList[team].find(
+      ([row, col]) => row === message.data.row && col === message.data.column
+    )
+  ) {
     return {};
   }
 
@@ -929,7 +955,6 @@ export function firstMateScan(context, message) {
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
-    console.log("restricted");
     return {};
   }
 
@@ -1108,7 +1133,7 @@ export function syncNetworkState(context, networkState) {
     setMinesList,
     setRadioMapNotes,
     setRepairMatrix,
-    setRandomEnabledDirection
+    setRandomEnabledDirection,
   } = context;
 
   if (networkState.hasOwnProperty("currentStage")) {

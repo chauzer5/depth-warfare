@@ -14,7 +14,6 @@ export default function EngineerDashboard(props) {
     playerTeam,
     engineerCompassMap,
     engineerPendingBlock,
-    subLocations,
   } = useGameContext();
 
   // Calculate the length difference between "west" and "east" words
@@ -25,8 +24,6 @@ export default function EngineerDashboard(props) {
   // Calculate the margins based on the length difference
   const marginLeft = lengthDifference < 0 ? 10 * Math.abs(lengthDifference) : 0;
   const marginRight = lengthDifference > 0 ? 10 * lengthDifference : 0;
-
-  const [clearRepairMatrix, setClearRepairMatrix] = useState(false);
 
   const styles = {
     systemLabel: {
@@ -129,7 +126,7 @@ export default function EngineerDashboard(props) {
   };
 
   const handleClick = () => {
-    channel.publish("engineer-clear-repair-matrix", {})
+    channel.publish("engineer-clear-repair-matrix", {});
   };
 
   return (
@@ -161,9 +158,7 @@ export default function EngineerDashboard(props) {
               alignItems: "center",
             }}
           >
-            <RepairMatrix
-              channel={channel}
-            />
+            <RepairMatrix channel={channel} />
             <button
               style={{
                 ...styles.systemButton,

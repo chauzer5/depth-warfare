@@ -15,15 +15,8 @@ export default function Countdown() {
   const { setCurrentStage } = useGameContext();
 
   const handleFinish = () => {
-    console.log('Timer finished');
     setCurrentStage("main");
   };
-  // In Countdown component
-  console.log('Countdown component is rendered');
-
-  // In Countdown component
-  console.log('GAME_COUNTDOWN_SECONDS:', process.env.GAME_COUNTDOWN_SECONDS);
-
 
   return (
     <div style={styles.main}>

@@ -1,39 +1,19 @@
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import { capitalizeFirstLetter } from "@/app/utils";
+import { useEffect, useState } from "react";
 
 export default function SystemDamage(props) {
   const { system } = props;
 
   const styles = {
-    main: {
-      width: "90%",
-      height: "150px",
-      margin: "5px",
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-    },
     container: {
-      display: "flex" /* Use flexbox to display children side by side */,
-      alignItems: "center" /* Align children vertically in the center */,
-      justifyContent: "flex-start",
-      width: "90%" /* Set a fixed width for all the containers */,
-      margin: "5px" /* Center the containers on the page */,
-      marginBottom: "10px" /* Add some margin between each section */,
-    },
-    button: {
-      width: "80px",
-      height: "30px",
-      border: `5px solid ${system.color}`,
-      color: system.color,
-      backgroundColor: theme.black,
-      borderRadius: "10px",
       display: "flex",
-      justifyContent: "center",
       alignItems: "center",
+      justifyContent: "flex-start",
+      width: "500px",
       margin: "5px",
+      marginBottom: "10px",
     },
     buttonText: {
       color: system.color,
@@ -64,14 +44,12 @@ export default function SystemDamage(props) {
         "100%": { opacity: 1 },
       },
     },
-
     rectangleBorder: {
       height: "15px",
       backgroundColor: theme.black,
       borderRadius: "18px",
       border: "4px solid ${system.color}",
       marginRight: "10px",
-      // transition: "width 1s ease",
     },
     clickableRectangleBorder: {
       flex: 1,
@@ -85,14 +63,32 @@ export default function SystemDamage(props) {
       boxShadow: "0px 0px 8px 8px rgba(255,255,255,0.5)",
     },
     textContainer: {
-      width: "100px", // Set a fixed width for the text container
-      overflow: "hidden", // Hide overflowing text
-      whiteSpace: "nowrap", // Prevent text wrapping
-      textOverflow: "ellipsis", // Add ellipsis if text overflows
+      width: "200px",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+    },
+    dividersContainer: {
+      width: "365px",
+      height: "15px",
+      position: "absolute",
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-evenly",
     },
   };
 
-  const { playerTeam, systemHealthLevels } = useGameContext();
+  const {
+    playerTeam,
+    systemHealthLevels,
+    calculateSystemNodeDistance,
+    repairMatrix,
+  } = useGameContext();
+
+  const [numChunks, setNumChunks] = useState(0);
+
+  useEffect(() => {
+    setNumChunks(calculateSystemNodeDistance(system.name));
+  }, [system, repairMatrix]);
 
   return (
     <div style={styles.container}>
@@ -108,6 +104,43 @@ export default function SystemDamage(props) {
             width: `${systemHealthLevels[playerTeam][system.name]}%`,
           }}
         ></div>
+        {system.name != "life support" && numChunks > 0 && (
+          <div style={styles.dividersContainer}>
+            {Array(numChunks - 1)
+              .fill(0)
+              .map((chunk, index) => {
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      width: "2px",
+                      height: "15px",
+                      backgroundColor: theme.black,
+                    }}
+                  ></div>
+                );
+              })}
+          </div>
+        )}
+
+        {system.name === "life support" && (
+          <div style={styles.dividersContainer}>
+            {Array(process.env.STARTING_HIT_POINTS - 1)
+              .fill(0)
+              .map((chunk, index) => {
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      width: "2px",
+                      height: "15px",
+                      backgroundColor: theme.black,
+                    }}
+                  ></div>
+                );
+              })}
+          </div>
+        )}
       </div>
     </div>
   );

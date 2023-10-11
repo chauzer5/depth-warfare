@@ -50,8 +50,8 @@ export default function RadioOperatorDashboard(props) {
       alignItems: "center",
       whiteSpace: "nowrap",
     },
-    directionText:{
-      margin:"10px",
+    directionText: {
+      margin: "10px",
       color: theme.white,
     },
     clearButton: {
@@ -74,12 +74,8 @@ export default function RadioOperatorDashboard(props) {
     },
   };
 
-  const {
-    movements,
-    systemHealthLevels,
-    movementCountOnDisable,
-    playerTeam,
-  } = useGameContext();
+  const { movements, systemHealthLevels, movementCountOnDisable, playerTeam } =
+    useGameContext();
 
   const { channel } = props;
 
@@ -108,28 +104,30 @@ export default function RadioOperatorDashboard(props) {
           <SectorsKey />
           <div style={styles.shiftControls}>
             <div style={styles.shiftRow}>
-              <span style={{color:theme.white}}>North</span>
+              <span style={{ color: theme.white }}>North</span>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="north" channel={channel}/>
+              <TriangleShiftButton direction="north" channel={channel} />
             </div>
             <div style={styles.shiftRow}>
-            <span style={{...styles.directionText, width: '50px'}}>West</span>
-              <TriangleShiftButton direction="west" channel={channel}/>
+              <span style={{ ...styles.directionText, width: "50px" }}>
+                West
+              </span>
+              <TriangleShiftButton direction="west" channel={channel} />
               <div style={{ height: "100%", width: "50px" }} />
-              <TriangleShiftButton direction="east"channel={channel} />
+              <TriangleShiftButton direction="east" channel={channel} />
               <span style={styles.directionText}>East</span>
             </div>
             <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="south" channel={channel}/>
+              <TriangleShiftButton direction="south" channel={channel} />
             </div>
             <div style={styles.shiftRow}>
-              <span style={{color:theme.white}}>South</span>
+              <span style={{ color: theme.white }}>South</span>
             </div>
           </div>
         </div>
         <div>
-          <RadioMap channel={channel}/>
+          <RadioMap channel={channel} />
           <button
             style={styles.clearButton}
             onClick={() => channel.publish("radio-operator-clear-notes", {})}

@@ -77,13 +77,16 @@ export default function TeamSelection(props) {
       setHostClientId(hostClientId);
       setPlayerData(newPlayerData);
       setCurrentStage("starting-spot");
-      
+
       if (selfClientId === hostClientId) {
-        const newMap = resetMap()
-        const newRepairMatrix = { blue: getEmptyRepairMatrix(), red: getEmptyRepairMatrix() }
-        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix }
+        const newMap = resetMap();
+        const newRepairMatrix = {
+          blue: getEmptyRepairMatrix(),
+          red: getEmptyRepairMatrix(),
+        };
+        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix };
         channel.publish("sync-network-state", networkState);
-    }
+      }
     }
   }, [presenceData]);
 

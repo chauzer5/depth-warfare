@@ -3,7 +3,7 @@ import TeamRoleDescription from "./TeamRoleDescription";
 import Timer from "@/app/components/Timer/Timer";
 import GameMap from "@/app/components/GameMap/GameMap";
 import { useGameContext } from "@/app/state/game_state";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CaptainStartingSpot(props) {
   const styles = {
@@ -79,7 +79,6 @@ export default function CaptainStartingSpot(props) {
     if (!subLocationsRef.current[playerTeam]) {
       channel.publish("captain-set-starting-spot", { row, column });
     }
-
   };
 
   return (

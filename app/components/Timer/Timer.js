@@ -21,17 +21,13 @@ export default function Timer(props) {
 
   const [secondsLeft, setSecondsLeft] = useState(seconds);
 
-  // In Timer component
-  console.log('Timer component is rendered');
-
-
   useEffect(() => {
     // Creating a new instance of the Worker
     const worker = new Worker(`/timerWorker.js`);
 
     // Sending a message to the worker to start the timer with the specified seconds
     worker.postMessage({
-      command: 'start',
+      command: "start",
       seconds: seconds,
     });
 
@@ -50,7 +46,7 @@ export default function Timer(props) {
 
     // Cleaning up the worker when the component is unmounted or when it's no longer needed
     return () => {
-      worker.postMessage({ command: 'stop' });
+      worker.postMessage({ command: "stop" });
       worker.terminate();
     };
   }, [seconds, onFinish]);

@@ -3,7 +3,7 @@ import theme from "@/app/styles/theme";
 import { ROLE_MAP } from "@/app/utils";
 
 export default function TeamRoleButton(props) {
-  const {id, presenceData, handleClick, team, role } = props;
+  const { id, presenceData, handleClick, team, role } = props;
 
   const { selfClientId } = useGameContext();
 
@@ -29,7 +29,11 @@ export default function TeamRoleButton(props) {
   };
 
   return (
-    <button style={styles.button} id={id} onClick={() => handleClick(team, role)}>
+    <button
+      style={styles.button}
+      id={id}
+      onClick={() => handleClick(team, role)}
+    >
       {`${ROLE_MAP[role]}${
         playerSelected?.data.name ? ` (${playerSelected.data.name})` : ""
       }`}

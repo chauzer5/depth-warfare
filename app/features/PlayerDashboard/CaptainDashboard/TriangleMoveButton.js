@@ -1,10 +1,9 @@
-import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 
 export default function TriangleMoveButton(props) {
   let { direction, channel, brokenEngine, disabled, enabledDirection } = props;
 
-  const broken = brokenEngine && enabledDirection !== direction
+  const broken = brokenEngine && enabledDirection !== direction;
 
   const w = "30";
   const h = "30";

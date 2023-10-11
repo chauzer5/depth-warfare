@@ -31,9 +31,6 @@ export default function Game() {
     gameId,
     username,
     currentStage,
-    resetMap,
-    setRepairMatrix,
-    getEmptyRepairMatrix,
     selfClientId,
     hostClientId,
     subLocations,
@@ -53,7 +50,7 @@ export default function Game() {
     minesList,
     radioMapNotes,
     repairMatrix,
-    randomEnabledDirection
+    randomEnabledDirection,
   } = useGameContext();
 
   const gameContext = useGameContext();
@@ -68,12 +65,6 @@ export default function Game() {
     setMessagesList((prev) => [...prev, { ...message }]);
   });
 
-  // const sendCompleteStateUpdate = () => {
-  //   // console.log("completeState", completeStateRef.current)
-  //   channel.publish("sync-network-state", completeStateRef.current);
-  // }
-
-  // const [completeState, setCompleteState] = useState(null)
   const completeStateRef = useRef({
     currentStage,
     subLocations,
@@ -117,8 +108,9 @@ export default function Game() {
       radioMapNotes,
       repairMatrix,
       randomEnabledDirection,
-    }
-  }, [currentStage,
+    };
+  }, [
+    currentStage,
     subLocations,
     gameMap,
     systemChargeLevels,
@@ -138,57 +130,12 @@ export default function Game() {
     repairMatrix,
     randomEnabledDirection,
     selfClientId,
-    hostClientId])
-
-  // useEffect(() => {
-  //   console.log("ids", selfClientId, hostClientId)
-    
-  //   if(selfClientId === hostClientId && currentStage === "main") {
-  //     setInterval(() => {
-  //       sendCompleteStateUpdate();
-  //       console.log("sending message from host")
-  //     }, process.env.COMPLETE_STATE_UPDATE_INTERVAL);
-  //   }
-  // }, [hostClientId, currentStage]);
-
-//   useEffect(() => {
-//     console.log("ids", selfClientId, hostClientId);
-    
-//     console.log("Checking condition", selfClientId === hostClientId, currentStage === "main");
-    
-//     if(selfClientId === hostClientId && currentStage === "main") {
-//         console.log("Condition met");
-//         // Create a new worker
-//         const worker = new Worker('/worker.js');
-
-//         // Send the interval to the worker
-//         worker.postMessage({ interval: process.env.COMPLETE_STATE_UPDATE_INTERVAL });
-
-//         // Set up a message handler to receive messages from the worker
-//         worker.onmessage = (e) => {
-//             if(e.data === 'sendCompleteStateUpdate') {
-//                 channel.publish("sync-network-state", completeStateRef.current);
-//                 console.log("sending message from host");
-//             }
-//         };
-
-//         // Clean up the worker when the component is unmounted or when it's no longer needed
-//         return () => {
-//             worker.terminate();
-//         }
-//     } else {
-//       console.log("Condition not met");
-//     }
-
-// }, [hostClientId, currentStage]);
+    hostClientId,
+  ]);
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
-    // console.log("sent message", newMessage)
-    if (newMessage?.name === "sync-network-state"){
-      console.log("recieved message", newMessage.id)
-    }
-      
+
     let networkState = {};
 
     switch (newMessage?.name) {
@@ -196,133 +143,167 @@ export default function Game() {
         if (selfClientId === hostClientId) {
           networkState = captainSetStartingSpot(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "captain-start-sub-navigate":
         if (selfClientId === hostClientId) {
           networkState = captainStartSubNavigate(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "captain-cancel-sub-navigate":
         if (selfClientId === hostClientId) {
           networkState = captainCancelSubNavigate(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "engineer-place-system-block":
         if (selfClientId === hostClientId) {
           networkState = engineerPlaceSystemBlock(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "engineer-clear-repair-matrix":
         if (selfClientId === hostClientId) {
           networkState = engineerClearRepairMatrix(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "first-mate-choose-system-charge":
         if (selfClientId === hostClientId) {
           networkState = firstMateChooseSystemCharge(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "captain-silence":
         if (selfClientId === hostClientId) {
           networkState = captainSilence(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "captain-surface":
         if (selfClientId === hostClientId) {
           networkState = captainSurface(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "stop-surfacing":
         if (selfClientId === hostClientId) {
           networkState = stopSurfacing(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "first-mate-fire-torpedo":
         if (selfClientId === hostClientId) {
           networkState = firstMateFireTorpedo(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "first-mate-drop-mine":
         if (selfClientId === hostClientId) {
           networkState = firstMateDropMine(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "first-mate-detonate-mine":
         if (selfClientId === hostClientId) {
           networkState = firstMateDetonateMine(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "first-mate-scan":
         if (selfClientId === hostClientId) {
           networkState = firstMateScan(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "radio-operator-add-remove-note":
         if (selfClientId === hostClientId) {
           networkState = radioOperatorAddRemoveNote(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          //channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "radio-operator-clear-notes":
         if (selfClientId === hostClientId) {
           networkState = radioOperatorClearNotes(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "radio-operator-shift-notes":
         if (selfClientId === hostClientId) {
           networkState = radioOperatorShiftNotes(gameContext, newMessage);
           syncNetworkState(gameContext, networkState);
-          channel.publish("sync-network-state", Object.assign(completeStateRef.current, networkState))
-          // channel.publish("sync-network-state", networkState);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(completeStateRef.current, networkState)
+          );
         }
         break;
       case "sync-network-state":
-        // Do nothing
-        if ((!(selfClientId === hostClientId) && currentStage == "main") || currentStage != "main") {
+        if (
+          (!(selfClientId === hostClientId) && currentStage == "main") ||
+          currentStage != "main"
+        ) {
           networkState = newMessage.data;
           syncNetworkState(gameContext, networkState);
         }
@@ -330,7 +311,6 @@ export default function Game() {
       default:
         console.error(`Unrecognized message type: ${newMessage?.name}}`);
     }
-
   }, [messagesList]);
 
   return (

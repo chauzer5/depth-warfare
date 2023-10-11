@@ -2,7 +2,6 @@ import { Box } from "@mui/material";
 import { useGameContext } from "@/app/state/game_state";
 import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
-import { useState } from "react";
 
 export default function RadioMap(props) {
   const { gameMap, radioMapNotes, playerTeam } = useGameContext();
@@ -90,7 +89,7 @@ export default function RadioMap(props) {
   };
 
   const handleClick = (row, column) => {
-    channel.publish("radio-operator-add-remove-note", {row, column});
+    channel.publish("radio-operator-add-remove-note", { row, column });
   };
 
   return (
@@ -128,8 +127,14 @@ export default function RadioMap(props) {
                   ) && (
                     <span
                       style={
-                        rowIndex === radioMapNotes[playerTeam][radioMapNotes[playerTeam].length - 1][0] &&
-                        columnIndex === radioMapNotes[playerTeam][radioMapNotes[playerTeam].length - 1][1]
+                        rowIndex ===
+                          radioMapNotes[playerTeam][
+                            radioMapNotes[playerTeam].length - 1
+                          ][0] &&
+                        columnIndex ===
+                          radioMapNotes[playerTeam][
+                            radioMapNotes[playerTeam].length - 1
+                          ][1]
                           ? styles.latestNote
                           : styles.note
                       }

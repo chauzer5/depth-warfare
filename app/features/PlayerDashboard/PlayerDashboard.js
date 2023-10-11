@@ -3,7 +3,6 @@ import Modal from "react-modal";
 import SurfacingPage from "./SurfacingPage";
 import theme from "@/app/styles/theme";
 import { useSnackbar } from "notistack";
-
 import { useGameContext } from "@/app/state/game_state";
 import DashboardHeader from "./DashboardHeader";
 import CaptainDashboard from "./CaptainDashboard/CaptainDashboard";
@@ -15,7 +14,6 @@ export default function PlayerDashboard(props) {
   const {
     playerRole,
     currentlySurfacing,
-    setCurrentlySurfacing,
     playerTeam,
     notificationMessages,
   } = useGameContext();

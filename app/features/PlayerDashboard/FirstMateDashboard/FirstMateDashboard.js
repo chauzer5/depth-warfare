@@ -88,7 +88,7 @@ export default function FirstMateDashboard(props) {
     subLocations,
     scanForEnemySub,
     minesList,
-    systemHealthLevels
+    systemHealthLevels,
   } = useGameContext();
 
   const [toggledSystem, setToggledSystem] = useState("torpedo");
@@ -335,9 +335,11 @@ export default function FirstMateDashboard(props) {
               (toggledSystem === "mine" &&
                 !validDetonateMine &&
                 !validDropMine) ||
-              (!isSystemCharged("torpedo", systemChargeLevels) && toggledSystem === "torpedo") ||
+              (!isSystemCharged("torpedo", systemChargeLevels) &&
+                toggledSystem === "torpedo") ||
               (toggledSystem === "torpedo" && !validTorpedoSelection) ||
-              (!isSystemCharged("scan", systemChargeLevels) && toggledSystem === "scan") ||
+              (!isSystemCharged("scan", systemChargeLevels) &&
+                toggledSystem === "scan") ||
               (toggledSystem === "scan" && !validScanSelection) ||
               isSystemDisabled(toggledSystem)
             }
@@ -357,7 +359,8 @@ export default function FirstMateDashboard(props) {
                 isSystemCharged("scan", systemChargeLevels) &&
                 !validScanSelection
               ? "Invalid Selection"
-              : toggledSystem === "scan" && isSystemCharged("scan", systemChargeLevels)
+              : toggledSystem === "scan" &&
+                isSystemCharged("scan", systemChargeLevels)
               ? "Scan"
               : toggledSystem === "mine" && validDetonateMine // Detonate happens before drop
               ? "Detonate Mine"

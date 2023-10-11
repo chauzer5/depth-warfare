@@ -156,7 +156,11 @@ export default function GameMap(props) {
 
   useEffect(() => {
     if (silence) {
-      const newSilenceCells = getValidSilenceCells(playerTeam, subLocations, gameMap);
+      const newSilenceCells = getValidSilenceCells(
+        playerTeam,
+        subLocations,
+        gameMap
+      );
       setSilenceCells(newSilenceCells);
     }
   }, [silence]);
@@ -165,134 +169,135 @@ export default function GameMap(props) {
     channel?.publish("captain-silence", { row, column });
   };
 
-  if (typeof gameMap === 'undefined'){
-    return (<div></div>)
-  } else
-  {
-  return (
-    <table style={styles.table}>
-      <tbody>
-        <tr style={styles.row}>
-          <td></td>
-          {Array(MAP_DIMENSION)
-            .fill(0)
-            .map((col, index) => (
-              <th style={styles.columnHeader} key={index}>
-                {indexToColumn(index)}
-              </th>
-            ))}
-        </tr>
-
-        {gameMap.map((row, rowIndex) => (
-          <tr key={rowIndex} style={styles.row}>
-            <th>{indexToRow(rowIndex)}</th>
-            {row.map((cell, columnIndex) => (
-              <td
-                key={columnIndex}
-                style={{
-                  ...styles.cell,
-                  ...getSectorStyle(rowIndex, columnIndex),
-                  ...getIslandBorders(rowIndex, columnIndex),
-                }}
-              >
-                <Box
-                  sx={
-                    cell.type === "island"
-                      ? styles.island
-                      : cell.subPresent[playerTeam] && playerTeam === "blue"
-                      ? styles.blueSub
-                      : cell.subPresent[playerTeam] && playerTeam === "red"
-                      ? styles.redSub
-                      : !toggledSystem &&
-                        pendingNavigate[playerTeam] === "north" &&
-                        rowIndex === subLocations[playerTeam][0] - 1 &&
-                        columnIndex === subLocations[playerTeam][1]
-                      ? styles.pendingMoveCell
-                      : !toggledSystem &&
-                        pendingNavigate[playerTeam] === "south" &&
-                        rowIndex === subLocations[playerTeam][0] + 1 &&
-                        columnIndex === subLocations[playerTeam][1]
-                      ? styles.pendingMoveCell
-                      : !toggledSystem &&
-                        pendingNavigate[playerTeam] === "west" &&
-                        rowIndex === subLocations[playerTeam][0] &&
-                        columnIndex === subLocations[playerTeam][1] - 1
-                      ? styles.pendingMoveCell
-                      : !toggledSystem &&
-                        pendingNavigate[playerTeam] === "east" &&
-                        rowIndex === subLocations[playerTeam][0] &&
-                        columnIndex === subLocations[playerTeam][1] + 1
-                      ? styles.pendingMoveCell
-                      : toggledSystem === "torpedo" &&
-                        torpedoCells.find(
-                          (cell) =>
-                            cell[0] === rowIndex && cell[1] === columnIndex
-                        )
-                      ? styles.inRangeCell
-                      : toggledSystem === "mine" &&
-                        dropMineCells.find(
-                          (cell) =>
-                            cell[0] === rowIndex && cell[1] === columnIndex
-                        )
-                      ? styles.inRangeCell
-                      : styles.water
-                  }
-                  onClick={
-                    handleClick
-                      ? () => handleClick(cell, rowIndex, columnIndex)
-                      : null
-                  }
-                >
-                  {toggledSystem &&
-                    clickedCell &&
-                    clickedCell.row === rowIndex &&
-                    clickedCell.column === columnIndex && (
-                      <div style={styles.targetCellStyle}>
-                        <Image
-                          src={targetImage}
-                          alt="Target"
-                          width={25}
-                          height={25}
-                        />
-                      </div>
-                    )}
-                  {!toggledSystem &&
-                    cell.visited &&
-                    cell.visited[playerTeam] && (
-                      <span style={styles.visitedCell}>X</span>
-                    )}
-
-                  {toggledSystem === "mine" &&
-                    minesList[playerTeam].find(
-                      (cell) => cell[0] === rowIndex && cell[1] === columnIndex
-                    ) && <span style={styles.mineCell}>M</span>}
-
-                  {silence &&
-                    silenceCells.find(
-                      (cell) => cell[0] === rowIndex && cell[1] === columnIndex
-                    ) && (
-                      <Box
-                        sx={{
-                          minWidth: "25px",
-                          minHeight: "25px",
-                          backgroundColor: theme.purple,
-                          cursor: "pointer",
-                          "&:hover": {
-                            backgroundColor: "#4D0081",
-                          },
-                        }}
-                        onClick={() => {
-                          handleSilence(rowIndex, columnIndex);
-                        }}
-                      />
-                    )}
-                </Box>
-              </td>
-            ))}
+  if (typeof gameMap === "undefined") {
+    return <div></div>;
+  } else {
+    return (
+      <table style={styles.table}>
+        <tbody>
+          <tr style={styles.row}>
+            <td></td>
+            {Array(MAP_DIMENSION)
+              .fill(0)
+              .map((col, index) => (
+                <th style={styles.columnHeader} key={index}>
+                  {indexToColumn(index)}
+                </th>
+              ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+
+          {gameMap.map((row, rowIndex) => (
+            <tr key={rowIndex} style={styles.row}>
+              <th>{indexToRow(rowIndex)}</th>
+              {row.map((cell, columnIndex) => (
+                <td
+                  key={columnIndex}
+                  style={{
+                    ...styles.cell,
+                    ...getSectorStyle(rowIndex, columnIndex),
+                    ...getIslandBorders(rowIndex, columnIndex),
+                  }}
+                >
+                  <Box
+                    sx={
+                      cell.type === "island"
+                        ? styles.island
+                        : cell.subPresent[playerTeam] && playerTeam === "blue"
+                        ? styles.blueSub
+                        : cell.subPresent[playerTeam] && playerTeam === "red"
+                        ? styles.redSub
+                        : !toggledSystem &&
+                          pendingNavigate[playerTeam] === "north" &&
+                          rowIndex === subLocations[playerTeam][0] - 1 &&
+                          columnIndex === subLocations[playerTeam][1]
+                        ? styles.pendingMoveCell
+                        : !toggledSystem &&
+                          pendingNavigate[playerTeam] === "south" &&
+                          rowIndex === subLocations[playerTeam][0] + 1 &&
+                          columnIndex === subLocations[playerTeam][1]
+                        ? styles.pendingMoveCell
+                        : !toggledSystem &&
+                          pendingNavigate[playerTeam] === "west" &&
+                          rowIndex === subLocations[playerTeam][0] &&
+                          columnIndex === subLocations[playerTeam][1] - 1
+                        ? styles.pendingMoveCell
+                        : !toggledSystem &&
+                          pendingNavigate[playerTeam] === "east" &&
+                          rowIndex === subLocations[playerTeam][0] &&
+                          columnIndex === subLocations[playerTeam][1] + 1
+                        ? styles.pendingMoveCell
+                        : toggledSystem === "torpedo" &&
+                          torpedoCells.find(
+                            (cell) =>
+                              cell[0] === rowIndex && cell[1] === columnIndex
+                          )
+                        ? styles.inRangeCell
+                        : toggledSystem === "mine" &&
+                          dropMineCells.find(
+                            (cell) =>
+                              cell[0] === rowIndex && cell[1] === columnIndex
+                          )
+                        ? styles.inRangeCell
+                        : styles.water
+                    }
+                    onClick={
+                      handleClick
+                        ? () => handleClick(cell, rowIndex, columnIndex)
+                        : null
+                    }
+                  >
+                    {toggledSystem &&
+                      clickedCell &&
+                      clickedCell.row === rowIndex &&
+                      clickedCell.column === columnIndex && (
+                        <div style={styles.targetCellStyle}>
+                          <Image
+                            src={targetImage}
+                            alt="Target"
+                            width={25}
+                            height={25}
+                          />
+                        </div>
+                      )}
+                    {!toggledSystem &&
+                      cell.visited &&
+                      cell.visited[playerTeam] && (
+                        <span style={styles.visitedCell}>X</span>
+                      )}
+
+                    {toggledSystem === "mine" &&
+                      minesList[playerTeam].find(
+                        (cell) =>
+                          cell[0] === rowIndex && cell[1] === columnIndex
+                      ) && <span style={styles.mineCell}>M</span>}
+
+                    {silence &&
+                      silenceCells.find(
+                        (cell) =>
+                          cell[0] === rowIndex && cell[1] === columnIndex
+                      ) && (
+                        <Box
+                          sx={{
+                            minWidth: "25px",
+                            minHeight: "25px",
+                            backgroundColor: theme.purple,
+                            cursor: "pointer",
+                            "&:hover": {
+                              backgroundColor: "#4D0081",
+                            },
+                          }}
+                          onClick={() => {
+                            handleSilence(rowIndex, columnIndex);
+                          }}
+                        />
+                      )}
+                  </Box>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
   }
 }

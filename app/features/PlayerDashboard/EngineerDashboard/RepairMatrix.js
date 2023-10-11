@@ -10,18 +10,11 @@ export default function RepairMatrix(props) {
   const {
     playerTeam,
     pendingNavigate,
-    subLocations,
-    getEmptyRepairMatrix,
-    checkConnectedRepairMatrixPath,
-    pickNewOuterCells,
     engineerPendingBlock,
     engineerCompassMap,
     repairMatrix,
-    setRepairMatrix,
   } = useGameContext();
 
-  // This creates an empty and random repair matrix
-  const [resolvedMatrix, setResolvedMatrix] = useState([]);
   const blockSystem =
     engineerCompassMap[playerTeam][pendingNavigate[playerTeam]];
 
@@ -142,9 +135,9 @@ export default function RepairMatrix(props) {
     pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam]; // Can add other statements to see if it can be clickable
 
   const handleClick = (row, column) => {
-    const clickedCell = { row, column }
-    channel.publish("engineer-place-system-block", { clickedCell })
-  }
+    const clickedCell = { row, column };
+    channel.publish("engineer-place-system-block", { clickedCell });
+  };
 
   // Functions for game goes here
   return (

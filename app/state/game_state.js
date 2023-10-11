@@ -32,7 +32,10 @@ export function GameWrapper({ children }) {
   const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
   const [playerData, setPlayerData] = useState();
   const [subLocations, setSubLocations] = useState({ blue: null, red: null });
-  const [randomEnabledDirection, setRandomEnabledDirection] = useState({blue: null, red: null});
+  const [randomEnabledDirection, setRandomEnabledDirection] = useState({
+    blue: null,
+    red: null,
+  });
   const [engineerPendingBlock, setEngineerPendingBlock] = useState({
     blue: null,
     red: null,
@@ -122,13 +125,14 @@ export function GameWrapper({ children }) {
         if (subLocations[team][0] === 0) {
           return true;
         } else if (
-          gameMap[subLocations[team][0] - 1][subLocations[team][1]]
-            .type === "island"
+          gameMap[subLocations[team][0] - 1][subLocations[team][1]].type ===
+          "island"
         ) {
           return true;
         } else if (
-          gameMap[subLocations[team][0] - 1][subLocations[team][1]]
-            .visited[team]
+          gameMap[subLocations[team][0] - 1][subLocations[team][1]].visited[
+            team
+          ]
         ) {
           return true;
         }
@@ -137,13 +141,14 @@ export function GameWrapper({ children }) {
         if (subLocations[team][0] === process.env.MAP_DIMENSION - 1) {
           return true;
         } else if (
-          gameMap[subLocations[team][0] + 1][subLocations[team][1]]
-            .type === "island"
+          gameMap[subLocations[team][0] + 1][subLocations[team][1]].type ===
+          "island"
         ) {
           return true;
         } else if (
-          gameMap[subLocations[team][0] + 1][subLocations[team][1]]
-            .visited[team]
+          gameMap[subLocations[team][0] + 1][subLocations[team][1]].visited[
+            team
+          ]
         ) {
           return true;
         }
@@ -152,13 +157,14 @@ export function GameWrapper({ children }) {
         if (subLocations[team][1] === 0) {
           return true;
         } else if (
-          gameMap[subLocations[team][0]][subLocations[team][1] - 1]
-            .type === "island"
+          gameMap[subLocations[team][0]][subLocations[team][1] - 1].type ===
+          "island"
         ) {
           return true;
         } else if (
-          gameMap[subLocations[team][0]][subLocations[team][1] - 1]
-            .visited[team]
+          gameMap[subLocations[team][0]][subLocations[team][1] - 1].visited[
+            team
+          ]
         ) {
           return true;
         }
@@ -167,13 +173,14 @@ export function GameWrapper({ children }) {
         if (subLocations[team][1] === process.env.MAP_DIMENSION - 1) {
           return true;
         } else if (
-          gameMap[subLocations[team][0]][subLocations[team][1] + 1]
-            .type === "island"
+          gameMap[subLocations[team][0]][subLocations[team][1] + 1].type ===
+          "island"
         ) {
           return true;
         } else if (
-          gameMap[subLocations[team][0]][subLocations[team][1] + 1]
-            .visited[team]
+          gameMap[subLocations[team][0]][subLocations[team][1] + 1].visited[
+            team
+          ]
         ) {
           return true;
         }
@@ -260,15 +267,20 @@ export function GameWrapper({ children }) {
   function moveSub(team, row, column) {
     const mapCopy = [...gameMap];
 
-    //Enforcing the sub movements 
-    if(row === -1 || row === process.env.MAP_DIMENSION +1 || column === -1 || column === process.env.MAP_DIMENSION+1
-    || mapCopy[row][column].type === "island" || mapCopy[row][column].visited[team]){
-
-        return {
+    //Enforcing the sub movements
+    if (
+      row === -1 ||
+      row === process.env.MAP_DIMENSION + 1 ||
+      column === -1 ||
+      column === process.env.MAP_DIMENSION + 1 ||
+      mapCopy[row][column].type === "island" ||
+      mapCopy[row][column].visited[team]
+    ) {
+      return {
         subLocations: subLocations,
         gameMap: mapCopy,
-        };
-    }    
+      };
+    }
 
     // remove the old position and make the path visited
     if (subLocations[team]) {
@@ -333,35 +345,42 @@ export function GameWrapper({ children }) {
   }
 
   function calculateNodeDistance(row1, col1, row2, col2, matrixLength) {
-    let realRowIndices = []
-    let realColumnIndices = []
-    const rowIndices = [row1, row2]
-    const columnIndices = [col1, col2]
+    let realRowIndices = [];
+    let realColumnIndices = [];
+    const rowIndices = [row1, row2];
+    const columnIndices = [col1, col2];
 
     rowIndices.forEach((rowIndex, i) => {
-      const row = rowIndices[i]
-      const col = columnIndices[i]
-      let realRow = row
-      let realCol = col
+      const row = rowIndices[i];
+      const col = columnIndices[i];
+      let realRow = row;
+      let realCol = col;
       if (row === 0) {
-        realRow += 1
+        realRow += 1;
       }
       if (col === 0) {
-        realCol += 1
+        realCol += 1;
       }
       if (row === matrixLength - 1) {
-        realRow -= 1
+        realRow -= 1;
       }
       if (col === matrixLength - 1) {
-        realCol -= 1
+        realCol -= 1;
       }
-      realRowIndices.push(realRow)
-      realColumnIndices.push(realCol)
-    })
+      realRowIndices.push(realRow);
+      realColumnIndices.push(realCol);
+    });
 
-    return manhattanDistance(realRowIndices[0], realColumnIndices[0], realRowIndices[1], realColumnIndices[1]) + 1
+    return (
+      manhattanDistance(
+        realRowIndices[0],
+        realColumnIndices[0],
+        realRowIndices[1],
+        realColumnIndices[1]
+      ) + 1
+    );
   }
-  
+
   function calculateSystemDamageAmount(matrix, system) {
     const rowIndices = [];
     const columnIndices = [];
@@ -376,10 +395,38 @@ export function GameWrapper({ children }) {
       }
     }
 
-    const dist = calculateNodeDistance(rowIndices[0], columnIndices[0], rowIndices[1], columnIndices[1], matrix.length)
-    console.log(system, dist, Math.ceil(100 / dist))
+    const dist = calculateNodeDistance(
+      rowIndices[0],
+      columnIndices[0],
+      rowIndices[1],
+      columnIndices[1],
+      matrix.length
+    );
 
-    return Math.ceil(100 / dist)
+    return Math.ceil(100 / dist);
+  }
+
+  function calculateSystemNodeDistance(system) {
+    const rowIndices = [];
+    const columnIndices = [];
+
+    for (let row = 0; row < repairMatrix[playerTeam].length; row++) {
+      for (let col = 0; col < repairMatrix[playerTeam][0].length; col++) {
+        const cell = repairMatrix[playerTeam][row][col];
+        if (cell.type === "outer" && cell.system === system) {
+          rowIndices.push(row);
+          columnIndices.push(col);
+        }
+      }
+    }
+
+    return calculateNodeDistance(
+      rowIndices[0],
+      columnIndices[0],
+      rowIndices[1],
+      columnIndices[1],
+      repairMatrix[playerTeam].length
+    );
   }
 
   function finishTurn(engineerBlockCell, chargedSystem, team) {
@@ -402,17 +449,17 @@ export function GameWrapper({ children }) {
 
     // Filter out invalid systems, then damage a random system
     const filteredSystems = Object.keys(systemHealthLevels[team]).filter(
-        (system) =>
+      (system) =>
         systemHealthLevels[team][system] > 0 && system !== "life support"
     );
 
     let randomSystem = blockSystem;
 
     if (filteredSystems.length > 0) {
-        // Generate a random index within the valid range of filtered systems
-        const randomIndex = Math.floor(Math.random() * filteredSystems.length);
-        // Use the random index to select a system from the filtered list
-        randomSystem = filteredSystems[randomIndex];
+      // Generate a random index within the valid range of filtered systems
+      const randomIndex = Math.floor(Math.random() * filteredSystems.length);
+      // Use the random index to select a system from the filtered list
+      randomSystem = filteredSystems[randomIndex];
     }
 
     // Update the repair matrix and check to see if it is repaired
@@ -420,20 +467,21 @@ export function GameWrapper({ children }) {
 
     // set the updated health level for the system
     const updatedHealthLevel = Math.max(
-        systemHealthLevels[team][randomSystem] - calculateSystemDamageAmount(updatedMatrix, randomSystem), // process.env.SYSTEM_DAMAGE_AMOUNT,
-        0
+      systemHealthLevels[team][randomSystem] -
+        calculateSystemDamageAmount(updatedMatrix, randomSystem), // process.env.SYSTEM_DAMAGE_AMOUNT,
+      0
     );
 
     // Damage the system corresponding to the block placed
     syncStateMessage["systemHealthLevels"] = {
       ...systemHealthLevels,
       [team]: {
-      ...systemHealthLevels[team],
-      [randomSystem]: updatedHealthLevel,
+        ...systemHealthLevels[team],
+        [randomSystem]: updatedHealthLevel,
       },
     };
 
-    const { row, column } = engineerBlockCell
+    const { row, column } = engineerBlockCell;
 
     updatedMatrix[row][column] = {
       ...updatedMatrix[row][column],
@@ -459,10 +507,10 @@ export function GameWrapper({ children }) {
       const selectedCells = pickNewOuterCells(updatedMatrix);
 
       for (const { row, col } of selectedCells) {
-          updatedMatrix[row][col] = {
+        updatedMatrix[row][col] = {
           type: "outer",
           system: blockSystem,
-          };
+        };
       }
 
       const notificationMessage = {
@@ -479,7 +527,7 @@ export function GameWrapper({ children }) {
       tempMessageTimestamp += 1;
 
       syncStateMessage["systemHealthLevels"][team][blockSystem] =
-      process.env.MAX_SYSTEM_HEALTH;
+        process.env.MAX_SYSTEM_HEALTH;
     }
 
     // move the sub in the specified direction
@@ -507,11 +555,11 @@ export function GameWrapper({ children }) {
 
       // If the system is comms, keep track of how many enemy movements were before it was disabled
       if (randomSystem === "comms") {
-          const oppositeTeam = team === "blue" ? "red" : "blue";
-          syncStateMessage["movementCountOnDisable"] = {
+        const oppositeTeam = team === "blue" ? "red" : "blue";
+        syncStateMessage["movementCountOnDisable"] = {
           ...movementCountOnDisable,
           [oppositeTeam]: movements[oppositeTeam].length,
-          };
+        };
       }
     }
 
@@ -519,7 +567,12 @@ export function GameWrapper({ children }) {
     const disabledDirectionStates = {};
 
     directions.forEach((direction) => {
-      disabledDirectionStates[direction] = isNavigationDisabled(direction, team, moveSubInfo.gameMap, moveSubInfo.subLocations);
+      disabledDirectionStates[direction] = isNavigationDisabled(
+        direction,
+        team,
+        moveSubInfo.gameMap,
+        moveSubInfo.subLocations
+      );
     });
 
     const trueDirections = Object.keys(disabledDirectionStates).filter(
@@ -528,7 +581,10 @@ export function GameWrapper({ children }) {
 
     const randomIndex = Math.floor(Math.random() * trueDirections.length);
 
-    syncStateMessage["randomEnabledDirection"] = {...randomEnabledDirection, [team]: trueDirections[randomIndex]}
+    syncStateMessage["randomEnabledDirection"] = {
+      ...randomEnabledDirection,
+      [team]: trueDirections[randomIndex],
+    };
 
     // Update the state with the new matrix containing reset cells
     const rotatedValues = rotateEngineerCompassValues(engineerCompassMap[team]);
@@ -540,12 +596,12 @@ export function GameWrapper({ children }) {
       },
     };
 
-    syncStateMessage["repairMatrix"] = {...repairMatrix, [team]: updatedMatrix}
+    syncStateMessage["repairMatrix"] = {
+      ...repairMatrix,
+      [team]: updatedMatrix,
+    };
 
     syncStateMessage["engineerCompassMap"] = updatedTeamMap;
-
-    
-
 
     syncStateMessage["movements"] = {
       ...movements,
@@ -622,7 +678,7 @@ export function GameWrapper({ children }) {
       };
     });
 
-    return blankGameMap // setGameMap(blankGameMap);
+    return blankGameMap; // setGameMap(blankGameMap);
   }
 
   function clearVisitedPath(team) {
@@ -696,8 +752,17 @@ export function GameWrapper({ children }) {
     for (let i = 0; i < 10000; i++) {
       randomIndices = getRandomIndices(emptyOuterCells.length, 2);
       selectedCells = randomIndices.map((index) => emptyOuterCells[index]);
-      nodeDist = calculateNodeDistance(selectedCells[0].row, selectedCells[0].col, selectedCells[1].row, selectedCells[1].col, matrix.length)
-      if (nodeDist <= process.env.MAX_NODE_DISTANCE && nodeDist >= process.env.MIN_NODE_DISTANCE) {
+      nodeDist = calculateNodeDistance(
+        selectedCells[0].row,
+        selectedCells[0].col,
+        selectedCells[1].row,
+        selectedCells[1].col,
+        matrix.length
+      );
+      if (
+        nodeDist <= process.env.MAX_NODE_DISTANCE &&
+        nodeDist >= process.env.MIN_NODE_DISTANCE
+      ) {
         break;
       }
     }
@@ -805,7 +870,6 @@ export function GameWrapper({ children }) {
 
   function getEmptyRepairMatrix() {
     const dimension = process.env.REPAIR_MATRIX_DIMENSION;
-    
 
     // const doubledSystems = systems.concat(systems.slice());
     // const extra_elements = dimension * 4;
@@ -844,18 +908,15 @@ export function GameWrapper({ children }) {
     let selectedCells;
     shuffledSystems.forEach((system, i) => {
       // Choose new random nodes along the outside
-      console.log("blankRepairMatrix", blankRepairMatrix)
       selectedCells = pickNewOuterCells(blankRepairMatrix);
 
-      console.log("selectedCells", selectedCells)
-
       for (const { row, col } of selectedCells) {
-          blankRepairMatrix[row][col] = {
+        blankRepairMatrix[row][col] = {
           type: "outer",
           system: system,
-          };
+        };
       }
-    })
+    });
 
     return blankRepairMatrix;
   }
@@ -1146,6 +1207,7 @@ export function GameWrapper({ children }) {
         setEngineerHealSystem,
         setMovementCountOnDisable,
         setHostClientId,
+        calculateSystemNodeDistance,
       }}
     >
       {children}

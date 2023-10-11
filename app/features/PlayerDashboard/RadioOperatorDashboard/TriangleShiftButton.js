@@ -21,7 +21,9 @@ export default function TriangleShiftButton(props) {
       break;
     case "south":
       if (
-        radioMapNotes[playerTeam].some((note) => note[0] === process.env.MAP_DIMENSION - 1)
+        radioMapNotes[playerTeam].some(
+          (note) => note[0] === process.env.MAP_DIMENSION - 1
+        )
       ) {
         disabled = true;
       }
@@ -33,7 +35,9 @@ export default function TriangleShiftButton(props) {
       break;
     case "east":
       if (
-        radioMapNotes[playerTeam].some((note) => note[1] === process.env.MAP_DIMENSION - 1)
+        radioMapNotes[playerTeam].some(
+          (note) => note[1] === process.env.MAP_DIMENSION - 1
+        )
       ) {
         disabled = true;
       }
