@@ -1,9 +1,9 @@
+/** @jsxImportSource @emotion/react */
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import RadioMap from "./RadioMap";
 import TriangleShiftButton from "./TriangleShiftButton";
 import { useGameContext } from "@/app/state/game_state";
 import { capitalizeFirstLetter } from "@/app/utils";
-import { Box } from "@mui/material";
 import theme from "@/app/styles/theme";
 import { useEffect, useRef, useState } from "react";
 import { useAblyContext } from "@/app/state/ably_state";
@@ -138,7 +138,7 @@ export default function RadioOperatorDashboard() {
         </div>
         <div style={styles.rightColumn}>
           <h3 style={styles.header}>Enemy Movements</h3>
-          <Box style={styles.movementsList}>
+          <div css={styles.movementsList}>
             {movements[playerTeam === "blue" ? "red" : "blue"].map(
               (movement, index) => (
                 <div
@@ -163,7 +163,7 @@ export default function RadioOperatorDashboard() {
               ),
             )}
             <div ref={ref} />
-          </Box>
+          </div>
         </div>
       </div>
     </div>
