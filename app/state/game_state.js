@@ -40,10 +40,6 @@ export function GameWrapper({ children }) {
     red: false,
   });
   const [minesList, setMinesList] = useState({ blue: [], red: [] });
-  const [hitPoints, setHitPoints] = useState({
-    blue: process.env.STARTING_HIT_POINTS,
-    red: process.env.STARTING_HIT_POINTS,
-  });
   const [pendingNavigate, setPendingNavigate] = useState({
     blue: null,
     red: null,
@@ -72,18 +68,18 @@ export function GameWrapper({ children }) {
   });
   const [systemHealthLevels, setSystemHealthLevels] = useState({
     blue: {
-      weapons: process.env.MAX_SYSTEM_HEALTH,
-      scan: process.env.MAX_SYSTEM_HEALTH,
-      engine: process.env.MAX_SYSTEM_HEALTH,
-      comms: process.env.MAX_SYSTEM_HEALTH,
-      "life support": process.env.MAX_SYSTEM_HEALTH,
+      weapons: 0,
+      scan: 0,
+      engine: 0,
+      comms: 0,
+      "life support": process.env.STARTING_LIFE_SUPPORT,
     },
     red: {
-      weapons: process.env.MAX_SYSTEM_HEALTH,
-      scan: process.env.MAX_SYSTEM_HEALTH,
-      engine: process.env.MAX_SYSTEM_HEALTH,
-      comms: process.env.MAX_SYSTEM_HEALTH,
-      "life support": process.env.MAX_SYSTEM_HEALTH,
+      weapons: 0,
+      scan: 0,
+      engine: 0,
+      comms: 0,
+      "life support": process.env.STARTING_LIFE_SUPPORT,
     },
   });
   const [radioMapNotes, setRadioMapNotes] = useState({ blue: [], red: [] });
@@ -376,7 +372,7 @@ export function GameWrapper({ children }) {
     );
   }
 
-  function calculateSystemDamageAmount(matrix, system) {
+  function calculateMaxSystemHealth(matrix, system) {
     const rowIndices = [];
     const columnIndices = [];
 
@@ -398,7 +394,7 @@ export function GameWrapper({ children }) {
       matrix.length,
     );
 
-    return Math.ceil(100 / dist);
+    return dist;
   }
 
   function calculateSystemNodeDistance(system) {
@@ -462,8 +458,7 @@ export function GameWrapper({ children }) {
 
     // set the updated health level for the system
     const updatedHealthLevel = Math.max(
-      systemHealthLevels[team][randomSystem] -
-        calculateSystemDamageAmount(updatedMatrix, randomSystem), // process.env.SYSTEM_DAMAGE_AMOUNT,
+      systemHealthLevels[team][randomSystem] - 1, // process.env.SYSTEM_DAMAGE_AMOUNT,
       0,
     );
 
@@ -522,7 +517,7 @@ export function GameWrapper({ children }) {
       tempMessageTimestamp += 1;
 
       syncStateMessage["systemHealthLevels"][team][blockSystem] =
-        process.env.MAX_SYSTEM_HEALTH;
+        calculateMaxSystemHealth(updatedMatrix, blockSystem);
     }
 
     // move the sub in the specified direction
@@ -1088,7 +1083,7 @@ export function GameWrapper({ children }) {
       ...systemHealthLevels,
       [team]: {
         ...systemHealthLevels[team],
-        [system]: process.env.MAX_SYSTEM_HEALTH,
+        [system]: calculateMaxSystemHealth(repairMatrix[team], system),
       },
     });
   }
@@ -1099,8 +1094,7 @@ export function GameWrapper({ children }) {
 
   function updateLifeSupport(team, hits) {
     return Math.max(
-      systemHealthLevels[team]["life support"] -
-        process.env.LIFE_SUPPORT_DAMAGE_AMOUNT * hits,
+      systemHealthLevels[team]["life support"] - hits,
       0,
     );
   }
@@ -1137,7 +1131,6 @@ export function GameWrapper({ children }) {
         islandList,
         minesList,
         subLocations,
-        hitPoints,
         hostClientId,
         gameMap,
         repairMatrix,
@@ -1151,6 +1144,7 @@ export function GameWrapper({ children }) {
         movements,
         currentlySurfacing,
         movementCountOnDisable,
+        calculateMaxSystemHealth,
         notificationMessages,
         messageTimestamp,
         engineerPendingBlock,
@@ -1168,7 +1162,6 @@ export function GameWrapper({ children }) {
         setPlayerRole,
         setMinesList,
         setSubLocations,
-        setHitPoints,
         setGameMap,
         setRepairMatrix,
         moveSub,
