@@ -5,6 +5,7 @@ import theme from "@/app/styles/theme";
 import { useEffect, useState } from "react";
 import targetImage from "../../target.png";
 import Image from "next/image";
+import { useAblyContext } from "@/app/state/ably_state";
 
 export default function GameMap(props) {
   const {
@@ -24,6 +25,7 @@ export default function GameMap(props) {
     getFirstMateSystem,
     minesList,
   } = useGameContext();
+  const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
