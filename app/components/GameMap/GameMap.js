@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+/** @jsxImportSource @emotion/react */
 import { useGameContext } from "../../state/game_state";
 import { indexToColumn, indexToRow } from "../../utils";
 import theme from "@/app/styles/theme";
@@ -197,8 +197,8 @@ export default function GameMap(props) {
                     ...getIslandBorders(rowIndex, columnIndex),
                   }}
                 >
-                  <Box
-                    sx={
+                  <div
+                    css={
                       cell.type === "island"
                         ? styles.island
                         : cell.subPresent[playerTeam] && playerTeam === "blue"
@@ -275,8 +275,8 @@ export default function GameMap(props) {
                         (cell) =>
                           cell[0] === rowIndex && cell[1] === columnIndex,
                       ) && (
-                        <Box
-                          sx={{
+                        <div
+                          css={{
                             minWidth: "25px",
                             minHeight: "25px",
                             backgroundColor: theme.purple,
@@ -290,7 +290,7 @@ export default function GameMap(props) {
                           }}
                         />
                       )}
-                  </Box>
+                  </div>
                 </td>
               ))}
             </tr>

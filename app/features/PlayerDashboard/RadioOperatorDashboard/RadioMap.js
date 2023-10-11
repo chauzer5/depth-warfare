@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+/** @jsxImportSource @emotion/react */
 import { useGameContext } from "@/app/state/game_state";
 import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
@@ -119,8 +119,8 @@ export default function RadioMap() {
                   ...getIslandBorders(rowIndex, columnIndex),
                 }}
               >
-                <Box
-                  sx={cell.type === "island" ? styles.island : styles.water}
+                <div
+                  css={cell.type === "island" ? styles.island : styles.water}
                   onClick={() => handleClick(rowIndex, columnIndex)}
                 >
                   {radioMapNotes[playerTeam].find(
@@ -143,7 +143,7 @@ export default function RadioMap() {
                       X
                     </span>
                   )}
-                </Box>
+                </div>
               </td>
             ))}
           </tr>

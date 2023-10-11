@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react"; // Import useState
-import { Box } from "@mui/material";
+/** @jsxImportSource @emotion/react */
 import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
@@ -155,8 +154,8 @@ export default function RepairMatrix() {
                   ...setCellDims(rowIndex, columnIndex),
                 }}
               >
-                <Box
-                  sx={
+                <div
+                  css={
                     cell.type === "outer"
                       ? styles.outerCell
                       : cell.system == "empty" &&
@@ -173,7 +172,7 @@ export default function RepairMatrix() {
                       ? () => handleClick(rowIndex, columnIndex)
                       : null
                   }
-                ></Box>
+                ></div>
               </td>
             ))}
           </tr>
