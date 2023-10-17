@@ -1106,9 +1106,7 @@ export function radioOperatorShiftNotes(context, message) {
 
 export function syncNetworkState(context, networkStateSubset) {
   const { setNetworkState } = context;
-  console.log("Got inside syncNetworkState function", networkStateSubset)
   Object.keys(networkStateSubset).forEach(key => {
-    console.log("Looping in syncNetworkState", key, networkStateSubset[key])
     setNetworkState({ type: key, value: networkStateSubset[key] });
   });
 }
