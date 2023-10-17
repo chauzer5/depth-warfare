@@ -8,11 +8,11 @@ import { useAblyContext } from "@/app/state/ably_state";
 
 export default function EngineerDashboard() {
   const {
-    pendingNavigate,
+    networkState,
     playerTeam,
-    engineerCompassMap,
-    engineerPendingBlock,
   } = useGameContext();
+
+  const { pendingNavigate, engineerCompassMap, engineerPendingBlock } = networkState
 
   const { channel } = useAblyContext();
 

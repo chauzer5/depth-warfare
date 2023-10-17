@@ -5,7 +5,8 @@ import useKeypress from "react-use-keypress";
 
 export default function TriangleShiftButton(props) {
   const { direction } = props;
-  const { radioMapNotes, playerTeam } = useGameContext();
+  const { networkState, playerTeam } = useGameContext();
+  const { radioMapNotes } = networkState
   const { channel } = useAblyContext();
 
   const w = "30";

@@ -81,14 +81,11 @@ export default function CaptainDashboard() {
 
   const {
     playerTeam,
-    pendingNavigate,
-    systemChargeLevels,
-    systemHealthLevels,
-    gameMap,
-    subLocations,
-    randomEnabledDirection,
+    networkState,
     isNavigationDisabled,
   } = useGameContext();
+
+  const { pendingNavigate, systemChargeLevels, systemHealthLevels, gameMap, subLocations, randomEnabledDirection } = networkState
 
   const { channel } = useAblyContext();
 

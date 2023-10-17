@@ -12,16 +12,18 @@ export function captainSetStartingSpot(context, message) {
   const {
     getMessagePlayer,
     moveSub,
-    subLocations,
+    networkState,
     isNavigationDisabled,
     randomEnabledDirection,
   } = context;
+
+  const { subLocations } = networkState
 
   const team = getMessagePlayer(message).team;
 
   let allDone = false;
 
-  const networkState = moveSub(team, message.data.row, message.data.column);
+  const moveSubState = moveSub(team, message.data.row, message.data.column);
 
   const directions = ["north", "south", "west", "east"];
   const disabledDirectionStates = {};
@@ -30,8 +32,8 @@ export function captainSetStartingSpot(context, message) {
     disabledDirectionStates[direction] = isNavigationDisabled(
       direction,
       team,
-      networkState.gameMap,
-      networkState.subLocations,
+      moveSubState.gameMap,
+      moveSubState.subLocations,
     );
   });
 
@@ -41,7 +43,7 @@ export function captainSetStartingSpot(context, message) {
 
   const randomIndex = Math.floor(Math.random() * trueDirections.length);
 
-  networkState["randomEnabledDirection"] = {
+  moveSubState["randomEnabledDirection"] = {
     ...randomEnabledDirection,
     [team]: trueDirections[randomIndex],
   };
@@ -51,10 +53,10 @@ export function captainSetStartingSpot(context, message) {
   }
 
   if (allDone) {
-    networkState["currentStage"] = "countdown";
+    moveSubState["currentStage"] = "countdown";
   }
 
-  return networkState;
+  return moveSubState;
 }
 
 // This is the one where the captain picks a direction to go,
@@ -62,13 +64,12 @@ export function captainSetStartingSpot(context, message) {
 // MESSAGE: {direction}
 export function captainStartSubNavigate(context, message) {
   const {
-    pendingNavigate,
+    networkState,
     getMessagePlayer,
-    currentlySurfacing,
     isNavigationDisabled,
-    gameMap,
-    subLocations,
   } = context;
+
+  const { gameMap, subLocations, currentlySurfacing, pendingNavigate } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -91,21 +92,19 @@ export function captainStartSubNavigate(context, message) {
 // MESSAGE: {row, column}
 export function engineerPlaceSystemBlock(context, message) {
   const {
-    pendingSystemCharge,
     getMessagePlayer,
-    engineerPendingBlock,
-    repairMatrix,
     finishTurn,
-    pendingNavigate,
-    currentlySurfacing,
+    networkState,
   } = context;
+
+  const { pendingSystemCharge, engineerPendingBlock, repairMatrix, pendingNavigate, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
 
   if (currentlySurfacing[team]) {
     return {};
   }
-  let networkState = {};
+  let tempNetworkState = {};
 
   const { row, column } = message.data.clickedCell;
 
@@ -119,14 +118,14 @@ export function engineerPlaceSystemBlock(context, message) {
     pendingNavigate[team]
   ) {
     if (!pendingSystemCharge[team]) {
-      networkState = {
+      tempNetworkState = {
         engineerPendingBlock: {
           ...engineerPendingBlock,
           [team]: message.data.clickedCell,
         },
       };
     } else {
-      networkState = finishTurn(
+      tempNetworkState = finishTurn(
         message.data.clickedCell,
         pendingSystemCharge[team],
         team,
@@ -134,11 +133,13 @@ export function engineerPlaceSystemBlock(context, message) {
     }
   }
 
-  return networkState;
+  return tempNetworkState;
 }
 
 export function engineerClearRepairMatrix(context, message) {
-  const { getMessagePlayer, repairMatrix, currentlySurfacing } = context;
+  const { getMessagePlayer, networkState } = context;
+
+  const { repairMatrix, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -160,14 +161,12 @@ export function engineerClearRepairMatrix(context, message) {
 // MESSAGE: {system}
 export function firstMateChooseSystemCharge(context, message) {
   const {
-    pendingSystemCharge,
     getMessagePlayer,
-    engineerPendingBlock,
-    systemChargeLevels,
     finishTurn,
-    pendingNavigate,
-    currentlySurfacing,
+    networkState
   } = context;
+
+  const { pendingSystemCharge, engineerPendingBlock, systemChargeLevels, pendingNavigate, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -175,7 +174,7 @@ export function firstMateChooseSystemCharge(context, message) {
     return {};
   }
 
-  let networkState = {};
+  let tempNetworkState = {};
 
   // Enforce that we are able to charge the system we are looking at
   if (
@@ -185,7 +184,7 @@ export function firstMateChooseSystemCharge(context, message) {
     !pendingSystemCharge[team]
   ) {
     if (!engineerPendingBlock[team]) {
-      networkState = {
+      tempNetworkState = {
         pendingSystemCharge: {
           ...pendingSystemCharge,
           [team]: message.data.system,
@@ -194,7 +193,7 @@ export function firstMateChooseSystemCharge(context, message) {
     } else {
       // This means we are second to go this turn
       // engineerHealSystem[team] should already be assigned
-      networkState = finishTurn(
+      tempNetworkState = finishTurn(
         engineerPendingBlock[team],
         message.data.system,
         team,
@@ -202,19 +201,18 @@ export function firstMateChooseSystemCharge(context, message) {
     }
   }
 
-  return networkState;
+  return tempNetworkState;
 }
 
 //Captain can change his mind on a move he makes
 // MESSAGE: {}
 export function captainCancelSubNavigate(context, message) {
   const {
-    pendingNavigate,
-    pendingSystemCharge,
+    networkState,
     getMessagePlayer,
-    engineerPendingBlock,
-    currentlySurfacing,
   } = context;
+
+  const { pendingNavigate, pendingSystemCharge, engineerPendingBlock, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -233,18 +231,14 @@ export function captainCancelSubNavigate(context, message) {
 // MESSAGE: {row, column}
 export function captainSilence(context, message) {
   const {
-    systemChargeLevels,
+    networkState,
     getMessagePlayer,
-    moveSub,
-    movements,
     getValidSilenceCells,
-    currentlySurfacing,
-    pendingNavigate,
     isNavigationDisabled,
-    randomEnabledDirection,
-    subLocations,
-    gameMap,
+    moveSub
   } = context;
+
+  const { systemChargeLevels, movements, currentlySurfacing, pendingNavigate, randomEnabledDirection, subLocations, gameMap } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -272,7 +266,7 @@ export function captainSilence(context, message) {
   }
 
   // Move the sub to the chosen location
-  const networkState = moveSub(team, message.data.row, message.data.column);
+  const tempNetworkState = moveSub(team, message.data.row, message.data.column);
 
   const directions = ["north", "south", "west", "east"];
   const disabledDirectionStates = {};
@@ -281,8 +275,8 @@ export function captainSilence(context, message) {
     disabledDirectionStates[direction] = isNavigationDisabled(
       direction,
       team,
-      networkState.gameMap,
-      networkState.subLocations,
+      tempNetworkState.gameMap,
+      tempNetworkState.subLocations,
     );
   });
 
@@ -292,28 +286,30 @@ export function captainSilence(context, message) {
 
   const randomIndex = Math.floor(Math.random() * trueDirections.length);
 
-  networkState["randomEnabledDirection"] = {
+  tempNetworkState["randomEnabledDirection"] = {
     ...randomEnabledDirection,
     [team]: trueDirections[randomIndex],
   };
 
-  networkState["systemChargeLevels"] = {
+  tempNetworkState["systemChargeLevels"] = {
     ...systemChargeLevels,
     [team]: {
       ...systemChargeLevels[team],
       silence: 0,
     },
   };
-  networkState["movements"] = {
+  tempNetworkState["movements"] = {
     ...movements,
     [team]: [...movements[team], "silence"],
   };
 
-  return networkState;
+  return tempNetworkState;
 }
 
 export function stopSurfacing(context, message) {
-  const { getMessagePlayer, currentlySurfacing } = context;
+  const { getMessagePlayer, networkState } = context;
+
+  const { currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -328,13 +324,11 @@ export function captainSurface(context, message) {
   const {
     clearVisitedPath,
     getMessagePlayer,
-    systemHealthLevels,
-    subLocations,
-    movements,
-    currentlySurfacing,
-    repairMatrix,
+    networkState,
     calculateMaxSystemHealth,
   } = context;
+
+  const { systemHealthLevels, subLocations, movements, currentlySurfacing, repairMatrix } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -370,17 +364,21 @@ export function firstMateFireTorpedo(context, message) {
   const {
     getMessagePlayer,
     updateLifeSupport,
+    detonateWeapon,
+    getCellsDistanceAway,
+    networkState
+  } = context;
+
+  const {
     subLocations,
     systemHealthLevels,
     systemChargeLevels,
     minesList,
-    detonateWeapon,
     messageTimestamp,
     notificationMessages,
     currentlySurfacing,
-    getCellsDistanceAway,
-    gameMap,
-  } = context;
+    gameMap
+  } = networkState
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
@@ -639,16 +637,11 @@ export function firstMateFireTorpedo(context, message) {
 export function firstMateDropMine(context, message) {
   const {
     getMessagePlayer,
-    systemChargeLevels,
-    minesList,
-    notificationMessages,
-    messageTimestamp,
-    currentlySurfacing,
+    networkState,
     getCellsDistanceAway,
-    gameMap,
-    systemHealthLevels,
-    subLocations,
   } = context;
+
+  const { systemChargeLevels, minesList, notificationMessages, messageTimestamp, currentlySurfacing, gameMap, systemHealthLevels, subLocations } = networkState
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -744,14 +737,11 @@ export function firstMateDetonateMine(context, message) {
   const {
     getMessagePlayer,
     updateLifeSupport,
-    subLocations,
-    systemHealthLevels,
-    minesList,
+    networkState,
     detonateWeapon,
-    messageTimestamp,
-    notificationMessages,
-    currentlySurfacing,
   } = context;
+
+  const { subLocations, systemHealthLevels, minesList, messageTimestamp, notificationMessages, currentlySurfacing } = networkState
 
   let tempMessages = [];
   let tempTimestamp = messageTimestamp;
@@ -942,11 +932,10 @@ export function firstMateDetonateMine(context, message) {
 export function firstMateScan(context, message) {
   const {
     getMessagePlayer,
-    systemChargeLevels,
-    messageTimestamp,
-    notificationMessages,
-    currentlySurfacing,
+    networkState
   } = context;
+
+  const { systemChargeLevels, messageTimestamp, notificationMessages, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
 
@@ -985,7 +974,9 @@ export function firstMateScan(context, message) {
 // Radio operator adds or removes a note from a cell
 // MESSAGE: {row, column}
 export function radioOperatorAddRemoveNote(context, message) {
-  const { radioMapNotes, getMessagePlayer, currentlySurfacing } = context;
+  const { networkState, getMessagePlayer} = context;
+
+  const { radioMapNotes, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -1027,7 +1018,9 @@ export function radioOperatorAddRemoveNote(context, message) {
 // Radio operator clears all of his notes
 // MESSAGE: {}
 export function radioOperatorClearNotes(context, message) {
-  const { radioMapNotes, getMessagePlayer, currentlySurfacing } = context;
+  const { networkState, getMessagePlayer} = context;
+
+  const { radioMapNotes, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -1045,7 +1038,9 @@ export function radioOperatorClearNotes(context, message) {
 // Radio operator shifts all the notes in a direction
 // MESSAGE: {direction}
 export function radioOperatorShiftNotes(context, message) {
-  const { radioMapNotes, getMessagePlayer, currentlySurfacing } = context;
+  const { networkState, getMessagePlayer } = context;
+
+  const { radioMapNotes, currentlySurfacing } = networkState
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -1109,84 +1104,9 @@ export function radioOperatorShiftNotes(context, message) {
   };
 }
 
-export function syncNetworkState(context, networkState) {
-  const {
-    setCurrentStage,
-    setSubLocations,
-    setGameMap,
-    setSystemChargeLevels,
-    setMovementCountOnDisable,
-    setSystemHealthLevels,
-    setEngineerCompassMap,
-    setMovements,
-    setPendingSystemCharge,
-    setEngineerPendingBlock,
-    setPendingNavigate,
-    setEngineerHealSystem,
-    setNotificationMessages,
-    setMessageTimestamp,
-    setCurrentlySurfacing,
-    setMinesList,
-    setRadioMapNotes,
-    setRepairMatrix,
-    setRandomEnabledDirection,
-  } = context;
-
-  if (networkState.hasOwnProperty("currentStage")) {
-    setCurrentStage(networkState.currentStage);
-  }
-  if (networkState.hasOwnProperty("subLocations")) {
-    setSubLocations(networkState.subLocations);
-  }
-  if (networkState.hasOwnProperty("gameMap")) {
-    setGameMap(networkState.gameMap);
-  }
-  if (networkState.hasOwnProperty("systemChargeLevels")) {
-    setSystemChargeLevels(networkState.systemChargeLevels);
-  }
-  if (networkState.hasOwnProperty("movementCountOnDisable")) {
-    setMovementCountOnDisable(networkState.movementCountOnDisable);
-  }
-  if (networkState.hasOwnProperty("systemHealthLevels")) {
-    setSystemHealthLevels(networkState.systemHealthLevels);
-  }
-  if (networkState.hasOwnProperty("engineerCompassMap")) {
-    setEngineerCompassMap(networkState.engineerCompassMap);
-  }
-  if (networkState.hasOwnProperty("movements")) {
-    setMovements(networkState.movements);
-  }
-  if (networkState.hasOwnProperty("pendingSystemCharge")) {
-    setPendingSystemCharge(networkState.pendingSystemCharge);
-  }
-  if (networkState.hasOwnProperty("engineerPendingBlock")) {
-    setEngineerPendingBlock(networkState.engineerPendingBlock);
-  }
-  if (networkState.hasOwnProperty("pendingNavigate")) {
-    setPendingNavigate(networkState.pendingNavigate);
-  }
-  if (networkState.hasOwnProperty("engineerHealSystem")) {
-    setEngineerHealSystem(networkState.engineerHealSystem);
-  }
-  if (networkState.hasOwnProperty("notificationMessages")) {
-    setNotificationMessages(networkState.notificationMessages);
-  }
-  if (networkState.hasOwnProperty("messageTimestamp")) {
-    setMessageTimestamp(networkState.messageTimestamp);
-  }
-  if (networkState.hasOwnProperty("currentlySurfacing")) {
-    setCurrentlySurfacing(networkState.currentlySurfacing);
-  }
-  if (networkState.hasOwnProperty("minesList")) {
-    setMinesList(networkState.minesList);
-  }
-  if (networkState.hasOwnProperty("radioMapNotes")) {
-    setRadioMapNotes(networkState.radioMapNotes);
-  }
-  if (networkState.hasOwnProperty("repairMatrix")) {
-    setRepairMatrix(networkState.repairMatrix);
-  }
-  if (networkState.hasOwnProperty("randomEnabledDirection")) {
-    setRandomEnabledDirection(networkState.randomEnabledDirection);
-  }
+export function syncNetworkState(context, networkStateSubset) {
+  const { setNetworkState } = context;
+  Object.keys(networkStateSubset).forEach(key => {
+    setNetworkState({ type: key, value: networkStateSubset[key] });
+  });
 }

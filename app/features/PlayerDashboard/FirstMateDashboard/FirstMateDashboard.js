@@ -80,17 +80,14 @@ export default function FirstMateDashboard() {
   const { channel } = useAblyContext();
 
   const {
-    pendingNavigate,
     playerTeam,
-    pendingSystemCharge,
     getFirstMateSystem,
-    systemChargeLevels,
     getCellsDistanceAway,
-    subLocations,
     scanForEnemySub,
-    minesList,
-    systemHealthLevels,
+    networkState
   } = useGameContext();
+
+  const { pendingNavigate, pendingSystemCharge, systemChargeLevels, subLocations, minesList, systemHealthLevels } = networkState
 
   const [toggledSystem, setToggledSystem] = useState("torpedo");
   const [scanType, setScanType] = useState("sector"); // ['sector', 'row', 'column']

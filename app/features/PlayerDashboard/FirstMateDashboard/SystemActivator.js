@@ -50,11 +50,11 @@ export default function SystemActivator(props) {
   };
 
   const {
-    systemChargeLevels,
-    pendingNavigate,
-    pendingSystemCharge,
     playerTeam,
+    networkState
   } = useGameContext();
+
+  const { systemChargeLevels, pendingNavigate, pendingSystemCharge } = networkState
 
   const { channel } = useAblyContext();
 

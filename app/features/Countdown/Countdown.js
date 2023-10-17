@@ -12,10 +12,10 @@ export default function Countdown() {
     },
   };
 
-  const { setCurrentStage } = useGameContext();
+  const { setNetworkState } = useGameContext();
 
   const handleFinish = () => {
-    setCurrentStage("main");
+    setNetworkState({ type: "currentStage", value: "main" })
   };
 
   return (

@@ -33,19 +33,19 @@ export default function TeamSelection(props) {
   };
 
   const { presenceData, updateStatus } = props;
-
-  const {
+  const { 
     username,
-    setCurrentStage,
+    setNetworkState,
     setPlayerTeam,
     setPlayerRole,
     setPlayerData,
     setHostClientId,
     resetMap,
     getEmptyRepairMatrix,
-    systemHealthLevels,
-    calculateMaxSystemHealth
-  } = useGameContext();
+    calculateMaxSystemHealth,
+    networkState } = useGameContext();
+
+  const { systemHealthLevels } = networkState
 
   const { channel } = useAblyContext();
 
@@ -82,7 +82,7 @@ export default function TeamSelection(props) {
 
       setHostClientId(hostClientId);
       setPlayerData(newPlayerData);
-      setCurrentStage("starting-spot");
+      setNetworkState({ type: "currentStage", value: "starting-spot" })
 
       if (selfClientId === hostClientId) {
         const newMap = resetMap();
@@ -108,8 +108,8 @@ export default function TeamSelection(props) {
             "life support": systemHealthLevels["red"]["life support"],
           },
         }
-        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
-        channel.publish("sync-network-state", networkState);
+        const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
+        channel.publish("sync-network-state", networkStateSubset);
       }
     }
   }, [presenceData]);

@@ -17,14 +17,13 @@ export default function GameMap(props) {
     dropMineCells,
   } = props;
   const {
-    gameMap,
+    networkState,
     playerTeam,
-    pendingNavigate,
-    subLocations,
     getValidSilenceCells,
     getFirstMateSystem,
-    minesList,
   } = useGameContext();
+
+  const { gameMap, pendingNavigate, subLocations, minesList } = networkState
   const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
@@ -170,7 +169,7 @@ export default function GameMap(props) {
     channel?.publish("captain-silence", { row, column });
   };
 
-  if (typeof gameMap === "undefined") {
+  if (typeof gameMap === "undefined" || gameMap === null) {
     return <div></div>;
   } else {
     return (

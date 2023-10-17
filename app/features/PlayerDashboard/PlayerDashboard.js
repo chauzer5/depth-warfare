@@ -11,8 +11,8 @@ import FirstMateDashboard from "./FirstMateDashboard/FirstMateDashboard";
 import RadioOperatorDashboard from "./RadioOperatorDashboard/RadioOperatorDashboard";
 
 export default function PlayerDashboard() {
-  const { playerRole, currentlySurfacing, playerTeam, notificationMessages } =
-    useGameContext();
+  const { playerRole, playerTeam, networkState } = useGameContext();
+  const { currentlySurfacing, notificationMessages } = networkState
   const { enqueueSnackbar } = useSnackbar();
 
   const styles = {

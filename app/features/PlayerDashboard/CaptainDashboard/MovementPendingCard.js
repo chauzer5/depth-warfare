@@ -74,11 +74,11 @@ export default function MovementPendingCard() {
   };
 
   const {
-    pendingNavigate,
+    networkState,
     playerTeam,
-    pendingSystemCharge,
-    engineerPendingBlock,
   } = useGameContext();
+
+  const { pendingNavigate, pendingSystemCharge, engineerPendingBlock } = networkState
 
   const { channel } = useAblyContext();
 
