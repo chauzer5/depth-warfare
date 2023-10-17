@@ -28,13 +28,14 @@ export default function Lobby() {
     },
   };
 
-  const { username, setGameId, setCurrentStage } = useGameContext();
+  const { username, setGameId, setNetworkState } = useGameContext();
   const { selfClientId } = useAblyContext();
 
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
     if (message.name === "start-game") {
+      console.log("Got inside start-game.")
       setGameId(message.data.gameId);
-      setCurrentStage("teams");
+      setNetworkState({ type: "currentStage", value: "teams" })
     }
   });
 

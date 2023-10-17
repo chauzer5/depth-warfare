@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useReducer } from "react";
 import { maps } from "../maps";
 import {
   columnToIndex,
@@ -19,91 +19,58 @@ export function GameWrapper({ children }) {
   const islandList = maps[process.env.ISLAND_MAP];
   const [username, setUsername] = useState();
   const [hostClientId, setHostClientId] = useState(null);
-  const [currentStage, setCurrentStage] = useState("login");
   const [gameId, setGameId] = useState();
   const [playerTeam, setPlayerTeam] = useState();
   const [playerRole, setPlayerRole] = useState();
-  const [gameMap, setGameMap] = useState();
-  const [repairMatrix, setRepairMatrix] = useState({ blue: [], red: [] });
   const [playerData, setPlayerData] = useState();
-  const [subLocations, setSubLocations] = useState({ blue: null, red: null });
-  const [randomEnabledDirection, setRandomEnabledDirection] = useState({
-    blue: null,
-    red: null,
-  });
-  const [engineerPendingBlock, setEngineerPendingBlock] = useState({
-    blue: null,
-    red: null,
-  });
-  const [engineerHealSystem, setEngineerHealSystem] = useState({
-    blue: false,
-    red: false,
-  });
-  const [minesList, setMinesList] = useState({ blue: [], red: [] });
-  const [pendingNavigate, setPendingNavigate] = useState({
-    blue: null,
-    red: null,
-  });
-  const [pendingSystemCharge, setPendingSystemCharge] = useState({
-    blue: null,
-    red: null,
-  });
-  const [currentlySurfacing, setCurrentlySurfacing] = useState({
-    blue: false,
-    red: false,
-  });
-  const [systemChargeLevels, setSystemChargeLevels] = useState({
-    blue: {
-      mine: 0,
-      torpedo: 0,
-      scan: 0,
-      silence: 0,
+
+  // NEW CODE
+  const initialNetworkState = {
+    currentStage: "login",
+    gameMap: null,
+    repairMatrix: { blue: [], red: [] },
+    subLocations: { blue: null, red: null },
+    randomEnabledDirection: { blue: null, red: null },
+    engineerPendingBlock: { blue: null, red: null },
+    engineerHealSystem: { blue: false, red: false },
+    minesList: { blue: [], red: [] },
+    pendingNavigate: { blue: null, red: null },
+    pendingSystemCharge: { blue: null, red: null },
+    currentlySurfacing: { blue: false, red: false },
+    systemChargeLevels: {
+      blue: { mine: 0, torpedo: 0, scan: 0, silence: 0 },
+      red: { mine: 0, torpedo: 0, scan: 0, silence: 0 },
     },
-    red: {
-      mine: 0,
-      torpedo: 0,
-      scan: 0,
-      silence: 0,
+    systemHealthLevels: {
+      blue: {
+        weapons: 0, scan: 0, engine: 0, comms: 0, "life support": process.env.STARTING_LIFE_SUPPORT,
+      },
+      red: {
+        weapons: 0, scan: 0, engine: 0, comms: 0, "life support": process.env.STARTING_LIFE_SUPPORT,
+      },
     },
-  });
-  const [systemHealthLevels, setSystemHealthLevels] = useState({
-    blue: {
-      weapons: 0,
-      scan: 0,
-      engine: 0,
-      comms: 0,
-      "life support": process.env.STARTING_LIFE_SUPPORT,
+    radioMapNotes: { blue: [], red: [] },
+    movements: { blue: [], red: [] },
+    movementCountOnDisable: { blue: 0, red: 0 },
+    engineerCompassMap: {
+      blue: { north: "scan", south: "comms", east: "weapons", west: "engine" },
+      red: { north: "scan", south: "comms", east: "weapons", west: "engine" },
     },
-    red: {
-      weapons: 0,
-      scan: 0,
-      engine: 0,
-      comms: 0,
-      "life support": process.env.STARTING_LIFE_SUPPORT,
-    },
-  });
-  const [radioMapNotes, setRadioMapNotes] = useState({ blue: [], red: [] });
-  const [movements, setMovements] = useState({ blue: [], red: [] });
-  const [movementCountOnDisable, setMovementCountOnDisable] = useState({
-    blue: 0,
-    red: 0,
-  });
-  const [engineerCompassMap, setEngineerCompassMap] = useState({
-    blue: {
-      north: "scan",
-      south: "comms",
-      east: "weapons",
-      west: "engine",
-    },
-    red: {
-      north: "scan",
-      south: "comms",
-      east: "weapons",
-      west: "engine",
-    },
-  });
-  const [notificationMessages, setNotificationMessages] = useState([]);
-  const [messageTimestamp, setMessageTimestamp] = useState(0);
+    notificationMessages: [],
+    messageTimestamp: 0,
+  };
+  
+  // Reducer
+  function networkStateReducer(state, action) {
+    const { type, value } = action;
+    console.log("Inside networkState reducer")
+    return {
+      ...state,
+      [type]: value
+    };
+  }
+
+  const [networkState, setNetworkState] = useReducer(networkStateReducer, initialNetworkState);
 
   const getFirstMateSystem = (inputSystem) => {
     return SYSTEMS_INFO.find((system) => system.name === inputSystem);
@@ -256,6 +223,7 @@ export function GameWrapper({ children }) {
   }
 
   function moveSub(team, row, column) {
+    const { gameMap, subLocations, currentStage } = networkState
     const mapCopy = [...gameMap];
 
     //Enforcing the sub movements
@@ -401,6 +369,8 @@ export function GameWrapper({ children }) {
     const rowIndices = [];
     const columnIndices = [];
 
+    const { repairMatrix } = networkState
+
     for (let row = 0; row < repairMatrix[playerTeam].length; row++) {
       for (let col = 0; col < repairMatrix[playerTeam][0].length; col++) {
         const cell = repairMatrix[playerTeam][row][col];
@@ -422,6 +392,20 @@ export function GameWrapper({ children }) {
 
   function finishTurn(engineerBlockCell, chargedSystem, team) {
     const tempMessages = [];
+    const {
+      messageTimestamp,
+      systemChargeLevels,
+      engineerCompassMap,
+      systemHealthLevels,
+      repairMatrix,
+      notificationMessages,
+      movementCountOnDisable,
+      randomEnabledDirection,
+      pendingNavigate,
+      engineerPendingBlock,
+      movements,
+      pendingSystemCharge,
+      engineerHealSystem } = networkState
     let tempMessageTimestamp = messageTimestamp;
 
     // charge the specified system
@@ -621,6 +605,7 @@ export function GameWrapper({ children }) {
   }
 
   function moveSubDirection(team, direction) {
+    const { subLocations } = networkState
     const [row, column] = subLocations[team];
     let moveInfo = {};
     switch (direction) {
@@ -672,6 +657,7 @@ export function GameWrapper({ children }) {
   }
 
   function clearVisitedPath(team) {
+    const { gameMap } = networkState
     const mapCopy = [...gameMap];
 
     for (let row = 0; row < process.env.MAP_DIMENSION; row++) {
@@ -996,6 +982,7 @@ export function GameWrapper({ children }) {
     validCells,
     currentDistance = 0,
   ) {
+    const { gameMap } = networkState
     if (
       row < 0 ||
       col < 0 ||
@@ -1055,6 +1042,7 @@ export function GameWrapper({ children }) {
     maxDistance,
     removeStart = true,
   ) {
+    const { gameMap } = networkState
     const rows = gameMap.length;
     const cols = gameMap[0].length;
 
@@ -1079,12 +1067,17 @@ export function GameWrapper({ children }) {
   }
 
   function healSystem(team, system) {
-    setSystemHealthLevels({
-      ...systemHealthLevels,
-      [team]: {
-        ...systemHealthLevels[team],
-        [system]: calculateMaxSystemHealth(repairMatrix[team], system),
-      },
+    const { systemHealthLevels, repairMatrix } = networkState
+    setNetworkState(
+      {
+      key: "systemHealthLevels",
+      value: {
+        ...systemHealthLevels,
+        [team]: {
+          ...systemHealthLevels[team],
+          [system]: calculateMaxSystemHealth(repairMatrix[team], system),
+        },
+      }
     });
   }
 
@@ -1093,6 +1086,7 @@ export function GameWrapper({ children }) {
   }
 
   function updateLifeSupport(team, hits) {
+    const { systemHealthLevels } = networkState
     return Math.max(
       systemHealthLevels[team]["life support"] - hits,
       0,
@@ -1123,78 +1117,42 @@ export function GameWrapper({ children }) {
   return (
     <GameContext.Provider
       value={{
-        currentStage,
         username,
         gameId,
         playerTeam,
         playerRole,
         islandList,
-        minesList,
-        subLocations,
         hostClientId,
-        gameMap,
-        repairMatrix,
         playerData,
-        pendingNavigate,
-        pendingSystemCharge,
-        systemChargeLevels,
-        systemHealthLevels,
-        engineerCompassMap,
-        radioMapNotes,
-        movements,
-        currentlySurfacing,
-        movementCountOnDisable,
         calculateMaxSystemHealth,
-        notificationMessages,
-        messageTimestamp,
-        engineerPendingBlock,
-        engineerHealSystem,
         clearVisitedPath,
         pickNewOuterCells,
         getValidSilenceCells,
-        randomEnabledDirection,
         isNavigationDisabled,
-        setRandomEnabledDirection,
-        setCurrentStage,
         setUsername,
         setGameId,
         setPlayerTeam,
         setPlayerRole,
-        setMinesList,
-        setSubLocations,
-        setGameMap,
-        setRepairMatrix,
         moveSub,
         moveSubDirection,
         setPlayerData,
         getMessagePlayer,
-        setPendingNavigate,
-        setPendingSystemCharge,
-        setSystemChargeLevels,
-        setSystemHealthLevels,
-        setEngineerCompassMap,
         resetMap,
         getEmptyRepairMatrix,
         getCellsDistanceAway,
-        setRadioMapNotes,
-        setMovements,
         checkConnectedRepairMatrixPath,
         healSystem,
         rotateEngineerCompassValues,
         getFirstMateSystem,
         updateLifeSupport,
         manhattanDistance,
-        setCurrentlySurfacing,
         scanForEnemySub,
         detonateWeapon,
-        setNotificationMessages,
-        setMessageTimestamp,
         finishTurn,
-        setEngineerPendingBlock,
-        setEngineerHealSystem,
-        setMovementCountOnDisable,
         setHostClientId,
         calculateSystemNodeDistance,
+        networkState,
+        setNetworkState
       }}
     >
       {children}

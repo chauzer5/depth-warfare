@@ -79,11 +79,12 @@ export default function SystemDamage(props) {
 
   const {
     playerTeam,
-    systemHealthLevels,
     calculateSystemNodeDistance,
-    repairMatrix,
-    calculateMaxSystemHealth
+    calculateMaxSystemHealth,
+    networkState,
   } = useGameContext();
+
+  const { systemHealthLevels, repairMatrix } = networkState
 
   const [numChunks, setNumChunks] = useState(0);
   const [barWidth, setBarWidth] = useState(0)

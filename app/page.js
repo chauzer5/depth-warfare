@@ -7,7 +7,10 @@ import Game from "./features/Game/Game";
 import { SnackbarProvider } from "notistack";
 
 export default function App() {
-  const { currentStage } = useGameContext();
+  const { networkState } = useGameContext();
+  const { currentStage } = networkState
+
+  console.log("currentStage ?" , currentStage)
 
   return (
     <>

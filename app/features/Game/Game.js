@@ -31,27 +31,11 @@ export default function Game() {
   const {
     gameId,
     username,
-    currentStage,
     hostClientId,
-    subLocations,
-    gameMap,
-    systemChargeLevels,
-    movementCountOnDisable,
-    systemHealthLevels,
-    engineerCompassMap,
-    movements,
-    pendingSystemCharge,
-    engineerPendingBlock,
-    pendingNavigate,
-    engineerHealSystem,
-    notificationMessages,
-    messageTimestamp,
-    currentlySurfacing,
-    minesList,
-    radioMapNotes,
-    repairMatrix,
-    randomEnabledDirection,
+    networkState
   } = useGameContext();
+
+  const { currentStage } = networkState
 
   const gameContext = useGameContext();
   const { selfClientId, channel, setChannel } = useAblyContext();
@@ -70,237 +54,175 @@ export default function Game() {
     setChannel(gameChannel);
   }, [gameChannel]);
 
-  const completeStateRef = useRef({
-    currentStage,
-    subLocations,
-    gameMap,
-    systemChargeLevels,
-    movementCountOnDisable,
-    systemHealthLevels,
-    engineerCompassMap,
-    movements,
-    pendingSystemCharge,
-    engineerPendingBlock,
-    pendingNavigate,
-    engineerHealSystem,
-    notificationMessages,
-    messageTimestamp,
-    currentlySurfacing,
-    minesList,
-    radioMapNotes,
-    repairMatrix,
-    randomEnabledDirection,
-  });
+  const networkStateRef = useRef(networkState);
 
   useEffect(() => {
-    completeStateRef.current = {
-      currentStage,
-      subLocations,
-      gameMap,
-      systemChargeLevels,
-      movementCountOnDisable,
-      systemHealthLevels,
-      engineerCompassMap,
-      movements,
-      pendingSystemCharge,
-      engineerPendingBlock,
-      pendingNavigate,
-      engineerHealSystem,
-      notificationMessages,
-      messageTimestamp,
-      currentlySurfacing,
-      minesList,
-      radioMapNotes,
-      repairMatrix,
-      randomEnabledDirection,
-    };
-  }, [
-    currentStage,
-    subLocations,
-    gameMap,
-    systemChargeLevels,
-    movementCountOnDisable,
-    systemHealthLevels,
-    engineerCompassMap,
-    movements,
-    pendingSystemCharge,
-    engineerPendingBlock,
-    pendingNavigate,
-    engineerHealSystem,
-    notificationMessages,
-    messageTimestamp,
-    currentlySurfacing,
-    minesList,
-    radioMapNotes,
-    repairMatrix,
-    randomEnabledDirection,
-    selfClientId,
-    hostClientId,
-  ]);
+    networkStateRef.current = networkState;
+  }, [networkState]);
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
 
-    let networkState = {};
+    let networkStateSubset = {};
 
     switch (newMessage?.name) {
       case "captain-set-starting-spot": // Done
         if (selfClientId === hostClientId) {
-          networkState = captainSetStartingSpot(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = captainSetStartingSpot(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "captain-start-sub-navigate":
         if (selfClientId === hostClientId) {
-          networkState = captainStartSubNavigate(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = captainStartSubNavigate(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "captain-cancel-sub-navigate":
         if (selfClientId === hostClientId) {
-          networkState = captainCancelSubNavigate(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = captainCancelSubNavigate(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "engineer-place-system-block":
         if (selfClientId === hostClientId) {
-          networkState = engineerPlaceSystemBlock(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = engineerPlaceSystemBlock(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "engineer-clear-repair-matrix":
         if (selfClientId === hostClientId) {
-          networkState = engineerClearRepairMatrix(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = engineerClearRepairMatrix(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "first-mate-choose-system-charge":
         if (selfClientId === hostClientId) {
-          networkState = firstMateChooseSystemCharge(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = firstMateChooseSystemCharge(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "captain-silence":
         if (selfClientId === hostClientId) {
-          networkState = captainSilence(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = captainSilence(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "captain-surface":
         if (selfClientId === hostClientId) {
-          networkState = captainSurface(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = captainSurface(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "stop-surfacing":
         if (selfClientId === hostClientId) {
-          networkState = stopSurfacing(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = stopSurfacing(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "first-mate-fire-torpedo":
         if (selfClientId === hostClientId) {
-          networkState = firstMateFireTorpedo(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = firstMateFireTorpedo(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "first-mate-drop-mine":
         if (selfClientId === hostClientId) {
-          networkState = firstMateDropMine(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = firstMateDropMine(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "first-mate-detonate-mine":
         if (selfClientId === hostClientId) {
-          networkState = firstMateDetonateMine(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = firstMateDetonateMine(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "first-mate-scan":
         if (selfClientId === hostClientId) {
-          networkState = firstMateScan(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = firstMateScan(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "radio-operator-add-remove-note":
         if (selfClientId === hostClientId) {
-          networkState = radioOperatorAddRemoveNote(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = radioOperatorAddRemoveNote(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "radio-operator-clear-notes":
         if (selfClientId === hostClientId) {
-          networkState = radioOperatorClearNotes(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = radioOperatorClearNotes(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
       case "radio-operator-shift-notes":
         if (selfClientId === hostClientId) {
-          networkState = radioOperatorShiftNotes(gameContext, newMessage);
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = radioOperatorShiftNotes(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
-            Object.assign(completeStateRef.current, networkState),
+            Object.assign(networkStateRef.current, networkStateSubset),
           );
         }
         break;
@@ -309,8 +231,9 @@ export default function Game() {
           (!(selfClientId === hostClientId) && currentStage == "main") ||
           currentStage != "main"
         ) {
-          networkState = newMessage.data;
-          syncNetworkState(gameContext, networkState);
+          networkStateSubset = newMessage.data;
+          console.log("Should have synced state.", networkStateSubset)
+          syncNetworkState(gameContext, networkStateSubset);
         }
         break;
       default:

@@ -33,19 +33,19 @@ export default function TeamSelection(props) {
   };
 
   const { presenceData, updateStatus } = props;
-
-  const {
+  const { 
     username,
-    setCurrentStage,
+    setNetworkState,
     setPlayerTeam,
     setPlayerRole,
     setPlayerData,
     setHostClientId,
     resetMap,
     getEmptyRepairMatrix,
-    systemHealthLevels,
-    calculateMaxSystemHealth
-  } = useGameContext();
+    calculateMaxSystemHealth,
+    networkState } = useGameContext();
+
+  const { systemHealthLevels } = networkState
 
   const { channel } = useAblyContext();
 
@@ -82,10 +82,13 @@ export default function TeamSelection(props) {
 
       setHostClientId(hostClientId);
       setPlayerData(newPlayerData);
-      setCurrentStage("starting-spot");
+      setNetworkState({ type: "currentStage", value: "starting-spot" })
+
+      console.log("client and host ids", selfClientId, hostClientId)
 
       if (selfClientId === hostClientId) {
         const newMap = resetMap();
+        console.log("should have created a new game map", newMap)
         const redRepairMatrix = getEmptyRepairMatrix()
         const blueRepairMatrix = getEmptyRepairMatrix()
         const newRepairMatrix = {
@@ -108,8 +111,9 @@ export default function TeamSelection(props) {
             "life support": systemHealthLevels["red"]["life support"],
           },
         }
-        const networkState = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
-        channel.publish("sync-network-state", networkState);
+        const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
+        console.log("sending sync state message", networkState.currentStage)
+        channel.publish("sync-network-state", networkStateSubset);
       }
     }
   }, [presenceData]);
@@ -127,6 +131,8 @@ export default function TeamSelection(props) {
       updateStatus({ name: username, team: null, role: null });
     }
   };
+
+  console.log("Inside Team Selection.")
 
   return (
     <div style={styles.main}>

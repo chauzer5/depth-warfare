@@ -32,7 +32,7 @@ export default function Login() {
     },
   };
 
-  const { setUsername, setCurrentStage } = useGameContext();
+  const { setUsername, setNetworkState } = useGameContext();
 
   const handleChangeUsername = (event) => {
     setUsername(event.target.value);
@@ -40,7 +40,7 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setCurrentStage("lobby");
+    setNetworkState({ type: "currentStage", value: "lobby" })
   };
 
   return (

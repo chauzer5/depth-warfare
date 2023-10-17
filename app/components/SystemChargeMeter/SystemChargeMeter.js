@@ -5,7 +5,9 @@ import { SYSTEMS_INFO } from "@/app/utils";
 export default function SystemChargeMeter(props) {
   const { systemName, showPendingCharge } = props;
 
-  const { systemChargeLevels, playerTeam } = useGameContext();
+  const { playerTeam, networkState } = useGameContext();
+
+  const { systemChargeLevels } = networkState
 
   const selectedSystem = SYSTEMS_INFO.find((sys) => sys.name === systemName);
 

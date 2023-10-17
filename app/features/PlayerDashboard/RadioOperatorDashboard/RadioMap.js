@@ -5,7 +5,8 @@ import theme from "@/app/styles/theme";
 import { useAblyContext } from "@/app/state/ably_state";
 
 export default function RadioMap() {
-  const { gameMap, radioMapNotes, playerTeam } = useGameContext();
+  const { networkState, playerTeam } = useGameContext();
+  const { gameMap, radioMapNotes } = networkState
   const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;

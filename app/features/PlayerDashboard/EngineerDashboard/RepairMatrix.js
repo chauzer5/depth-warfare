@@ -7,11 +7,10 @@ import { useAblyContext } from "@/app/state/ably_state";
 export default function RepairMatrix() {
   const {
     playerTeam,
-    pendingNavigate,
-    engineerPendingBlock,
-    engineerCompassMap,
-    repairMatrix,
+    networkState,
   } = useGameContext();
+
+  const { pendingNavigate, engineerPendingBlock, engineerCompassMap, repairMatrix } = networkState
 
   const { channel } = useAblyContext();
 
