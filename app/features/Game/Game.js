@@ -232,7 +232,6 @@ export default function Game() {
           currentStage != "main"
         ) {
           networkStateSubset = newMessage.data;
-          console.log("Should have synced state.", networkStateSubset)
           syncNetworkState(gameContext, networkStateSubset);
         }
         break;

@@ -89,9 +89,6 @@ export default function SystemDamage(props) {
   const [numChunks, setNumChunks] = useState(0);
   const [barWidth, setBarWidth] = useState(0)
 
-  console.log("life support", systemHealthLevels[playerTeam]["life support"])
-  console.log("systemHealthLevels", systemHealthLevels)
-
   useEffect(() => {
     setNumChunks(calculateSystemNodeDistance(system.name));
   }, [system, repairMatrix]);

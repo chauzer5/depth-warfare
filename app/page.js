@@ -10,8 +10,6 @@ export default function App() {
   const { networkState } = useGameContext();
   const { currentStage } = networkState
 
-  console.log("currentStage ?" , currentStage)
-
   return (
     <>
       {currentStage === "login" ? (

@@ -33,7 +33,6 @@ export default function Lobby() {
 
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
     if (message.name === "start-game") {
-      console.log("Got inside start-game.")
       setGameId(message.data.gameId);
       setNetworkState({ type: "currentStage", value: "teams" })
     }

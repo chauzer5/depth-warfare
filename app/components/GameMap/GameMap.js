@@ -24,7 +24,6 @@ export default function GameMap(props) {
   } = useGameContext();
 
   const { gameMap, pendingNavigate, subLocations, minesList } = networkState
-  console.log("gameMap is", gameMap)
   const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;

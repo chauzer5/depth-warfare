@@ -84,11 +84,8 @@ export default function TeamSelection(props) {
       setPlayerData(newPlayerData);
       setNetworkState({ type: "currentStage", value: "starting-spot" })
 
-      console.log("client and host ids", selfClientId, hostClientId)
-
       if (selfClientId === hostClientId) {
         const newMap = resetMap();
-        console.log("should have created a new game map", newMap)
         const redRepairMatrix = getEmptyRepairMatrix()
         const blueRepairMatrix = getEmptyRepairMatrix()
         const newRepairMatrix = {
@@ -112,7 +109,6 @@ export default function TeamSelection(props) {
           },
         }
         const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
-        console.log("sending sync state message", networkState.currentStage)
         channel.publish("sync-network-state", networkStateSubset);
       }
     }
@@ -131,8 +127,6 @@ export default function TeamSelection(props) {
       updateStatus({ name: username, team: null, role: null });
     }
   };
-
-  console.log("Inside Team Selection.")
 
   return (
     <div style={styles.main}>

@@ -63,7 +63,6 @@ export function GameWrapper({ children }) {
   // Reducer
   function networkStateReducer(state, action) {
     const { type, value } = action;
-    console.log("Inside networkState reducer")
     return {
       ...state,
       [type]: value
