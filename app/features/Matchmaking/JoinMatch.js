@@ -30,12 +30,18 @@ export default function JoinMatch() {
       textDecoration: "none",
       fontFamily: "'VT323', monospace",
     },
+    disabledJoinButton: {
+      color: theme.gray,
+    }
   };
 
   const { roomCode, setRoomCode, setNetworkState } = useGameContext();
 
   const handleChangeRoomCode = (event) => {
-    setRoomCode(event.target.value);
+    let regex = /^[a-zA-Z]+$/; 
+    if(regex.test(event.target.value) || event.target.value === "") {
+      setRoomCode(event.target.value.toUpperCase());
+    }
   };
 
   const handleSubmit = (e) => {
@@ -54,7 +60,11 @@ export default function JoinMatch() {
         maxLength={process.env.ROOM_CODE_LENGTH}
         value={roomCode}
       />
-      <button style={styles.joinButton} type="submit">
+      <button 
+        style={roomCode?.length < 4 ? {...styles.joinButton, ...styles.disabledJoinButton} : styles.joinButton}
+        type="submit"
+        disabled={roomCode?.length < 4}
+      >
         Join
       </button>
     </form>

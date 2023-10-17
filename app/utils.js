@@ -127,7 +127,7 @@ export function keepLastNElements(arr, n) {
 }
 
 export function generateRandomRoomCode() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   let roomCode = "";
   for (let i = 0; i < process.env.ROOM_CODE_LENGTH; i++) {
