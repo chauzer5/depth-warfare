@@ -462,20 +462,16 @@ export function GameWrapper({ children }) {
       system: blockSystem,
     };
 
-    const { isConnected, pathRowIndices, pathColumnIndices } =
-      checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
+    const { isConnected } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
 
     if (isConnected) {
-      // Reset the cells along the path to "empty"
-      for (let i = 0; i < pathRowIndices.length; i++) {
-        const pathRow = pathRowIndices[i];
-        const pathCol = pathColumnIndices[i];
-
-        updatedMatrix[pathRow][pathCol] = {
-          ...updatedMatrix[pathRow][pathCol],
-          system: "empty",
-        };
-      }
+      updatedMatrix.forEach((row) => {
+        row.forEach((cell) => {
+          if (cell.system === blockSystem) {
+            cell.system = "empty";
+          }
+        });
+      });
 
       // Choose new random nodes along the outside
       const selectedCells = pickNewOuterCells(updatedMatrix);
