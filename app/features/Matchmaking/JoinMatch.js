@@ -1,7 +1,7 @@
-import { useGameContext } from "../../state/game_state";
+import { useGameContext } from "@/app/state/game_state";
 import theme from "@/app/styles/theme";
 
-export default function Login() {
+export default function JoinMatch() {
   const styles = {
     main: {
       width: "100%",
@@ -11,7 +11,7 @@ export default function Login() {
       justifyContent: "center",
       alignItems: "center",
     },
-    usernameInput: {
+    roomCodeInput: {
       width: "400px",
       height: "50px",
       border: `solid 3px ${theme.green}`,
@@ -21,7 +21,7 @@ export default function Login() {
       fontSize: "20px",
       fontFamily: "'VT323', monospace",
     },
-    lobbyButton: {
+    joinButton: {
       border: "none",
       color: theme.white,
       marginTop: "100px",
@@ -32,35 +32,30 @@ export default function Login() {
     },
   };
 
-  const { setUsername, setNetworkState, username } = useGameContext();
+  const { roomCode, setRoomCode, setNetworkState } = useGameContext();
 
-  const handleChangeUsername = (event) => {
-    setUsername(event.target.value);
+  const handleChangeRoomCode = (event) => {
+    setRoomCode(event.target.value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(process.env.FEATURE_FLAGS.MATCHMAKING) {
-      setNetworkState({ type: "currentStage", value: "main-menu" });
-    }
-    else {
-      setNetworkState({ type: "currentStage", value: "lobby" });
-    }    
+    setNetworkState({ type: "currentStage", value: "match-lobby" });
   };
 
   return (
     <form style={styles.main} onSubmit={handleSubmit}>
-      <label>Username</label>
+      <label>Room Code</label>
       <input
-        style={styles.usernameInput}
+        style={styles.roomCodeInput}
         type="text"
-        onChange={handleChangeUsername}
+        onChange={handleChangeRoomCode}
         autoFocus
-        maxLength={20}
-        value={username}
+        maxLength={process.env.ROOM_CODE_LENGTH}
+        value={roomCode}
       />
-      <button style={styles.lobbyButton} type="submit">
-        Enter
+      <button style={styles.joinButton} type="submit">
+        Join
       </button>
     </form>
   );

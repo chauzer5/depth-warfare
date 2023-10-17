@@ -125,3 +125,16 @@ export function keepLastNElements(arr, n) {
     return arr.slice(arr.length - n); // Use slice to get the last n elements
   }
 }
+
+export function generateRandomRoomCode() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  let roomCode = "";
+  for (let i = 0; i < process.env.ROOM_CODE_LENGTH; i++) {
+    roomCode += characters.charAt(
+      Math.floor(Math.random() * characters.length)
+    );
+  }
+
+  return roomCode;
+}

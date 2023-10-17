@@ -61,7 +61,7 @@ export default function Lobby() {
   return (
     <div style={styles.main}>
       <div style={styles.container}>
-        <h3>Waiting for more players...</h3>
+        <h3>{`Finding Players (${presenceData.length}/${process.env.NUM_REQUIRED_PLAYERS})`}</h3>
         {presenceData.map((player, index) => (
           <p key={index} style={styles.player}>
             {player.data.name}
