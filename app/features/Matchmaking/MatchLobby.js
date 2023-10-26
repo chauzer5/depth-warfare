@@ -4,6 +4,7 @@ import { useChannel, usePresence } from "@ably-labs/react-hooks";
 import { useGameContext } from "@/app/state/game_state";
 import { useEffect, useState } from "react";
 import { useAblyContext } from "@/app/state/ably_state";
+import { v4 as uuidv4 } from "uuid";
 
 export default function MatchLobby() {
   const styles = {
@@ -85,9 +86,16 @@ export default function MatchLobby() {
     },
   };
 
-  const { username, roomCode, setNetworkState } = useGameContext();
+  const { username, roomCode, setNetworkState, setGameId, setPlayerRole, setPlayerTeam } = useGameContext();
   const { selfClientId } = useAblyContext();
   const [roomPlayers, setRoomPlayers] = useState([]);
+
+  const [channel] = useChannel("depth-warfare-match-lobby", (message) => {
+    if (message.name === "start-game" && message.data.roomCode === roomCode) {
+      setGameId(message.data.gameId);
+      setNetworkState({ type: "currentStage", value: "starting-spot" });
+    }
+  });
 
   const [presenceData, updateStatus] = usePresence("depth-warfare-match-lobby", { name: username, roomCode: roomCode });
 
@@ -105,11 +113,19 @@ export default function MatchLobby() {
     });
 
     if(!playerSelected){
+      setPlayerTeam(selectedTeam);
+      setPlayerRole(selectedRole);
       updateStatus({ name: username, roomCode: roomCode, team: selectedTeam, role: selectedRole });
     }
     else if(playerSelected.clientId === selfClientId){
+      setPlayerTeam(null);
+      setPlayerRole(null);
       updateStatus({ name: username, roomCode: roomCode, team: null, role: null });
     }
+  };
+
+  const handleBeginMatch = () => {
+    channel.publish("start-game", { gameId: uuidv4(), roomCode: roomCode });
   };
 
   return (
@@ -188,6 +204,7 @@ export default function MatchLobby() {
               roomPlayers.filter(player => !player.data.role).length > 0 ? styles.disabledButton : styles.beginMatchButton}
             disabled={roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
             roomPlayers.filter(player => !player.data.role).length > 0}
+            onClick={handleBeginMatch}
           >
             Begin Match
           </button>

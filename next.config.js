@@ -26,7 +26,7 @@ const nextConfig = {
     COMPLETE_STATE_UPDATE_INTERVAL: 50000,
     ROOM_CODE_LENGTH: 4,
     FEATURE_FLAGS: {
-      MATCHMAKING: false,
+      MATCHMAKING: true,
     },
   },
   productionBrowserSourceMaps: true,

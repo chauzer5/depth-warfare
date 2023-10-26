@@ -45,7 +45,7 @@ export default function TeamSelection(props) {
     calculateMaxSystemHealth,
     networkState } = useGameContext();
 
-  const { systemHealthLevels } = networkState
+  const { systemHealthLevels } = networkState;
 
   const { channel } = useAblyContext();
 

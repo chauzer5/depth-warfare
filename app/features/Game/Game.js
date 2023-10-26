@@ -32,10 +32,17 @@ export default function Game() {
     gameId,
     username,
     hostClientId,
-    networkState
+    networkState,
+    setHostClientId,
+    resetMap,
+    getEmptyRepairMatrix,
+    calculateMaxSystemHealth,
+    setPlayerData,
+    playerTeam,
+    playerRole,
   } = useGameContext();
 
-  const { currentStage } = networkState
+  const { currentStage, systemHealthLevels } = networkState;
 
   const gameContext = useGameContext();
   const { selfClientId, channel, setChannel } = useAblyContext();
@@ -43,8 +50,8 @@ export default function Game() {
   const [messagesList, setMessagesList] = useState([]);
   const [presenceData, updateStatus] = usePresence(`dw-${gameId}`, {
     name: username,
-    team: null,
-    role: null,
+    team: playerTeam,
+    role: playerRole,
   });
   const [gameChannel] = useChannel(`dw-${gameId}`, (message) => {
     setMessagesList((prev) => [...prev, { ...message }]);
@@ -61,7 +68,60 @@ export default function Game() {
   }, [networkState]);
 
   useEffect(() => {
+    if(presenceData.length != process.env.NUM_REQUIRED_PLAYERS){
+      return;
+    }
+    const newPlayerData = presenceData.map((player) => {
+      return {
+        username: player.data.name,
+        clientId: player.clientId,
+        team: player.data.team,
+        role: player.data.role,
+      };
+    });
+    console.log("RILEY NEW PLAYER DATA");
+    console.log(newPlayerData);
+    setPlayerData(newPlayerData);
+
+    const hostClientId = presenceData.toSorted((a, b) => a.clientId.localeCompare(b.clientId))[0].clientId;
+    setHostClientId(hostClientId);
+
+    console.log("RILEY HOST ID");
+    console.log(hostClientId);
+
+    if(selfClientId === hostClientId){
+      console.log("I AM THE HOST NOW");
+      const newMap = resetMap();
+      const redRepairMatrix = getEmptyRepairMatrix();
+      const blueRepairMatrix = getEmptyRepairMatrix();
+      const newRepairMatrix = {
+        red: redRepairMatrix,
+        blue: blueRepairMatrix,
+      };
+      const newSystemHealthLevels = {
+        blue: {
+          weapons: calculateMaxSystemHealth(blueRepairMatrix, "weapons"),
+          scan: calculateMaxSystemHealth(blueRepairMatrix, "scan"),
+          engine: calculateMaxSystemHealth(blueRepairMatrix, "engine"),
+          comms: calculateMaxSystemHealth(blueRepairMatrix, "comms"),
+          "life support": systemHealthLevels["blue"]["life support"],
+        },
+        red: {
+          weapons: calculateMaxSystemHealth(redRepairMatrix, "weapons"),
+          scan: calculateMaxSystemHealth(redRepairMatrix, "scan"),
+          engine: calculateMaxSystemHealth(redRepairMatrix, "engine"),
+          comms: calculateMaxSystemHealth(redRepairMatrix, "comms"),
+          "life support": systemHealthLevels["red"]["life support"],
+        }
+      };
+      const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
+      channel.publish("sync-network-state", networkStateSubset);
+    }
+  }, [presenceData]);
+
+  useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
+    console.log(newMessage);
 
     let networkStateSubset = {};
 
