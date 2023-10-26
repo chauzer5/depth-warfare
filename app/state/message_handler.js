@@ -17,7 +17,7 @@ export function captainSetStartingSpot(context, message) {
     randomEnabledDirection,
   } = context;
 
-  const { subLocations } = networkState
+  const { subLocations } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -63,13 +63,10 @@ export function captainSetStartingSpot(context, message) {
 // This should trigger when the engineer and first mate can start their decisions
 // MESSAGE: {direction}
 export function captainStartSubNavigate(context, message) {
-  const {
-    networkState,
-    getMessagePlayer,
-    isNavigationDisabled,
-  } = context;
+  const { networkState, getMessagePlayer, isNavigationDisabled } = context;
 
-  const { gameMap, subLocations, currentlySurfacing, pendingNavigate } = networkState
+  const { gameMap, subLocations, currentlySurfacing, pendingNavigate } =
+    networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -91,13 +88,15 @@ export function captainStartSubNavigate(context, message) {
 //engineer picks the systems to activate, which will damage it each turn
 // MESSAGE: {row, column}
 export function engineerPlaceSystemBlock(context, message) {
-  const {
-    getMessagePlayer,
-    finishTurn,
-    networkState,
-  } = context;
+  const { getMessagePlayer, finishTurn, networkState } = context;
 
-  const { pendingSystemCharge, engineerPendingBlock, repairMatrix, pendingNavigate, currentlySurfacing } = networkState
+  const {
+    pendingSystemCharge,
+    engineerPendingBlock,
+    repairMatrix,
+    pendingNavigate,
+    currentlySurfacing,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -139,7 +138,7 @@ export function engineerPlaceSystemBlock(context, message) {
 export function engineerClearRepairMatrix(context, message) {
   const { getMessagePlayer, networkState } = context;
 
-  const { repairMatrix, currentlySurfacing } = networkState
+  const { repairMatrix, currentlySurfacing } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -160,13 +159,15 @@ export function engineerClearRepairMatrix(context, message) {
 // first mate choses something to activate
 // MESSAGE: {system}
 export function firstMateChooseSystemCharge(context, message) {
-  const {
-    getMessagePlayer,
-    finishTurn,
-    networkState
-  } = context;
+  const { getMessagePlayer, finishTurn, networkState } = context;
 
-  const { pendingSystemCharge, engineerPendingBlock, systemChargeLevels, pendingNavigate, currentlySurfacing } = networkState
+  const {
+    pendingSystemCharge,
+    engineerPendingBlock,
+    systemChargeLevels,
+    pendingNavigate,
+    currentlySurfacing,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -207,12 +208,14 @@ export function firstMateChooseSystemCharge(context, message) {
 //Captain can change his mind on a move he makes
 // MESSAGE: {}
 export function captainCancelSubNavigate(context, message) {
-  const {
-    networkState,
-    getMessagePlayer,
-  } = context;
+  const { networkState, getMessagePlayer } = context;
 
-  const { pendingNavigate, pendingSystemCharge, engineerPendingBlock, currentlySurfacing } = networkState
+  const {
+    pendingNavigate,
+    pendingSystemCharge,
+    engineerPendingBlock,
+    currentlySurfacing,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -235,10 +238,18 @@ export function captainSilence(context, message) {
     getMessagePlayer,
     getValidSilenceCells,
     isNavigationDisabled,
-    moveSub
+    moveSub,
   } = context;
 
-  const { systemChargeLevels, movements, currentlySurfacing, pendingNavigate, randomEnabledDirection, subLocations, gameMap } = networkState
+  const {
+    systemChargeLevels,
+    movements,
+    currentlySurfacing,
+    pendingNavigate,
+    randomEnabledDirection,
+    subLocations,
+    gameMap,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -309,7 +320,7 @@ export function captainSilence(context, message) {
 export function stopSurfacing(context, message) {
   const { getMessagePlayer, networkState } = context;
 
-  const { currentlySurfacing } = networkState
+  const { currentlySurfacing } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -328,7 +339,13 @@ export function captainSurface(context, message) {
     calculateMaxSystemHealth,
   } = context;
 
-  const { systemHealthLevels, subLocations, movements, currentlySurfacing, repairMatrix } = networkState
+  const {
+    systemHealthLevels,
+    subLocations,
+    movements,
+    currentlySurfacing,
+    repairMatrix,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -366,7 +383,7 @@ export function firstMateFireTorpedo(context, message) {
     updateLifeSupport,
     detonateWeapon,
     getCellsDistanceAway,
-    networkState
+    networkState,
   } = context;
 
   const {
@@ -377,8 +394,8 @@ export function firstMateFireTorpedo(context, message) {
     messageTimestamp,
     notificationMessages,
     currentlySurfacing,
-    gameMap
-  } = networkState
+    gameMap,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
@@ -564,12 +581,12 @@ export function firstMateFireTorpedo(context, message) {
   if (oppHits > 0) {
     const notificationMessage = {
       team,
-      sameTeamMessage: `Opponent sub received ${
-        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
-      oppTeamMessage: `Your sub received ${
-        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
+      sameTeamMessage: `Opponent sub received ${Math.ceil(
+        (oppHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
+      oppTeamMessage: `Your sub received ${Math.ceil(
+        (oppHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
       severityOppTeam: "error",
@@ -582,12 +599,12 @@ export function firstMateFireTorpedo(context, message) {
   if (ownHits > 0) {
     const notificationMessage = {
       team,
-      sameTeamMessage: `Your sub received ${
-        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
-      oppTeamMessage: `Opponent sub received ${
-        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
+      sameTeamMessage: `Your sub received ${Math.ceil(
+        (ownHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
+      oppTeamMessage: `Opponent sub received ${Math.ceil(
+        (ownHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
       severityOppTeam: "success",
@@ -635,13 +652,18 @@ export function firstMateFireTorpedo(context, message) {
 // First mate drops a mine
 // MESSAGE: {row, column}
 export function firstMateDropMine(context, message) {
-  const {
-    getMessagePlayer,
-    networkState,
-    getCellsDistanceAway,
-  } = context;
+  const { getMessagePlayer, networkState, getCellsDistanceAway } = context;
 
-  const { systemChargeLevels, minesList, notificationMessages, messageTimestamp, currentlySurfacing, gameMap, systemHealthLevels, subLocations } = networkState
+  const {
+    systemChargeLevels,
+    minesList,
+    notificationMessages,
+    messageTimestamp,
+    currentlySurfacing,
+    gameMap,
+    systemHealthLevels,
+    subLocations,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -734,14 +756,17 @@ export function firstMateDropMine(context, message) {
 // First mate detonates a mine
 // MESSAGE: {row, column}
 export function firstMateDetonateMine(context, message) {
-  const {
-    getMessagePlayer,
-    updateLifeSupport,
-    networkState,
-    detonateWeapon,
-  } = context;
+  const { getMessagePlayer, updateLifeSupport, networkState, detonateWeapon } =
+    context;
 
-  const { subLocations, systemHealthLevels, minesList, messageTimestamp, notificationMessages, currentlySurfacing } = networkState
+  const {
+    subLocations,
+    systemHealthLevels,
+    minesList,
+    messageTimestamp,
+    notificationMessages,
+    currentlySurfacing,
+  } = networkState;
 
   let tempMessages = [];
   let tempTimestamp = messageTimestamp;
@@ -856,12 +881,12 @@ export function firstMateDetonateMine(context, message) {
   if (oppHits > 0) {
     const notificationMessage = {
       team,
-      sameTeamMessage: `Opponent sub received ${
-        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
-      oppTeamMessage: `Your sub received ${
-        Math.ceil(oppHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
+      sameTeamMessage: `Opponent sub received ${Math.ceil(
+        (oppHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
+      oppTeamMessage: `Your sub received ${Math.ceil(
+        (oppHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "success",
       severityOppTeam: "error",
@@ -874,12 +899,12 @@ export function firstMateDetonateMine(context, message) {
   if (ownHits > 0) {
     const notificationMessage = {
       team,
-      sameTeamMessage: `Your sub received ${
-        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
-      oppTeamMessage: `Opponent sub received ${
-        Math.ceil(ownHits * 100 / process.env.STARTING_LIFE_SUPPORT)
-      }% damage!`,
+      sameTeamMessage: `Your sub received ${Math.ceil(
+        (ownHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
+      oppTeamMessage: `Opponent sub received ${Math.ceil(
+        (ownHits * 100) / process.env.STARTING_LIFE_SUPPORT,
+      )}% damage!`,
       intendedPlayer: "all", // You can specify a player here if needed
       severitySameTeam: "error",
       severityOppTeam: "success",
@@ -930,12 +955,14 @@ export function firstMateDetonateMine(context, message) {
 // First mate uses up their scan charge
 // MESSAGE: {}
 export function firstMateScan(context, message) {
-  const {
-    getMessagePlayer,
-    networkState
-  } = context;
+  const { getMessagePlayer, networkState } = context;
 
-  const { systemChargeLevels, messageTimestamp, notificationMessages, currentlySurfacing } = networkState
+  const {
+    systemChargeLevels,
+    messageTimestamp,
+    notificationMessages,
+    currentlySurfacing,
+  } = networkState;
 
   const team = getMessagePlayer(message).team;
 
@@ -974,9 +1001,9 @@ export function firstMateScan(context, message) {
 // Radio operator adds or removes a note from a cell
 // MESSAGE: {row, column}
 export function radioOperatorAddRemoveNote(context, message) {
-  const { networkState, getMessagePlayer} = context;
+  const { networkState, getMessagePlayer } = context;
 
-  const { radioMapNotes, currentlySurfacing } = networkState
+  const { radioMapNotes, currentlySurfacing } = networkState;
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -1018,9 +1045,9 @@ export function radioOperatorAddRemoveNote(context, message) {
 // Radio operator clears all of his notes
 // MESSAGE: {}
 export function radioOperatorClearNotes(context, message) {
-  const { networkState, getMessagePlayer} = context;
+  const { networkState, getMessagePlayer } = context;
 
-  const { radioMapNotes, currentlySurfacing } = networkState
+  const { radioMapNotes, currentlySurfacing } = networkState;
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -1040,7 +1067,7 @@ export function radioOperatorClearNotes(context, message) {
 export function radioOperatorShiftNotes(context, message) {
   const { networkState, getMessagePlayer } = context;
 
-  const { radioMapNotes, currentlySurfacing } = networkState
+  const { radioMapNotes, currentlySurfacing } = networkState;
 
   const team = getMessagePlayer(message).team;
   if (currentlySurfacing[team]) {
@@ -1106,7 +1133,7 @@ export function radioOperatorShiftNotes(context, message) {
 
 export function syncNetworkState(context, networkStateSubset) {
   const { setNetworkState } = context;
-  Object.keys(networkStateSubset).forEach(key => {
+  Object.keys(networkStateSubset).forEach((key) => {
     setNetworkState({ type: key, value: networkStateSubset[key] });
   });
 }

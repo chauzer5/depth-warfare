@@ -40,12 +40,11 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(process.env.FEATURE_FLAGS.MATCHMAKING) {
+    if (process.env.FEATURE_FLAGS.MATCHMAKING) {
       setNetworkState({ type: "currentStage", value: "main-menu" });
-    }
-    else {
+    } else {
       setNetworkState({ type: "currentStage", value: "lobby" });
-    }    
+    }
   };
 
   return (

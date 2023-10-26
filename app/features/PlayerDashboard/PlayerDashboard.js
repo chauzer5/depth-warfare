@@ -12,7 +12,7 @@ import RadioOperatorDashboard from "./RadioOperatorDashboard/RadioOperatorDashbo
 
 export default function PlayerDashboard() {
   const { playerRole, playerTeam, networkState } = useGameContext();
-  const { currentlySurfacing, notificationMessages } = networkState
+  const { currentlySurfacing, notificationMessages } = networkState;
   const { enqueueSnackbar } = useSnackbar();
 
   const styles = {

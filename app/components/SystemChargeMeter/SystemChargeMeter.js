@@ -7,7 +7,7 @@ export default function SystemChargeMeter(props) {
 
   const { playerTeam, networkState } = useGameContext();
 
-  const { systemChargeLevels } = networkState
+  const { systemChargeLevels } = networkState;
 
   const selectedSystem = SYSTEMS_INFO.find((sys) => sys.name === systemName);
 

@@ -32,7 +32,7 @@ export default function MatchLobby() {
       margin: "10px",
       alignItems: "center",
       width: "200px",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
     },
     unassignedHeader: {
       color: theme.white,
@@ -49,7 +49,7 @@ export default function MatchLobby() {
       flexDirection: "column",
       alignItems: "center",
     },
-    leaveRoomButton:{
+    leaveRoomButton: {
       height: "40px",
       width: "100px",
       color: theme.gray,
@@ -65,7 +65,7 @@ export default function MatchLobby() {
       backgroundColor: theme.black,
       fontFamily: "'VT323', monospace",
       fontSize: "24px",
-      border: `2px solid ${theme.white}`
+      border: `2px solid ${theme.white}`,
     },
     disabledButton: {
       height: "50px",
@@ -74,7 +74,7 @@ export default function MatchLobby() {
       backgroundColor: theme.black,
       fontFamily: "'VT323', monospace",
       fontSize: "24px",
-      border: `2px solid ${theme.gray}`
+      border: `2px solid ${theme.gray}`,
     },
     roomCodeHeader: {
       margin: 0,
@@ -86,7 +86,14 @@ export default function MatchLobby() {
     },
   };
 
-  const { username, roomCode, setNetworkState, setGameId, setPlayerRole, setPlayerTeam } = useGameContext();
+  const {
+    username,
+    roomCode,
+    setNetworkState,
+    setGameId,
+    setPlayerRole,
+    setPlayerTeam,
+  } = useGameContext();
   const { selfClientId } = useAblyContext();
   const [roomPlayers, setRoomPlayers] = useState([]);
 
@@ -97,30 +104,46 @@ export default function MatchLobby() {
     }
   });
 
-  const [presenceData, updateStatus] = usePresence("depth-warfare-match-lobby", { name: username, roomCode: roomCode });
+  const [presenceData, updateStatus] = usePresence(
+    "depth-warfare-match-lobby",
+    { name: username, roomCode: roomCode },
+  );
 
   useEffect(() => {
-    setRoomPlayers(presenceData.filter((player) => player.data.roomCode === roomCode));
+    setRoomPlayers(
+      presenceData.filter((player) => player.data.roomCode === roomCode),
+    );
   }, [presenceData]);
 
   const handleLeaveRoom = () => {
     setNetworkState({ type: "currentStage", value: "main-menu" });
   };
-  
+
   const handleRoleClick = (selectedTeam, selectedRole) => {
     const playerSelected = roomPlayers.find((player) => {
-      return player.data.team === selectedTeam && player.data.role === selectedRole;
+      return (
+        player.data.team === selectedTeam && player.data.role === selectedRole
+      );
     });
 
-    if(!playerSelected){
+    if (!playerSelected) {
       setPlayerTeam(selectedTeam);
       setPlayerRole(selectedRole);
-      updateStatus({ name: username, roomCode: roomCode, team: selectedTeam, role: selectedRole });
-    }
-    else if(playerSelected.clientId === selfClientId){
+      updateStatus({
+        name: username,
+        roomCode: roomCode,
+        team: selectedTeam,
+        role: selectedRole,
+      });
+    } else if (playerSelected.clientId === selfClientId) {
       setPlayerTeam(null);
       setPlayerRole(null);
-      updateStatus({ name: username, roomCode: roomCode, team: null, role: null });
+      updateStatus({
+        name: username,
+        roomCode: roomCode,
+        team: null,
+        role: null,
+      });
     }
   };
 
@@ -131,15 +154,15 @@ export default function MatchLobby() {
   return (
     <div style={styles.main}>
       <div style={styles.container}>
-        <div style={{...styles.column, width: "200px"}}>
+        <div style={{ ...styles.column, width: "200px" }}>
           <h2 style={styles.unassignedHeader}>Unassigned:</h2>
           {roomPlayers
-          .filter(player => !player.data.role)
-          .map((player, index) => (
-            <p key={index} style={styles.unassignedPlayer}>
-              {player.data.name}
-            </p>
-          ))}
+            .filter((player) => !player.data.role)
+            .map((player, index) => (
+              <p key={index} style={styles.unassignedPlayer}>
+                {player.data.name}
+              </p>
+            ))}
         </div>
         <div style={styles.column}>
           <RoleButton
@@ -168,7 +191,7 @@ export default function MatchLobby() {
           />
         </div>
         <div style={styles.column}>
-        <RoleButton
+          <RoleButton
             team="red"
             role="captain"
             roomPlayers={roomPlayers}
@@ -197,13 +220,21 @@ export default function MatchLobby() {
           <div style={styles.roomCodeContainer}>
             <h2 style={styles.roomCodeHeader}>ROOM CODE:</h2>
             <h1 style={styles.roomCode}>{roomCode}</h1>
-            <button style={styles.leaveRoomButton} onClick={handleLeaveRoom}>Leave Room</button>
+            <button style={styles.leaveRoomButton} onClick={handleLeaveRoom}>
+              Leave Room
+            </button>
           </div>
           <button
-            style={roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
-              roomPlayers.filter(player => !player.data.role).length > 0 ? styles.disabledButton : styles.beginMatchButton}
-            disabled={roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
-            roomPlayers.filter(player => !player.data.role).length > 0}
+            style={
+              roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
+              roomPlayers.filter((player) => !player.data.role).length > 0
+                ? styles.disabledButton
+                : styles.beginMatchButton
+            }
+            disabled={
+              roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
+              roomPlayers.filter((player) => !player.data.role).length > 0
+            }
             onClick={handleBeginMatch}
           >
             Begin Match

@@ -34,7 +34,7 @@ export default function Lobby() {
   const [channel] = useChannel("depth-warfare-lobby", (message) => {
     if (message.name === "start-game") {
       setGameId(message.data.gameId);
-      setNetworkState({ type: "currentStage", value: "teams" })
+      setNetworkState({ type: "currentStage", value: "teams" });
     }
   });
 

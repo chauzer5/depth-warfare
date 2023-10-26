@@ -14,7 +14,7 @@ export default function GameEnd() {
 
   const { networkState, playerTeam } = useGameContext();
 
-  const { systemHealthLevels } = networkState
+  const { systemHealthLevels } = networkState;
 
   const teamDead = systemHealthLevels[playerTeam]["life support"] <= 0;
   const enemyTeamDead =

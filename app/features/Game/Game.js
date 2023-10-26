@@ -26,7 +26,10 @@ import {
 } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
 import { useAblyContext } from "@/app/state/ably_state";
-import { insertSupabaseRow, updateSupabaseRow } from "@/app/state/supabase_access";
+import {
+  insertSupabaseRow,
+  updateSupabaseRow,
+} from "@/app/state/supabase_access";
 
 export default function Game() {
   const {
@@ -47,7 +50,7 @@ export default function Game() {
   const { currentStage, systemHealthLevels } = networkState;
 
   const gameContext = useGameContext();
-  const { roomCode } = gameContext
+  const { roomCode } = gameContext;
   const { selfClientId, channel, setChannel, supabase } = useAblyContext();
 
   const [messagesList, setMessagesList] = useState([]);
@@ -71,11 +74,11 @@ export default function Game() {
   }, [networkState]);
 
   useEffect(() => {
-    if(presenceData.length != process.env.NUM_REQUIRED_PLAYERS){
+    if (presenceData.length != process.env.NUM_REQUIRED_PLAYERS) {
       return;
     }
 
-    if(networkState.gameMap != null){
+    if (networkState.gameMap != null) {
       return;
     }
 
@@ -89,10 +92,12 @@ export default function Game() {
     });
     setPlayerData(newPlayerData);
 
-    const hostClientId = presenceData.toSorted((a, b) => a.clientId.localeCompare(b.clientId))[0].clientId;
+    const hostClientId = presenceData.toSorted((a, b) =>
+      a.clientId.localeCompare(b.clientId),
+    )[0].clientId;
     setHostClientId(hostClientId);
 
-    if(selfClientId === hostClientId){
+    if (selfClientId === hostClientId) {
       const newMap = resetMap();
       const redRepairMatrix = getEmptyRepairMatrix();
       const blueRepairMatrix = getEmptyRepairMatrix();
@@ -114,19 +119,39 @@ export default function Game() {
           engine: calculateMaxSystemHealth(redRepairMatrix, "engine"),
           comms: calculateMaxSystemHealth(redRepairMatrix, "comms"),
           "life support": systemHealthLevels["red"]["life support"],
-        }
+        },
       };
-      const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
+      const networkStateSubset = {
+        gameMap: newMap,
+        repairMatrix: newRepairMatrix,
+        systemHealthLevels: newSystemHealthLevels,
+      };
       channel.publish("sync-network-state", networkStateSubset);
 
-      const blue_captain = newPlayerData.find(player => player.team === 'blue' && player.role === 'captain');
-      const red_captain = newPlayerData.find(player => player.team === 'red' && player.role === 'captain');
-      const blue_first_mate = newPlayerData.find(player => player.team === 'blue' && player.role === 'first-mate');
-      const red_first_mate = newPlayerData.find(player => player.team === 'red' && player.role === 'first-mate');
-      const blue_engineer = newPlayerData.find(player => player.team === 'blue' && player.role === 'engineer');
-      const red_engineer = newPlayerData.find(player => player.team === 'red' && player.role === 'engineer');
-      const blue_radio_operator = newPlayerData.find(player => player.team === 'blue' && player.role === 'radio-operator');
-      const red_radio_operator = newPlayerData.find(player => player.team === 'red' && player.role === 'radio-operator');
+      const blue_captain = newPlayerData.find(
+        (player) => player.team === "blue" && player.role === "captain",
+      );
+      const red_captain = newPlayerData.find(
+        (player) => player.team === "red" && player.role === "captain",
+      );
+      const blue_first_mate = newPlayerData.find(
+        (player) => player.team === "blue" && player.role === "first-mate",
+      );
+      const red_first_mate = newPlayerData.find(
+        (player) => player.team === "red" && player.role === "first-mate",
+      );
+      const blue_engineer = newPlayerData.find(
+        (player) => player.team === "blue" && player.role === "engineer",
+      );
+      const red_engineer = newPlayerData.find(
+        (player) => player.team === "red" && player.role === "engineer",
+      );
+      const blue_radio_operator = newPlayerData.find(
+        (player) => player.team === "blue" && player.role === "radio-operator",
+      );
+      const red_radio_operator = newPlayerData.find(
+        (player) => player.team === "red" && player.role === "radio-operator",
+      );
 
       // Update database
       insertSupabaseRow(supabase, {
@@ -140,12 +165,12 @@ export default function Game() {
         red_engineer: red_engineer?.username, // Set red engineer
         blue_radio_operator: blue_radio_operator?.username, // Set blue radio operator
         red_radio_operator: red_radio_operator?.username, // Set red radio operator
-      })
+      });
     }
   }, [presenceData]);
 
   useEffect(() => {
-    if(networkState.gameMap === null){
+    if (networkState.gameMap === null) {
       return;
     }
 
@@ -158,20 +183,38 @@ export default function Game() {
       };
     });
 
-    const blue_captain = newPlayerData.find(player => player.team === 'blue' && player.role === 'captain');
-    const red_captain = newPlayerData.find(player => player.team === 'red' && player.role === 'captain');
-    const blue_first_mate = newPlayerData.find(player => player.team === 'blue' && player.role === 'first-mate');
-    const red_first_mate = newPlayerData.find(player => player.team === 'red' && player.role === 'first-mate');
-    const blue_engineer = newPlayerData.find(player => player.team === 'blue' && player.role === 'engineer');
-    const red_engineer = newPlayerData.find(player => player.team === 'red' && player.role === 'engineer');
-    const blue_radio_operator = newPlayerData.find(player => player.team === 'blue' && player.role === 'radio-operator');
-    const red_radio_operator = newPlayerData.find(player => player.team === 'red' && player.role === 'radio-operator');
+    const blue_captain = newPlayerData.find(
+      (player) => player.team === "blue" && player.role === "captain",
+    );
+    const red_captain = newPlayerData.find(
+      (player) => player.team === "red" && player.role === "captain",
+    );
+    const blue_first_mate = newPlayerData.find(
+      (player) => player.team === "blue" && player.role === "first-mate",
+    );
+    const red_first_mate = newPlayerData.find(
+      (player) => player.team === "red" && player.role === "first-mate",
+    );
+    const blue_engineer = newPlayerData.find(
+      (player) => player.team === "blue" && player.role === "engineer",
+    );
+    const red_engineer = newPlayerData.find(
+      (player) => player.team === "red" && player.role === "engineer",
+    );
+    const blue_radio_operator = newPlayerData.find(
+      (player) => player.team === "blue" && player.role === "radio-operator",
+    );
+    const red_radio_operator = newPlayerData.find(
+      (player) => player.team === "red" && player.role === "radio-operator",
+    );
 
     setPlayerData(newPlayerData);
 
     console.log("REEVALUATING HOST STATUS");
-    const newHostClientId = presenceData.toSorted((a, b) => a.clientId.localeCompare(b.clientId))[0].clientId;
-    if(hostClientId != newHostClientId){
+    const newHostClientId = presenceData.toSorted((a, b) =>
+      a.clientId.localeCompare(b.clientId),
+    )[0].clientId;
+    if (hostClientId != newHostClientId) {
       console.log("HOST CHANGED");
       console.log(newHostClientId);
       console.log(newPlayerData);
@@ -180,7 +223,7 @@ export default function Game() {
     setHostClientId(newHostClientId);
 
     // Update database
-    if(selfClientId === newHostClientId){
+    if (selfClientId === newHostClientId) {
       updateSupabaseRow(supabase, roomCode, {
         blue_captain: blue_captain ? blue_captain.username : null, // Set blue captain
         red_captain: red_captain ? red_captain.username : null, // Set red captain
@@ -188,11 +231,14 @@ export default function Game() {
         red_first_mate: red_first_mate ? red_first_mate.username : null, // Set red first mate
         blue_engineer: blue_engineer ? blue_engineer.username : null, // Set blue engineer
         red_engineer: red_engineer ? red_engineer.username : null, // Set red engineer
-        blue_radio_operator: blue_radio_operator ? blue_radio_operator.username : null, // Set blue radio operator
-        red_radio_operator: red_radio_operator ? red_radio_operator.username : null, // Set red radio operator
+        blue_radio_operator: blue_radio_operator
+          ? blue_radio_operator.username
+          : null, // Set blue radio operator
+        red_radio_operator: red_radio_operator
+          ? red_radio_operator.username
+          : null, // Set red radio operator
       });
     }
-
   }, [presenceData]);
 
   useEffect(() => {
@@ -222,7 +268,10 @@ export default function Game() {
         break;
       case "captain-cancel-sub-navigate":
         if (selfClientId === hostClientId) {
-          networkStateSubset = captainCancelSubNavigate(gameContext, newMessage);
+          networkStateSubset = captainCancelSubNavigate(
+            gameContext,
+            newMessage,
+          );
           syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
@@ -232,7 +281,10 @@ export default function Game() {
         break;
       case "engineer-place-system-block":
         if (selfClientId === hostClientId) {
-          networkStateSubset = engineerPlaceSystemBlock(gameContext, newMessage);
+          networkStateSubset = engineerPlaceSystemBlock(
+            gameContext,
+            newMessage,
+          );
           syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
@@ -242,7 +294,10 @@ export default function Game() {
         break;
       case "engineer-clear-repair-matrix":
         if (selfClientId === hostClientId) {
-          networkStateSubset = engineerClearRepairMatrix(gameContext, newMessage);
+          networkStateSubset = engineerClearRepairMatrix(
+            gameContext,
+            newMessage,
+          );
           syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
@@ -252,7 +307,10 @@ export default function Game() {
         break;
       case "first-mate-choose-system-charge":
         if (selfClientId === hostClientId) {
-          networkStateSubset = firstMateChooseSystemCharge(gameContext, newMessage);
+          networkStateSubset = firstMateChooseSystemCharge(
+            gameContext,
+            newMessage,
+          );
           syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",
@@ -332,7 +390,10 @@ export default function Game() {
         break;
       case "radio-operator-add-remove-note":
         if (selfClientId === hostClientId) {
-          networkStateSubset = radioOperatorAddRemoveNote(gameContext, newMessage);
+          networkStateSubset = radioOperatorAddRemoveNote(
+            gameContext,
+            newMessage,
+          );
           syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",

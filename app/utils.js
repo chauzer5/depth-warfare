@@ -132,7 +132,7 @@ export function generateRandomRoomCode() {
   let roomCode = "";
   for (let i = 0; i < process.env.ROOM_CODE_LENGTH; i++) {
     roomCode += characters.charAt(
-      Math.floor(Math.random() * characters.length)
+      Math.floor(Math.random() * characters.length),
     );
   }
 

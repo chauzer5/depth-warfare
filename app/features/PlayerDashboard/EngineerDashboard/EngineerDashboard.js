@@ -7,12 +7,10 @@ import TriangleKey from "./TriangleKey";
 import { useAblyContext } from "@/app/state/ably_state";
 
 export default function EngineerDashboard() {
-  const {
-    networkState,
-    playerTeam,
-  } = useGameContext();
+  const { networkState, playerTeam } = useGameContext();
 
-  const { pendingNavigate, engineerCompassMap, engineerPendingBlock } = networkState
+  const { pendingNavigate, engineerCompassMap, engineerPendingBlock } =
+    networkState;
 
   const { channel } = useAblyContext();
 

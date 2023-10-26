@@ -33,7 +33,7 @@ export default function TeamSelection(props) {
   };
 
   const { presenceData, updateStatus } = props;
-  const { 
+  const {
     username,
     setNetworkState,
     setPlayerTeam,
@@ -43,7 +43,8 @@ export default function TeamSelection(props) {
     resetMap,
     getEmptyRepairMatrix,
     calculateMaxSystemHealth,
-    networkState } = useGameContext();
+    networkState,
+  } = useGameContext();
 
   const { systemHealthLevels } = networkState;
 
@@ -82,12 +83,12 @@ export default function TeamSelection(props) {
 
       setHostClientId(hostClientId);
       setPlayerData(newPlayerData);
-      setNetworkState({ type: "currentStage", value: "starting-spot" })
+      setNetworkState({ type: "currentStage", value: "starting-spot" });
 
       if (selfClientId === hostClientId) {
         const newMap = resetMap();
-        const redRepairMatrix = getEmptyRepairMatrix()
-        const blueRepairMatrix = getEmptyRepairMatrix()
+        const redRepairMatrix = getEmptyRepairMatrix();
+        const blueRepairMatrix = getEmptyRepairMatrix();
         const newRepairMatrix = {
           blue: blueRepairMatrix,
           red: redRepairMatrix,
@@ -107,8 +108,12 @@ export default function TeamSelection(props) {
             comms: calculateMaxSystemHealth(redRepairMatrix, "comms"),
             "life support": systemHealthLevels["red"]["life support"],
           },
-        }
-        const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
+        };
+        const networkStateSubset = {
+          gameMap: newMap,
+          repairMatrix: newRepairMatrix,
+          systemHealthLevels: newSystemHealthLevels,
+        };
         channel.publish("sync-network-state", networkStateSubset);
       }
     }

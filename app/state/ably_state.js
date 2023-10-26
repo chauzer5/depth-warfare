@@ -3,10 +3,13 @@
 import { configureAbly } from "@ably-labs/react-hooks";
 import { v4 as uuidv4 } from "uuid";
 import { createContext, useContext, useState } from "react";
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
 // Create a single supabase client for interacting with your database
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_API_KEY)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_API_KEY,
+);
 
 const selfClientId = uuidv4();
 configureAbly({ key: process.env.ABLY_API_KEY, clientId: selfClientId });

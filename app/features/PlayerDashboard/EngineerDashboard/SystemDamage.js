@@ -84,10 +84,10 @@ export default function SystemDamage(props) {
     networkState,
   } = useGameContext();
 
-  const { systemHealthLevels, repairMatrix } = networkState
+  const { systemHealthLevels, repairMatrix } = networkState;
 
   const [numChunks, setNumChunks] = useState(0);
-  const [barWidth, setBarWidth] = useState(0)
+  const [barWidth, setBarWidth] = useState(0);
 
   useEffect(() => {
     setNumChunks(calculateSystemNodeDistance(system.name));
@@ -95,11 +95,21 @@ export default function SystemDamage(props) {
 
   useEffect(() => {
     if (system.name === "life support") {
-      setBarWidth(Math.ceil((systemHealthLevels[playerTeam][system.name] * 100) / process.env.STARTING_LIFE_SUPPORT))
+      setBarWidth(
+        Math.ceil(
+          (systemHealthLevels[playerTeam][system.name] * 100) /
+            process.env.STARTING_LIFE_SUPPORT,
+        ),
+      );
     } else {
-      setBarWidth(Math.ceil((systemHealthLevels[playerTeam][system.name] * 100) / calculateMaxSystemHealth(repairMatrix[playerTeam], system.name)))
+      setBarWidth(
+        Math.ceil(
+          (systemHealthLevels[playerTeam][system.name] * 100) /
+            calculateMaxSystemHealth(repairMatrix[playerTeam], system.name),
+        ),
+      );
     }
-  }, [systemHealthLevels[playerTeam][system.name]])
+  }, [systemHealthLevels[playerTeam][system.name]]);
 
   return (
     <div style={styles.container}>
@@ -126,7 +136,10 @@ export default function SystemDamage(props) {
                     style={{
                       width: "2px",
                       height: "15px",
-                      backgroundColor: index > systemHealthLevels[playerTeam][system.name] - 2 ? "#00000000": theme.black,
+                      backgroundColor:
+                        index > systemHealthLevels[playerTeam][system.name] - 2
+                          ? "#00000000"
+                          : theme.black,
                     }}
                   ></div>
                 );
@@ -145,7 +158,10 @@ export default function SystemDamage(props) {
                     style={{
                       width: "2px",
                       height: "15px",
-                      backgroundColor: index > systemHealthLevels[playerTeam][system.name] - 2 ? "#00000000": theme.black,
+                      backgroundColor:
+                        index > systemHealthLevels[playerTeam][system.name] - 2
+                          ? "#00000000"
+                          : theme.black,
                     }}
                   ></div>
                 );

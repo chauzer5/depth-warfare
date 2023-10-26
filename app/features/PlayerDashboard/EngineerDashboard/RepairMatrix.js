@@ -5,12 +5,14 @@ import { ENGINEER_SYSTEMS_INFO } from "@/app/utils";
 import { useAblyContext } from "@/app/state/ably_state";
 
 export default function RepairMatrix() {
-  const {
-    playerTeam,
-    networkState,
-  } = useGameContext();
+  const { playerTeam, networkState } = useGameContext();
 
-  const { pendingNavigate, engineerPendingBlock, engineerCompassMap, repairMatrix } = networkState
+  const {
+    pendingNavigate,
+    engineerPendingBlock,
+    engineerCompassMap,
+    repairMatrix,
+  } = networkState;
 
   const { channel } = useAblyContext();
 

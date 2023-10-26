@@ -77,7 +77,8 @@ export default function RadioOperatorDashboard() {
 
   const { networkState, playerTeam } = useGameContext();
 
-  const { movements, systemHealthLevels, movementCountOnDisable } = networkState
+  const { movements, systemHealthLevels, movementCountOnDisable } =
+    networkState;
 
   const { channel } = useAblyContext();
 

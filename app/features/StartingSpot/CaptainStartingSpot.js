@@ -39,7 +39,7 @@ export default function CaptainStartingSpot() {
 
   const { channel } = useAblyContext();
   const { playerTeam, networkState } = useGameContext();
-  const { gameMap, subLocations } = networkState
+  const { gameMap, subLocations } = networkState;
 
   const handleClick = (cell, row, column) => {
     if (cell.type === "water") {

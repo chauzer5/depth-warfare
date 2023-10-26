@@ -46,7 +46,7 @@ export default function MainMenu() {
       fontSize: "16px",
       margin: 0,
       marginBottom: "10px",
-    }
+    },
   };
 
   const { setNetworkState, username, setRoomCode } = useGameContext();
@@ -68,11 +68,17 @@ export default function MainMenu() {
     <div style={styles.main}>
       <div style={styles.container}>
         <h1 style={styles.title}>DEPTH WARFARE</h1>
-        <button style={styles.bigButton} onClick={handleCreateMatch}>Create Match</button>
-        <button style={styles.bigButton} onClick={handleJoinMatch}>Join Match</button>
+        <button style={styles.bigButton} onClick={handleCreateMatch}>
+          Create Match
+        </button>
+        <button style={styles.bigButton} onClick={handleJoinMatch}>
+          Join Match
+        </button>
         <p style={styles.username}>{`Username: ${username}`}</p>
-        <button style={styles.smallButton} onClick={handleChangeUsername}>Change</button>
+        <button style={styles.smallButton} onClick={handleChangeUsername}>
+          Change
+        </button>
       </div>
     </div>
-  )
+  );
 }

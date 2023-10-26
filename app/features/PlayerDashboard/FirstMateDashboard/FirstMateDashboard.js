@@ -84,10 +84,17 @@ export default function FirstMateDashboard() {
     getFirstMateSystem,
     getCellsDistanceAway,
     scanForEnemySub,
-    networkState
+    networkState,
   } = useGameContext();
 
-  const { pendingNavigate, pendingSystemCharge, systemChargeLevels, subLocations, minesList, systemHealthLevels } = networkState
+  const {
+    pendingNavigate,
+    pendingSystemCharge,
+    systemChargeLevels,
+    subLocations,
+    minesList,
+    systemHealthLevels,
+  } = networkState;
 
   const [toggledSystem, setToggledSystem] = useState("torpedo");
   const [scanType, setScanType] = useState("sector"); // ['sector', 'row', 'column']

@@ -5,7 +5,8 @@ const nextConfig = {
     ABLY_API_KEY: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY", // Jamison key
     // ABLY_API_KEY: "4DgG4w.aAimlA:kdKzu4HgukdZCT4w8Xgp5Ejeg1yviggZu28cDpNIQV0", // Jess key
     SUPABASE_URL: "https://cebtsanmxjqeyeafgepw.supabase.co",
-    SUPABASE_API_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYnRzYW5teGpxZXllYWZnZXB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTgzMzA1NzMsImV4cCI6MjAxMzkwNjU3M30.SgLhxkv8t6w9wcZKYrsdHD0Yob1UqXAp-ATiZEltuhw",
+    SUPABASE_API_KEY:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlYnRzYW5teGpxZXllYWZnZXB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTgzMzA1NzMsImV4cCI6MjAxMzkwNjU3M30.SgLhxkv8t6w9wcZKYrsdHD0Yob1UqXAp-ATiZEltuhw",
     SUPABASE_TABLE_NAME: "ActiveGames",
     GAME_COUNTDOWN_SECONDS: 3,
     MAP_DIMENSION: 15,

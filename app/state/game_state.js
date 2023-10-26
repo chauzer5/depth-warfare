@@ -44,10 +44,18 @@ export function GameWrapper({ children }) {
     },
     systemHealthLevels: {
       blue: {
-        weapons: 0, scan: 0, engine: 0, comms: 0, "life support": process.env.STARTING_LIFE_SUPPORT,
+        weapons: 0,
+        scan: 0,
+        engine: 0,
+        comms: 0,
+        "life support": process.env.STARTING_LIFE_SUPPORT,
       },
       red: {
-        weapons: 0, scan: 0, engine: 0, comms: 0, "life support": process.env.STARTING_LIFE_SUPPORT,
+        weapons: 0,
+        scan: 0,
+        engine: 0,
+        comms: 0,
+        "life support": process.env.STARTING_LIFE_SUPPORT,
       },
     },
     radioMapNotes: { blue: [], red: [] },
@@ -60,17 +68,20 @@ export function GameWrapper({ children }) {
     notificationMessages: [],
     messageTimestamp: 0,
   };
-  
+
   // Reducer
   function networkStateReducer(state, action) {
     const { type, value } = action;
     return {
       ...state,
-      [type]: value
+      [type]: value,
     };
   }
 
-  const [networkState, setNetworkState] = useReducer(networkStateReducer, initialNetworkState);
+  const [networkState, setNetworkState] = useReducer(
+    networkStateReducer,
+    initialNetworkState,
+  );
 
   const getFirstMateSystem = (inputSystem) => {
     return SYSTEMS_INFO.find((system) => system.name === inputSystem);
@@ -223,7 +234,7 @@ export function GameWrapper({ children }) {
   }
 
   function moveSub(team, row, column) {
-    const { gameMap, subLocations, currentStage } = networkState
+    const { gameMap, subLocations, currentStage } = networkState;
     const mapCopy = [...gameMap];
 
     //Enforcing the sub movements
@@ -369,7 +380,7 @@ export function GameWrapper({ children }) {
     const rowIndices = [];
     const columnIndices = [];
 
-    const { repairMatrix } = networkState
+    const { repairMatrix } = networkState;
 
     for (let row = 0; row < repairMatrix[playerTeam].length; row++) {
       for (let col = 0; col < repairMatrix[playerTeam][0].length; col++) {
@@ -405,7 +416,8 @@ export function GameWrapper({ children }) {
       engineerPendingBlock,
       movements,
       pendingSystemCharge,
-      engineerHealSystem } = networkState
+      engineerHealSystem,
+    } = networkState;
     let tempMessageTimestamp = messageTimestamp;
 
     // charge the specified system
@@ -462,7 +474,10 @@ export function GameWrapper({ children }) {
       system: blockSystem,
     };
 
-    const { isConnected } = checkConnectedRepairMatrixPath(updatedMatrix, blockSystem);
+    const { isConnected } = checkConnectedRepairMatrixPath(
+      updatedMatrix,
+      blockSystem,
+    );
 
     if (isConnected) {
       updatedMatrix.forEach((row) => {
@@ -601,7 +616,7 @@ export function GameWrapper({ children }) {
   }
 
   function moveSubDirection(team, direction) {
-    const { subLocations } = networkState
+    const { subLocations } = networkState;
     const [row, column] = subLocations[team];
     let moveInfo = {};
     switch (direction) {
@@ -653,7 +668,7 @@ export function GameWrapper({ children }) {
   }
 
   function clearVisitedPath(team) {
-    const { gameMap } = networkState
+    const { gameMap } = networkState;
     const mapCopy = [...gameMap];
 
     for (let row = 0; row < process.env.MAP_DIMENSION; row++) {
@@ -978,7 +993,7 @@ export function GameWrapper({ children }) {
     validCells,
     currentDistance = 0,
   ) {
-    const { gameMap } = networkState
+    const { gameMap } = networkState;
     if (
       row < 0 ||
       col < 0 ||
@@ -1038,7 +1053,7 @@ export function GameWrapper({ children }) {
     maxDistance,
     removeStart = true,
   ) {
-    const { gameMap } = networkState
+    const { gameMap } = networkState;
     const rows = gameMap.length;
     const cols = gameMap[0].length;
 
@@ -1063,9 +1078,8 @@ export function GameWrapper({ children }) {
   }
 
   function healSystem(team, system) {
-    const { systemHealthLevels, repairMatrix } = networkState
-    setNetworkState(
-      {
+    const { systemHealthLevels, repairMatrix } = networkState;
+    setNetworkState({
       key: "systemHealthLevels",
       value: {
         ...systemHealthLevels,
@@ -1073,7 +1087,7 @@ export function GameWrapper({ children }) {
           ...systemHealthLevels[team],
           [system]: calculateMaxSystemHealth(repairMatrix[team], system),
         },
-      }
+      },
     });
   }
 
@@ -1082,11 +1096,8 @@ export function GameWrapper({ children }) {
   }
 
   function updateLifeSupport(team, hits) {
-    const { systemHealthLevels } = networkState
-    return Math.max(
-      systemHealthLevels[team]["life support"] - hits,
-      0,
-    );
+    const { systemHealthLevels } = networkState;
+    return Math.max(systemHealthLevels[team]["life support"] - hits, 0);
   }
 
   function scanForEnemySub(row, column, scanType, subLocations) {
@@ -1150,7 +1161,7 @@ export function GameWrapper({ children }) {
         setHostClientId,
         calculateSystemNodeDistance,
         networkState,
-        setNetworkState
+        setNetworkState,
       }}
     >
       {children}

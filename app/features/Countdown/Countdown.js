@@ -15,7 +15,7 @@ export default function Countdown() {
   const { setNetworkState } = useGameContext();
 
   const handleFinish = () => {
-    setNetworkState({ type: "currentStage", value: "main" })
+    setNetworkState({ type: "currentStage", value: "main" });
   };
 
   return (

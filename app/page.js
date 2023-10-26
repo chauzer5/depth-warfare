@@ -11,26 +11,21 @@ import MatchLobby from "./features/Matchmaking/MatchLobby";
 
 export default function App() {
   const { networkState } = useGameContext();
-  const { currentStage } = networkState
+  const { currentStage } = networkState;
 
   return (
     <>
       {currentStage === "login" ? (
         <Login />
-      ) :
-      currentStage === "main-menu" ? (
+      ) : currentStage === "main-menu" ? (
         <MainMenu />
-      ) :
-      currentStage === "lobby" ? (
+      ) : currentStage === "lobby" ? (
         <Lobby />
-      ) :
-      currentStage === "join-match" ? (
+      ) : currentStage === "join-match" ? (
         <JoinMatch />
-      ) :
-      currentStage === "match-lobby" ? (
+      ) : currentStage === "match-lobby" ? (
         <MatchLobby />
-      ) :
-      (
+      ) : (
         <SnackbarProvider maxSnack={5}>
           <Game />
         </SnackbarProvider>

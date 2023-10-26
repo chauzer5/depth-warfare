@@ -16,14 +16,10 @@ export default function GameMap(props) {
     torpedoCells,
     dropMineCells,
   } = props;
-  const {
-    networkState,
-    playerTeam,
-    getValidSilenceCells,
-    getFirstMateSystem,
-  } = useGameContext();
+  const { networkState, playerTeam, getValidSilenceCells, getFirstMateSystem } =
+    useGameContext();
 
-  const { gameMap, pendingNavigate, subLocations, minesList } = networkState
+  const { gameMap, pendingNavigate, subLocations, minesList } = networkState;
   const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
