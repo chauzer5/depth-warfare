@@ -79,18 +79,12 @@ export default function Game() {
         role: player.data.role,
       };
     });
-    console.log("RILEY NEW PLAYER DATA");
-    console.log(newPlayerData);
     setPlayerData(newPlayerData);
 
     const hostClientId = presenceData.toSorted((a, b) => a.clientId.localeCompare(b.clientId))[0].clientId;
     setHostClientId(hostClientId);
 
-    console.log("RILEY HOST ID");
-    console.log(hostClientId);
-
     if(selfClientId === hostClientId){
-      console.log("I AM THE HOST NOW");
       const newMap = resetMap();
       const redRepairMatrix = getEmptyRepairMatrix();
       const blueRepairMatrix = getEmptyRepairMatrix();
@@ -121,8 +115,6 @@ export default function Game() {
 
   useEffect(() => {
     const newMessage = messagesList[messagesList.length - 1];
-    console.log(newMessage);
-
     let networkStateSubset = {};
 
     switch (newMessage?.name) {
