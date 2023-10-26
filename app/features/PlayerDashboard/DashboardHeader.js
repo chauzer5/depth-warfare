@@ -5,7 +5,7 @@ import { ROLE_MAP } from "@/app/utils";
 import { useAblyContext } from "@/app/state/ably_state";
 
 export default function DashboardHeader() {
-  const { playerRole, playerTeam, hostClientId } = useGameContext();
+  const { playerRole, playerTeam, hostClientId, roomCode } = useGameContext();
   const { selfClientId } = useAblyContext();
 
   const styles = {
@@ -49,6 +49,7 @@ export default function DashboardHeader() {
         {` ${ROLE_MAP[playerRole]}`}
       </h4>
       {selfClientId === hostClientId && <h4 style={styles.role}>Host</h4>}
+      <h4 style={styles.role}>Room Code: {roomCode}</h4>
       <h4 style={styles.clock}>{`${clock} ${timeZone}`}</h4>
     </div>
   );

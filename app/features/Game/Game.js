@@ -26,6 +26,7 @@ import {
 } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
 import { useAblyContext } from "@/app/state/ably_state";
+import { insertSupabaseRow, updateSupabaseRow } from "@/app/state/supabase_access";
 
 export default function Game() {
   const {
@@ -40,12 +41,14 @@ export default function Game() {
     setPlayerData,
     playerTeam,
     playerRole,
+    playerData,
   } = useGameContext();
 
   const { currentStage, systemHealthLevels } = networkState;
 
   const gameContext = useGameContext();
-  const { selfClientId, channel, setChannel } = useAblyContext();
+  const { roomCode } = gameContext
+  const { selfClientId, channel, setChannel, supabase } = useAblyContext();
 
   const [messagesList, setMessagesList] = useState([]);
   const [presenceData, updateStatus] = usePresence(`dw-${gameId}`, {
@@ -71,6 +74,11 @@ export default function Game() {
     if(presenceData.length != process.env.NUM_REQUIRED_PLAYERS){
       return;
     }
+
+    if(networkState.gameMap != null){
+      return;
+    }
+
     const newPlayerData = presenceData.map((player) => {
       return {
         username: player.data.name,
@@ -110,7 +118,81 @@ export default function Game() {
       };
       const networkStateSubset = { gameMap: newMap, repairMatrix: newRepairMatrix, systemHealthLevels: newSystemHealthLevels };
       channel.publish("sync-network-state", networkStateSubset);
+
+      const blue_captain = newPlayerData.find(player => player.team === 'blue' && player.role === 'captain');
+      const red_captain = newPlayerData.find(player => player.team === 'red' && player.role === 'captain');
+      const blue_first_mate = newPlayerData.find(player => player.team === 'blue' && player.role === 'first-mate');
+      const red_first_mate = newPlayerData.find(player => player.team === 'red' && player.role === 'first-mate');
+      const blue_engineer = newPlayerData.find(player => player.team === 'blue' && player.role === 'engineer');
+      const red_engineer = newPlayerData.find(player => player.team === 'red' && player.role === 'engineer');
+      const blue_radio_operator = newPlayerData.find(player => player.team === 'blue' && player.role === 'radio-operator');
+      const red_radio_operator = newPlayerData.find(player => player.team === 'red' && player.role === 'radio-operator');
+
+      // Update database
+      insertSupabaseRow(supabase, {
+        channel_id: channel.name, // Set your channel ID here
+        room_code: roomCode, // Set your room code here
+        blue_captain: blue_captain?.username, // Set blue captain
+        red_captain: red_captain?.username, // Set red captain
+        blue_first_mate: blue_first_mate?.username, // Set blue first mate
+        red_first_mate: red_first_mate?.username, // Set red first mate
+        blue_engineer: blue_engineer?.username, // Set blue engineer
+        red_engineer: red_engineer?.username, // Set red engineer
+        blue_radio_operator: blue_radio_operator?.username, // Set blue radio operator
+        red_radio_operator: red_radio_operator?.username, // Set red radio operator
+      })
     }
+  }, [presenceData]);
+
+  useEffect(() => {
+    if(networkState.gameMap === null){
+      return;
+    }
+
+    const newPlayerData = presenceData.map((player) => {
+      return {
+        username: player.data.name,
+        clientId: player.clientId,
+        team: player.data.team,
+        role: player.data.role,
+      };
+    });
+
+    const blue_captain = newPlayerData.find(player => player.team === 'blue' && player.role === 'captain');
+    const red_captain = newPlayerData.find(player => player.team === 'red' && player.role === 'captain');
+    const blue_first_mate = newPlayerData.find(player => player.team === 'blue' && player.role === 'first-mate');
+    const red_first_mate = newPlayerData.find(player => player.team === 'red' && player.role === 'first-mate');
+    const blue_engineer = newPlayerData.find(player => player.team === 'blue' && player.role === 'engineer');
+    const red_engineer = newPlayerData.find(player => player.team === 'red' && player.role === 'engineer');
+    const blue_radio_operator = newPlayerData.find(player => player.team === 'blue' && player.role === 'radio-operator');
+    const red_radio_operator = newPlayerData.find(player => player.team === 'red' && player.role === 'radio-operator');
+
+    setPlayerData(newPlayerData);
+
+    console.log("REEVALUATING HOST STATUS");
+    const newHostClientId = presenceData.toSorted((a, b) => a.clientId.localeCompare(b.clientId))[0].clientId;
+    if(hostClientId != newHostClientId){
+      console.log("HOST CHANGED");
+      console.log(newHostClientId);
+      console.log(newPlayerData);
+    }
+
+    setHostClientId(newHostClientId);
+
+    // Update database
+    if(selfClientId === newHostClientId){
+      updateSupabaseRow(supabase, roomCode, {
+        blue_captain: blue_captain ? blue_captain.username : null, // Set blue captain
+        red_captain: red_captain ? red_captain.username : null, // Set red captain
+        blue_first_mate: blue_first_mate ? blue_first_mate.username : null, // Set blue first mate
+        red_first_mate: red_first_mate ? red_first_mate.username : null, // Set red first mate
+        blue_engineer: blue_engineer ? blue_engineer.username : null, // Set blue engineer
+        red_engineer: red_engineer ? red_engineer.username : null, // Set red engineer
+        blue_radio_operator: blue_radio_operator ? blue_radio_operator.username : null, // Set blue radio operator
+        red_radio_operator: red_radio_operator ? red_radio_operator.username : null, // Set red radio operator
+      });
+    }
+
   }, [presenceData]);
 
   useEffect(() => {

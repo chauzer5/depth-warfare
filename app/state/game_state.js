@@ -18,7 +18,7 @@ const GameContext = createContext();
 export function GameWrapper({ children }) {
   const islandList = maps[process.env.ISLAND_MAP];
   const [username, setUsername] = useState("");
-  const [roomCode, setRoomCode] = useState(null);
+  const [roomCode, setRoomCode] = useState("");
   const [hostClientId, setHostClientId] = useState(null);
   const [gameId, setGameId] = useState();
   const [playerTeam, setPlayerTeam] = useState();
