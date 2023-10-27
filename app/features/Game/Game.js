@@ -27,6 +27,7 @@ import {
 import GameEnd from "../GameEnd/GameEnd";
 import { useAblyContext } from "@/app/state/ably_state";
 import {
+  deleteSupabaseRow,
   insertSupabaseRow,
   updateSupabaseRow,
 } from "@/app/state/supabase_access";
@@ -219,8 +220,11 @@ export default function Game() {
       console.log(newHostClientId);
       console.log(newPlayerData);
     }
-
     setHostClientId(newHostClientId);
+
+    if (presenceData.length === 1) {
+      deleteSupabaseRow(supabase, roomCode);
+    }
 
     // Update database
     if (selfClientId === newHostClientId) {

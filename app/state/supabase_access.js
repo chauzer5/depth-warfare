@@ -3,7 +3,9 @@ export async function insertSupabaseRow(supabase, data) {
     .from(process.env.SUPABASE_TABLE_NAME) // Specify the table name
     .insert(data); // Specify the conflict resolution strategy
 
-  console.error(error);
+  if (error) {
+    console.error(error);
+  }
 }
 
 export async function updateSupabaseRow(supabase, primaryKey, data) {
@@ -12,9 +14,20 @@ export async function updateSupabaseRow(supabase, primaryKey, data) {
     .update(data)
     .eq("room_code", primaryKey);
 
-  console.error(error);
+  if (error) {
+    console.error(error);
+  }
 }
 
-export async function deleteSupabaseRow(supabase, primaryKey) {}
+export async function deleteSupabaseRow(supabase, primaryKey) {
+  const { error } = await supabase
+    .from(process.env.SUPABASE_TABLE_NAME)
+    .delete()
+    .eq("room_code", primaryKey);
+
+  if (error) {
+    console.error(error);
+  }
+}
 
 export async function getSupabaseRow(supabase, primaryKey) {}
