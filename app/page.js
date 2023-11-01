@@ -25,6 +25,8 @@ export default function App() {
         <JoinMatch />
       ) : currentStage === "match-lobby" ? (
         <MatchLobby />
+      ) : currentStage === "in-progress-lobby" ? (
+        <MatchLobby inProgressGame />
       ) : (
         <SnackbarProvider maxSnack={5}>
           <Game />
