@@ -30,4 +30,6 @@ export async function deleteSupabaseRow(supabase, primaryKey) {
   }
 }
 
-export async function getSupabaseRow(supabase, primaryKey) {}
+export async function getSupabaseRow(supabase, primaryKey) {
+  
+}

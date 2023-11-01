@@ -1,4 +1,7 @@
+import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "@/app/state/game_state";
+import { deleteSupabaseRow } from "@/app/state/supabase_access";
+import { useEffect } from "react";
 
 export default function GameEnd() {
   const styles = {
@@ -12,9 +15,18 @@ export default function GameEnd() {
     },
   };
 
-  const { networkState, playerTeam } = useGameContext();
-
+  const { networkState, playerTeam, hostClientId } = useGameContext();
+  const { supabase, selfClientId } = useAblyContext();
   const { systemHealthLevels } = networkState;
+
+  useEffect(() => {
+    // delete the room from supabase
+    if (hostClientId === selfClientId) {
+      deleteSupabaseRow(supabase, networkState.roomCode);
+    }
+  }, []);
+
+
 
   const teamDead = systemHealthLevels[playerTeam]["life support"] <= 0;
   const enemyTeamDead =
