@@ -2,7 +2,7 @@ import theme from "@/app/styles/theme";
 import { ROLE_MAP } from "@/app/utils";
 
 export default function RoleButton(props) {
-  const { team, role, handleClick, roomPlayers } = props;
+  const { id, team, role, handleClick, roomPlayers } = props;
   const styles = {
     button: {
       width: "230px",
@@ -33,7 +33,7 @@ export default function RoleButton(props) {
   return (
     <>
       <h2 style={styles.label}>{ROLE_MAP[role]}</h2>
-      <button style={styles.button} onClick={() => handleClick(team, role)}>
+      <button style={styles.button} onClick={() => handleClick(team, role)} id={id}>
         {playerSelected?.data.name ? playerSelected.data.name : ""}
       </button>
     </>

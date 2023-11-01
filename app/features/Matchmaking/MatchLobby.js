@@ -166,24 +166,28 @@ export default function MatchLobby() {
         </div>
         <div style={styles.column}>
           <RoleButton
+            id="blueCaptain"
             team="blue"
             role="captain"
             roomPlayers={roomPlayers}
             handleClick={handleRoleClick}
           />
           <RoleButton
+            id="blueFirstMate"
             team="blue"
             role="first-mate"
             roomPlayers={roomPlayers}
             handleClick={handleRoleClick}
           />
           <RoleButton
+            id="blueEngineer"
             team="blue"
             role="engineer"
             roomPlayers={roomPlayers}
             handleClick={handleRoleClick}
           />
           <RoleButton
+            id="blueRadioOperator"
             team="blue"
             role="radio-operator"
             roomPlayers={roomPlayers}
@@ -192,24 +196,28 @@ export default function MatchLobby() {
         </div>
         <div style={styles.column}>
           <RoleButton
+            id="redCaptain"
             team="red"
             role="captain"
             roomPlayers={roomPlayers}
             handleClick={handleRoleClick}
           />
           <RoleButton
+            id="redFirstMate"
             team="red"
             role="first-mate"
             roomPlayers={roomPlayers}
             handleClick={handleRoleClick}
           />
           <RoleButton
+            id="redEngineer"
             team="red"
             role="engineer"
             roomPlayers={roomPlayers}
             handleClick={handleRoleClick}
           />
           <RoleButton
+            id="redRadioOperator"
             team="red"
             role="radio-operator"
             roomPlayers={roomPlayers}
@@ -225,6 +233,7 @@ export default function MatchLobby() {
             </button>
           </div>
           <button
+            id={"beginMatch"}
             style={
               roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
               roomPlayers.filter((player) => !player.data.role).length > 0
