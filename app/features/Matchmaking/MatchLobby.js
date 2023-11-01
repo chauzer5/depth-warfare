@@ -83,6 +83,7 @@ export default function MatchLobby(props) {
     roomCode: {
       margin: "10px",
       fontSize: "80px",
+      userSelect: "text",
     },
   };
 
