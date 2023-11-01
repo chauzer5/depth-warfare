@@ -30,4 +30,15 @@ export async function deleteSupabaseRow(supabase, primaryKey) {
   }
 }
 
-export async function getSupabaseRow(supabase, primaryKey) {}
+export async function getSupabaseRow(supabase, primaryKey) {
+  const { data, error } = await supabase
+    .from(process.env.SUPABASE_TABLE_NAME)
+    .select("*")
+    .eq("room_code", primaryKey);
+
+  if(error){
+    return error;
+  }
+
+  return data;
+}

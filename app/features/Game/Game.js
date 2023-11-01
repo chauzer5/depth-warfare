@@ -45,7 +45,6 @@ export default function Game() {
     setPlayerData,
     playerTeam,
     playerRole,
-    playerData,
   } = useGameContext();
 
   const { currentStage, systemHealthLevels } = networkState;
@@ -156,7 +155,7 @@ export default function Game() {
 
       // Update database
       insertSupabaseRow(supabase, {
-        channel_id: channel.name, // Set your channel ID here
+        channel_id: gameId, // Set your channel ID here
         room_code: roomCode, // Set your room code here
         blue_captain: blue_captain?.username, // Set blue captain
         red_captain: red_captain?.username, // Set red captain
@@ -211,15 +210,14 @@ export default function Game() {
 
     setPlayerData(newPlayerData);
 
-    console.log("REEVALUATING HOST STATUS");
+    if(selfClientId === hostClientId) {
+      // Sync network data
+      channel.publish("sync-network-state", networkStateRef.current);
+    }
+
     const newHostClientId = presenceData.toSorted((a, b) =>
       a.clientId.localeCompare(b.clientId),
     )[0].clientId;
-    if (hostClientId != newHostClientId) {
-      console.log("HOST CHANGED");
-      console.log(newHostClientId);
-      console.log(newPlayerData);
-    }
     setHostClientId(newHostClientId);
 
     if (presenceData.length === 1) {

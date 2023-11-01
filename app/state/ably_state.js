@@ -18,11 +18,14 @@ const AblyContext = createContext();
 
 export function AblyWrapper({ children }) {
   const [channel, setChannel] = useState();
+  const [supabaseLobbyData, setSupabaseLobbyData] = useState();
   return (
     <AblyContext.Provider
       value={{
         selfClientId,
         channel,
+        supabaseLobbyData,
+        setSupabaseLobbyData,
         setChannel,
         supabase,
       }}

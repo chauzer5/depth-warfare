@@ -1,4 +1,6 @@
+import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "@/app/state/game_state";
+import { getSupabaseRow } from "@/app/state/supabase_access";
 import theme from "@/app/styles/theme";
 
 export default function JoinMatch() {
@@ -36,6 +38,7 @@ export default function JoinMatch() {
   };
 
   const { roomCode, setRoomCode, setNetworkState } = useGameContext();
+  const { supabase, setSupabaseLobbyData } = useAblyContext();
 
   const handleChangeRoomCode = (event) => {
     let regex = /^[a-zA-Z]+$/;
@@ -46,7 +49,14 @@ export default function JoinMatch() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setNetworkState({ type: "currentStage", value: "match-lobby" });
+    getSupabaseRow(supabase, roomCode).then((result) => {
+      if(result.length === 0){
+        setNetworkState({ type: "currentStage", value: "match-lobby" });
+      } else {
+        setSupabaseLobbyData(result[0]);
+        setNetworkState({ type: "currentStage", value: "in-progress-lobby" });
+      }
+    });
   };
 
   return (

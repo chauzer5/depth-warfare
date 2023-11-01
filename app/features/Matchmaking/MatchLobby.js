@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useAblyContext } from "@/app/state/ably_state";
 import { v4 as uuidv4 } from "uuid";
 
-export default function MatchLobby() {
+export default function MatchLobby(props) {
   const styles = {
     main: {
       width: "100%",
@@ -93,9 +93,11 @@ export default function MatchLobby() {
     setGameId,
     setPlayerRole,
     setPlayerTeam,
+    playerRole,
   } = useGameContext();
-  const { selfClientId } = useAblyContext();
+  const { selfClientId, supabaseLobbyData } = useAblyContext();
   const [roomPlayers, setRoomPlayers] = useState([]);
+  const { inProgressGame } = props;
 
   const [channel] = useChannel("depth-warfare-match-lobby", (message) => {
     if (message.name === "start-game" && message.data.roomCode === roomCode) {
@@ -110,9 +112,99 @@ export default function MatchLobby() {
   );
 
   useEffect(() => {
-    setRoomPlayers(
-      presenceData.filter((player) => player.data.roomCode === roomCode),
-    );
+    if(inProgressGame) {
+      const existingPlayers = [];
+
+      if(supabaseLobbyData.blue_captain) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.blue_captain,
+            team: "blue",
+            role: "captain",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.blue_first_mate) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.blue_first_mate,
+            team: "blue",
+            role: "first-mate",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.blue_engineer) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.blue_engineer,
+            team: "blue",
+            role: "engineer",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.blue_radio_operator) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.blue_radio_operator,
+            team: "blue",
+            role: "radio-operator",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.red_captain) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.red_captain,
+            team: "red",
+            role: "captain",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.red_first_mate) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.red_first_mate,
+            team: "red",
+            role: "first-mate",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.red_engineer) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.red_engineer,
+            team: "red",
+            role: "engineer",
+          },
+        });
+      }
+
+      if(supabaseLobbyData.red_radio_operator) {
+        existingPlayers.push({
+          data: {
+            name: supabaseLobbyData.red_radio_operator,
+            team: "red",
+            role: "radio-operator",
+          },
+        });
+      }
+
+      setRoomPlayers([
+        ...existingPlayers,
+        ...presenceData.filter((player) => player.data.roomCode === roomCode),
+      ]);
+    }
+    else {
+      setRoomPlayers(
+        presenceData.filter((player) => player.data.roomCode === roomCode),
+      );
+    }
   }, [presenceData]);
 
   const handleLeaveRoom = () => {
@@ -149,6 +241,10 @@ export default function MatchLobby() {
 
   const handleBeginMatch = () => {
     channel.publish("start-game", { gameId: uuidv4(), roomCode: roomCode });
+  };
+
+  const handleJoinInProgressMatch = () => {
+    channel.publish("start-game", { gameId: supabaseLobbyData.channel_id, roomCode: roomCode });
   };
 
   return (
@@ -235,18 +331,20 @@ export default function MatchLobby() {
           <button
             id={"beginMatch"}
             style={
-              roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
-              roomPlayers.filter((player) => !player.data.role).length > 0
+              (!inProgressGame && roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS) ||
+              roomPlayers.filter((player) => !player.data.role).length > 0 ||
+              !playerRole
                 ? styles.disabledButton
                 : styles.beginMatchButton
             }
             disabled={
-              roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS ||
-              roomPlayers.filter((player) => !player.data.role).length > 0
+              (!inProgressGame && roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS) ||
+              roomPlayers.filter((player) => !player.data.role).length > 0 ||
+              !playerRole
             }
-            onClick={handleBeginMatch}
+            onClick={inProgressGame ? handleJoinInProgressMatch : handleBeginMatch}
           >
-            Begin Match
+            {inProgressGame ? "Join Match" : "Begin Match"}
           </button>
         </div>
       </div>
