@@ -68,10 +68,10 @@ export default function MainMenu() {
     <div style={styles.main}>
       <div style={styles.container}>
         <h1 style={styles.title}>DEPTH WARFARE</h1>
-        <button style={styles.bigButton} onClick={handleCreateMatch}>
+        <button style={styles.bigButton} id='createMatch' onClick={handleCreateMatch}>
           Create Match
         </button>
-        <button style={styles.bigButton} onClick={handleJoinMatch}>
+        <button style={styles.bigButton} id='joinMatch' onClick={handleJoinMatch}>
           Join Match
         </button>
         <p style={styles.username}>{`Username: ${username}`}</p>
