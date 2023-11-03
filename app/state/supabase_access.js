@@ -36,7 +36,7 @@ export async function getSupabaseRow(supabase, primaryKey) {
     .select("*")
     .eq("room_code", primaryKey);
 
-  if(error){
+  if (error) {
     return error;
   }
 

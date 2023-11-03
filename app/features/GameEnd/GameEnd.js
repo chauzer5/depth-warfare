@@ -26,8 +26,6 @@ export default function GameEnd() {
     }
   }, []);
 
-
-
   const teamDead = systemHealthLevels[playerTeam]["life support"] <= 0;
   const enemyTeamDead =
     systemHealthLevels[playerTeam === "red" ? "blue" : "red"]["life support"] <=

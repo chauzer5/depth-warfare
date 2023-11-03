@@ -29,9 +29,6 @@ const nextConfig = {
     MIN_NODE_DISTANCE: 3,
     COMPLETE_STATE_UPDATE_INTERVAL: 50000,
     ROOM_CODE_LENGTH: 4,
-    FEATURE_FLAGS: {
-      MATCHMAKING: true,
-    },
   },
   productionBrowserSourceMaps: true,
 };

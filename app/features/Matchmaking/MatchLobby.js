@@ -113,10 +113,10 @@ export default function MatchLobby(props) {
   );
 
   useEffect(() => {
-    if(inProgressGame) {
+    if (inProgressGame) {
       const existingPlayers = [];
 
-      if(supabaseLobbyData.blue_captain) {
+      if (supabaseLobbyData.blue_captain) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.blue_captain,
@@ -126,7 +126,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.blue_first_mate) {
+      if (supabaseLobbyData.blue_first_mate) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.blue_first_mate,
@@ -136,7 +136,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.blue_engineer) {
+      if (supabaseLobbyData.blue_engineer) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.blue_engineer,
@@ -146,7 +146,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.blue_radio_operator) {
+      if (supabaseLobbyData.blue_radio_operator) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.blue_radio_operator,
@@ -156,7 +156,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.red_captain) {
+      if (supabaseLobbyData.red_captain) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.red_captain,
@@ -166,7 +166,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.red_first_mate) {
+      if (supabaseLobbyData.red_first_mate) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.red_first_mate,
@@ -176,7 +176,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.red_engineer) {
+      if (supabaseLobbyData.red_engineer) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.red_engineer,
@@ -186,7 +186,7 @@ export default function MatchLobby(props) {
         });
       }
 
-      if(supabaseLobbyData.red_radio_operator) {
+      if (supabaseLobbyData.red_radio_operator) {
         existingPlayers.push({
           data: {
             name: supabaseLobbyData.red_radio_operator,
@@ -200,8 +200,7 @@ export default function MatchLobby(props) {
         ...existingPlayers,
         ...presenceData.filter((player) => player.data.roomCode === roomCode),
       ]);
-    }
-    else {
+    } else {
       setRoomPlayers(
         presenceData.filter((player) => player.data.roomCode === roomCode),
       );
@@ -245,7 +244,10 @@ export default function MatchLobby(props) {
   };
 
   const handleJoinInProgressMatch = () => {
-    channel.publish("start-game", { gameId: supabaseLobbyData.channel_id, roomCode: roomCode });
+    channel.publish("start-game", {
+      gameId: supabaseLobbyData.channel_id,
+      roomCode: roomCode,
+    });
   };
 
   return (
@@ -323,18 +325,22 @@ export default function MatchLobby(props) {
           </div>
           <button
             style={
-              (!inProgressGame && roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS) ||
+              (!inProgressGame &&
+                roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS) ||
               roomPlayers.filter((player) => !player.data.role).length > 0 ||
               !playerRole
                 ? styles.disabledButton
                 : styles.beginMatchButton
             }
             disabled={
-              (!inProgressGame && roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS) ||
+              (!inProgressGame &&
+                roomPlayers.length < process.env.NUM_REQUIRED_PLAYERS) ||
               roomPlayers.filter((player) => !player.data.role).length > 0 ||
               !playerRole
             }
-            onClick={inProgressGame ? handleJoinInProgressMatch : handleBeginMatch}
+            onClick={
+              inProgressGame ? handleJoinInProgressMatch : handleBeginMatch
+            }
           >
             {inProgressGame ? "Join Match" : "Begin Match"}
           </button>

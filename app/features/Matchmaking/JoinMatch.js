@@ -50,7 +50,7 @@ export default function JoinMatch() {
   const handleSubmit = (e) => {
     e.preventDefault();
     getSupabaseRow(supabase, roomCode).then((result) => {
-      if(result.length === 0){
+      if (result.length === 0) {
         setNetworkState({ type: "currentStage", value: "match-lobby" });
       } else {
         setSupabaseLobbyData(result[0]);

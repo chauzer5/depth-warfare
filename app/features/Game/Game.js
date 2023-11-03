@@ -1,6 +1,5 @@
 import { useChannel, usePresence } from "@ably-labs/react-hooks";
 import { useGameContext } from "../../state/game_state";
-import TeamSelection from "../TeamSelection/TeamSelection";
 import Countdown from "../Countdown/Countdown";
 import StartingSpot from "../StartingSpot/StartingSpot";
 import { useEffect, useState, useRef } from "react";
@@ -210,7 +209,7 @@ export default function Game() {
 
     setPlayerData(newPlayerData);
 
-    if(selfClientId === hostClientId) {
+    if (selfClientId === hostClientId) {
       // Sync network data
       channel.publish("sync-network-state", networkStateRef.current);
     }
@@ -439,12 +438,7 @@ export default function Game() {
 
   return (
     <>
-      {currentStage === "teams" ? (
-        <TeamSelection
-          presenceData={presenceData}
-          updateStatus={updateStatus}
-        />
-      ) : currentStage === "starting-spot" ? (
+      {currentStage === "starting-spot" ? (
         <StartingSpot />
       ) : currentStage === "countdown" ? (
         <Countdown />
