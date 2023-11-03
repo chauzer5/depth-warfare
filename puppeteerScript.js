@@ -23,11 +23,25 @@ const idArray = [
   "redRadioOperator",
 ];
 
+async function generateRandomRoomCode() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  let roomCode = "";
+  for (let i = 0; i < 4; i++) {
+    roomCode += characters.charAt(
+      Math.floor(Math.random() * characters.length),
+    );
+  }
+  return roomCode;
+}
+
 async function openTabs() {
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewport: null,
   });
+
+  const roomCode = await generateRandomRoomCode();
 
   const pages = await Promise.all(Array.from({ length: numberOfTabs }, async (_, index) => {
     const page = await browser.newPage();
@@ -35,12 +49,12 @@ async function openTabs() {
     await page.waitForSelector("input");
     await page.type("input", userNameArray[index]);
     await page.keyboard.press("Enter");
-
+    
     await page.waitForSelector(`#joinMatch`);
     await page.click(`#joinMatch`);
 
     await page.waitForSelector("input");
-    await page.type("input", "GAME");
+    await page.type("input", roomCode);
     await page.keyboard.press("Enter");
 
     await page.waitForSelector(`#${idArray[index]}`);
