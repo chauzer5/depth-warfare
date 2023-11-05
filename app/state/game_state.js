@@ -39,8 +39,8 @@ export function GameWrapper({ children }) {
     pendingSystemCharge: { blue: null, red: null },
     currentlySurfacing: { blue: false, red: false },
     systemChargeLevels: {
-      blue: { mine: 0, torpedo: 0, scan: 0, silence: 0 },
-      red: { mine: 0, torpedo: 0, scan: 0, silence: 0 },
+      blue: { mine: 0, torpedo: 0, probe: 0, silence: 0 },
+      red: { mine: 0, torpedo: 0, probe: 0, silence: 0 },
     },
     systemHealthLevels: {
       blue: {

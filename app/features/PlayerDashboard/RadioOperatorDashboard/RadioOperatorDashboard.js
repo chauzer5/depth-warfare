@@ -2,6 +2,7 @@
 import SectorsKey from "@/app/components/SectorsKey/SectorsKey";
 import RadioMap from "./RadioMap";
 import TriangleShiftButton from "./TriangleShiftButton";
+import SystemChargeMeter from "@/app/components/SystemChargeMeter/SystemChargeMeter";
 import { useGameContext } from "@/app/state/game_state";
 import { capitalizeFirstLetter } from "@/app/utils";
 import theme from "@/app/styles/theme";
@@ -25,6 +26,11 @@ export default function RadioOperatorDashboard() {
     },
     rightColumn: {
       marginLeft: "50px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
     },
     header: {
       margin: 0,
@@ -65,6 +71,17 @@ export default function RadioOperatorDashboard() {
       marginLeft: "15px",
       cursor: "pointer",
     },
+    bigButton: {
+      width: "150px",
+      height: "150px",
+      marginTop: "40px",
+      borderRadius: "50%",
+      fontSize: "30px",
+      backgroundColor: theme.green,
+      color: "black",
+      fontFamily: "VT323, monospace",
+      margin: "10px",
+    },
     movementsList: {
       backgroundColor: theme.black,
       border: "2px solid white",
@@ -75,30 +92,39 @@ export default function RadioOperatorDashboard() {
     },
   };
 
-  const { networkState, playerTeam } = useGameContext();
+  const { 
+    networkState, 
+    playerTeam,
+    getFirstMateSystem,
+  } = useGameContext();
 
-  const { movements, systemHealthLevels, movementCountOnDisable } =
-    networkState;
+  const { 
+    movements, 
+    systemHealthLevels, 
+    movementCountOnDisable,
+    systemChargeLevels,
+   } = networkState;
 
   const { channel } = useAblyContext();
+  const [probeDisabled, setProbeDisabled] = useState(false);
 
-  const ref = useRef(null);
-  const scrollToBottom = () => {
-    ref.current.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    setProbeDisabled(systemHealthLevels[playerTeam]["probe"] === 0);
+  }, [systemHealthLevels[playerTeam]["probe"]]);
 
-  const isMoveHidden = (index) => {
+  const isSystemCharged = (systemName, systemChargeLevels) => {
     return (
-      systemHealthLevels[playerTeam]["comms"] <= 0 &&
-      index >= movementCountOnDisable[playerTeam === "blue" ? "red" : "blue"]
+      systemChargeLevels[playerTeam][systemName] ===
+      getFirstMateSystem(systemName).maxCharge
     );
   };
 
-  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
+  const launchProbe = () => {
+    console.log("Clicked");
+    channel.publish("radio-operator-place-probe", {} );
+  }
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [movements[oppositeTeam]]);
+  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
 
   return (
     <div style={styles.main}>
@@ -139,33 +165,19 @@ export default function RadioOperatorDashboard() {
           </button>
         </div>
         <div style={styles.rightColumn}>
-          <h3 style={styles.header}>Enemy Movements</h3>
-          <div css={styles.movementsList}>
-            {movements[playerTeam === "blue" ? "red" : "blue"].map(
-              (movement, index) => (
-                <div
-                  key={index}
-                  style={{
-                    fontSize: "24px",
-                    color:
-                      movement === "silence" && !isMoveHidden(index)
-                        ? theme.purple
-                        : movement.includes("surface") && !isMoveHidden(index)
-                        ? theme.green
-                        : theme.white,
-                    marginLeft: "5px",
-                  }}
-                >
-                  {`${index + 1}. ${
-                    isMoveHidden(index)
-                      ? "???"
-                      : capitalizeFirstLetter(movement)
-                  }`}
-                </div>
-              ),
-            )}
-            <div ref={ref} />
-          </div>
+          <button style={{
+            ...styles.bigButton,
+            backgroundColor: probeDisabled
+            ? "gray"
+            : isSystemCharged("probe", systemChargeLevels)
+            ? getFirstMateSystem("probe").color || "defaultColor"
+            : "gray"
+          }}
+            onClick={() => launchProbe()}
+            disabled={!isSystemCharged("probe", systemChargeLevels)}>
+            PROBE 
+          </button>
+          <SystemChargeMeter systemName="probe" />
         </div>
       </div>
     </div>

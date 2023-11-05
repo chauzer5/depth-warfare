@@ -992,7 +992,7 @@ export function firstMateScan(context, message) {
       ...systemChargeLevels,
       [team]: {
         ...systemChargeLevels[team],
-        scan: 0,
+        probe: 0,
       },
     },
   };
@@ -1127,6 +1127,35 @@ export function radioOperatorShiftNotes(context, message) {
     radioMapNotes: {
       ...radioMapNotes,
       [team]: updatedNotes,
+    },
+  };
+}
+
+export function radioOperatorPlaceProbe(context, message){
+  const { getMessagePlayer, networkState } = context;
+
+  const {
+    systemChargeLevels,
+    messageTimestamp,
+    notificationMessages,
+    currentlySurfacing,
+  } = networkState;
+
+  const team = getMessagePlayer(message).team;
+
+  if (currentlySurfacing[team]) {
+    return {};
+  }
+
+
+  return {
+    messageTimestamp: messageTimestamp + 1,
+    systemChargeLevels: {
+      ...systemChargeLevels,
+      [team]: {
+        ...systemChargeLevels[team],
+        probe: 0,
+      },
     },
   };
 }

@@ -22,6 +22,7 @@ import {
   radioOperatorAddRemoveNote,
   radioOperatorClearNotes,
   radioOperatorShiftNotes,
+  radioOperatorPlaceProbe,
 } from "../../state/message_handler";
 import GameEnd from "../GameEnd/GameEnd";
 import { useAblyContext } from "@/app/state/ably_state";
@@ -422,6 +423,16 @@ export default function Game() {
           );
         }
         break;
+      case "radio-operator-place-probe":
+        if (selfClientId === hostClientId) {
+          networkStateSubset = radioOperatorPlaceProbe(gameContext, newMessage);
+          syncNetworkState(gameContext, networkStateSubset);
+          channel.publish(
+            "sync-network-state",
+            Object.assign(networkStateRef.current, networkStateSubset),
+          );
+        }
+        break;
       case "sync-network-state":
         if (
           (!(selfClientId === hostClientId) && currentStage == "main") ||
@@ -431,6 +442,7 @@ export default function Game() {
           syncNetworkState(gameContext, networkStateSubset);
         }
         break;
+      
       default:
         console.error(`Unrecognized message type: ${newMessage?.name}}`);
     }
