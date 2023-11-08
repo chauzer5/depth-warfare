@@ -1187,7 +1187,10 @@ export function radioOperatorPlaceProbe(context, message){
         probe: 0,
       },
     },
-    
+    radiomapNotes:{
+      ...radioMapNotes,
+      [team]: [...radioMapNotes[team], [row, column]],
+    },
   };
 }
 
