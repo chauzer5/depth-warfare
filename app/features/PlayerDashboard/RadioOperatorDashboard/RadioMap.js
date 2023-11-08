@@ -7,11 +7,12 @@ import Image from "next/image";
 import { useAblyContext } from "@/app/state/ably_state";
 import {useState} from "react";
 
-export default function RadioMap() {
+export default function RadioMap(props) {
+  const { handleClick, clickedCell } = props
   const { networkState, playerTeam } = useGameContext();
-  const { gameMap, radioMapNotes } = networkState;
+  const { gameMap, probes } = networkState;
+
   const { channel } = useAblyContext();
-  const [clickedCell, setClickedCell] = useState({});
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -51,7 +52,7 @@ export default function RadioMap() {
       justifyContent: "center",
       alignItems: "center",
     },
-    note: {
+    probe: {
       color: theme.white,
       borderRadius: "50%",
       display: "inline-block",
@@ -65,8 +66,10 @@ export default function RadioMap() {
       background: "transparent", 
       border: "3px solid white", 
       fontSize: "18px",
+      position: "absolute",
+      zIndex: 0,
     },
-    latestNote: {
+    activeProbe: {
       color: theme.white,
       borderRadius: "50%",
       display: "inline-block",
@@ -81,6 +84,8 @@ export default function RadioMap() {
       border: "3px solid red", 
       boxShadow: "0px 0px 4px 4px rgba(255,0,0,0.8)",
       fontSize: "18px",
+      position: "absolute",
+      zIndex: 0,
     },
     targetCellStyle: {
       display: "flex",
@@ -126,12 +131,6 @@ export default function RadioMap() {
     return islandStyle;
   };
 
-  const handleClick = (row, column) => {
-    channel.publish("radio-operator-add-remove-note", { row, column });
-    const newClickedCell = {row, column};
-    setClickedCell(newClickedCell);
-  };
-
   return (
     <table style={styles.table}>
       <tbody>
@@ -149,51 +148,41 @@ export default function RadioMap() {
         {gameMap.map((row, rowIndex) => (
           <tr key={rowIndex} style={styles.row}>
             <th>{indexToRow(rowIndex)}</th>
-            {row.map((cell, columnIndex) => (
-              <td
-                key={columnIndex}
-                style={{
-                  ...styles.cell,
-                  ...getSectorStyle(rowIndex, columnIndex),
-                  ...getIslandBorders(rowIndex, columnIndex),
-                }}
-              >
-                <div
-                  css={cell.type === "island" ? styles.island : styles.water}
-                  onClick={() => handleClick(rowIndex, columnIndex)}
+            {row.map((cell, columnIndex) => {
+
+              const probe = probes[playerTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex)
+
+              console.log("probe", probe)
+
+              return (
+                <td
+                  key={columnIndex}
+                  style={{
+                    ...styles.cell,
+                    ...getSectorStyle(rowIndex, columnIndex),
+                    ...getIslandBorders(rowIndex, columnIndex),
+                  }}
                 >
-                  {radioMapNotes[playerTeam].find(
-                    (note) => note[0] === rowIndex && note[1] === columnIndex,
-                  ) && (
-                    <span
-                      style={...rowIndex ===
-                        radioMapNotes[playerTeam][
-                          radioMapNotes[playerTeam].length - 1
-                        ][0] &&
-                        columnIndex ===
-                          radioMapNotes[playerTeam][
-                            radioMapNotes[playerTeam].length - 1
-                          ][1]
-                          ? styles.latestNote
-                          : styles.note
-                    }
-                    >
-                      1
-                    </span>
-                  )}
-                  {/* {clickedCell && clickedCell.row === rowIndex && clickedCell.column === columnIndex && (
-                    <span style={styles.targetCellStyle}>
-                      <Image
-                        src={targetImage}
-                        alt="Target"
-                        width={25}
-                        height={25}
-                      />
-                    </span>
-                  )} */}
-                </div>
-              </td>
-            ))}
+                  <div
+                    css={cell.type === "island" ? styles.island : styles.water}
+                    onClick={() => handleClick(rowIndex, columnIndex)}
+                  >
+                    {(probe) && ( <span style={styles.probe}>{probe[2]}</span>
+                    )}
+                    {clickedCell && clickedCell.row === rowIndex && clickedCell.column === columnIndex && (
+                      <span style={styles.targetCellStyle}>
+                        <Image
+                          src={targetImage}
+                          alt="Target"
+                          width={25}
+                          height={25}
+                        />
+                      </span>
+                    )}
+                  </div>
+                </td>
+              )
+        })}
           </tr>
         ))}
       </tbody>

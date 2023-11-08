@@ -177,6 +177,8 @@ export function firstMateChooseSystemCharge(context, message) {
 
   let tempNetworkState = {};
 
+  console.log("check charge system", systemChargeLevels[team][message.data.system], getSystemMaxCharge(message.data.system), pendingNavigate[team], !pendingSystemCharge[team])
+
   // Enforce that we are able to charge the system we are looking at
   if (
     systemChargeLevels[team][message.data.system] <
@@ -1138,6 +1140,7 @@ export function radioOperatorPlaceProbe(context, message){
     systemChargeLevels,
     messageTimestamp,
     currentlySurfacing,
+    probes,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -1148,6 +1151,7 @@ export function radioOperatorPlaceProbe(context, message){
 
   const row = message.data.row;
   const column = message.data.column;
+
   if (
     row < 0 ||
     row >= process.env.MAP_DIMENSION ||
@@ -1157,40 +1161,36 @@ export function radioOperatorPlaceProbe(context, message){
     return {};
   }
 
-  // if (
-  //   radioMapNotes[team].find((note) => note[0] === row && note[1] === column)
-  // ) {
-  //   return {
-  //     radioMapNotes: {
-  //       ...radioMapNotes,
-  //       [team]: radioMapNotes[team].filter(
-  //         (note) => note[0] !== row || note[1] !== column,
-  //       ),
-  //     },
-  //   };
-  // } else {
-  //   return {
-  //     radioMapNotes: {
-  //       ...radioMapNotes,
-  //       [team]: [...radioMapNotes[team], [row, column]],
-  //     },
-  //   };
-  // }
+  let updatedProbes = {...probes}
+  
+  const probe = probes[team].find((note) => note[0] === row && note[1] === column)
+  let probeChargeLevel;
 
-
+  if (systemChargeLevels[team]["probe"] > 0) {
+    if (probe) {
+      probe[2] += 1;
+    } else {
+      console.log("added probe")
+      updatedProbes = {
+        ...updatedProbes,
+        [team]: [...updatedProbes[team], [row, column, 1]],
+      };
+    }
+    probeChargeLevel = Math.max(0, systemChargeLevels[team]["probe"] - 1)
+  } else {
+    probeChargeLevel = systemChargeLevels[team]["probe"]
+  }
+  
   return {
     messageTimestamp: messageTimestamp + 1,
     systemChargeLevels: {
       ...systemChargeLevels,
       [team]: {
         ...systemChargeLevels[team],
-        probe: 0,
+        probe: probeChargeLevel,
       },
     },
-    radiomapNotes:{
-      ...radioMapNotes,
-      [team]: [...radioMapNotes[team], [row, column]],
-    },
+    probes: updatedProbes
   };
 }
 
