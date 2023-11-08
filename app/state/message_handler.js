@@ -1138,6 +1138,7 @@ export function radioOperatorPlaceProbe(context, message){
     systemChargeLevels,
     messageTimestamp,
     currentlySurfacing,
+    radioMapNotes,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
