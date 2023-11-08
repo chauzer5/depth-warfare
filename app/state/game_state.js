@@ -67,6 +67,28 @@ export function GameWrapper({ children }) {
     },
     notificationMessages: [],
     messageTimestamp: 0,
+    gameStats: {
+      blue: {
+        spacesTraveled: 0,
+        timesSilenced: 0,
+        scansUsed: 0,
+        minesDropped: 0,
+        minesDetonated: 0,
+        torpedoesLaunched: 0,
+        timesSurfaced: 0,
+        systemsDisabled: 0,
+      },
+      red: {
+        spacesTraveled: 0,
+        timesSilenced: 0,
+        scansUsed: 0,
+        minesDropped: 0,
+        minesDetonated: 0,
+        torpedoesLaunched: 0,
+        timesSurfaced: 0,
+        systemsDisabled: 0,
+      }
+    }
   };
 
   // Reducer
@@ -417,6 +439,7 @@ export function GameWrapper({ children }) {
       movements,
       pendingSystemCharge,
       engineerHealSystem,
+      gameStats,
     } = networkState;
     let tempMessageTimestamp = messageTimestamp;
 
@@ -521,11 +544,13 @@ export function GameWrapper({ children }) {
     syncStateMessage["subLocations"] = moveSubInfo.subLocations;
     syncStateMessage["gameMap"] = moveSubInfo.gameMap;
 
+    let newSystemDisabled = false;
     if (
       syncStateMessage["systemHealthLevels"][team][randomSystem] === 0 &&
       systemHealthLevels[team][randomSystem] > 0
     ) {
       // Notify team that system is now disabled
+      newSystemDisabled = true;
       const notificationMessage = {
         team,
         sameTeamMessage: `${capitalizeFirstLetter(randomSystem)} disabled`,
@@ -610,6 +635,14 @@ export function GameWrapper({ children }) {
       process.env.MAX_MESSAGES,
     );
     syncStateMessage["messageTimestamp"] = tempMessageTimestamp;
+    syncStateMessage["gameStats"] = {
+      ...gameStats,
+      [team]: {
+        ...gameStats[team],
+        spacesTraveled: gameStats[team].spacesTraveled + 1,
+        systemsDisabled: newSystemDisabled ? gameStats[team].systemsDisabled + 1 : gameStats[team].systemsDisabled,
+      }
+    }
 
     // sync state across the clients
     return syncStateMessage;

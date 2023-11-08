@@ -249,6 +249,7 @@ export function captainSilence(context, message) {
     randomEnabledDirection,
     subLocations,
     gameMap,
+    gameStats,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -314,6 +315,14 @@ export function captainSilence(context, message) {
     [team]: [...movements[team], "silence"],
   };
 
+  tempNetworkState["gameStats"] = {
+    ...tempNetworkState.gameStats,
+    [team]: {
+      ...tempNetworkState.gameStats[team],
+      timesSilenced: gameStats[team].timesSilenced + 1,
+    },
+  };
+
   return tempNetworkState;
 }
 
@@ -345,6 +354,7 @@ export function captainSurface(context, message) {
     movements,
     currentlySurfacing,
     repairMatrix,
+    gameStats,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -372,6 +382,13 @@ export function captainSurface(context, message) {
       [team]: [...movements[team], `surface(${sector})`],
     },
     gameMap: updatedGameMap,
+    gameStats: {
+      ...gameStats,
+      [team]: {
+        ...gameStats[team],
+        timesSurfaced: gameStats[team].timesSurfaced + 1,
+      },
+    },
   };
 }
 
@@ -395,6 +412,7 @@ export function firstMateFireTorpedo(context, message) {
     notificationMessages,
     currentlySurfacing,
     gameMap,
+    gameStats,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -646,6 +664,14 @@ export function firstMateFireTorpedo(context, message) {
     process.env.MAX_MESSAGES,
   );
 
+  syncNetworkMessage["gameStats"] = {
+    ...gameStats,
+    [team]: {
+      ...gameStats[team],
+      torpedoesLaunched: gameStats[team].torpedoesLaunched + 1,
+    },
+  }
+
   return syncNetworkMessage;
 }
 
@@ -663,6 +689,7 @@ export function firstMateDropMine(context, message) {
     gameMap,
     systemHealthLevels,
     subLocations,
+    gameStats,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -750,6 +777,14 @@ export function firstMateDropMine(context, message) {
     [team]: [...minesList[team], [message.data.row, message.data.column]],
   };
 
+  syncNetworkMessage["gameStats"] = {
+    ...gameStats,
+    [team]: {
+      ...gameStats[team],
+      minesDropped: gameStats[team].minesDropped + 1,
+    },
+  };
+
   return syncNetworkMessage;
 }
 
@@ -766,6 +801,7 @@ export function firstMateDetonateMine(context, message) {
     messageTimestamp,
     notificationMessages,
     currentlySurfacing,
+    gameStats,
   } = networkState;
 
   let tempMessages = [];
@@ -949,6 +985,19 @@ export function firstMateDetonateMine(context, message) {
     process.env.MAX_MESSAGES,
   );
 
+  syncNetworkMessage["gameStats"] = {
+    ...gameStats,
+    [team]: {
+      ...gameStats[team],
+      minesDetonated: gameStats[team].minesDetonated + ownMinesDetonated.length,
+    },
+    [oppositeTeam]: {
+      ...gameStats[oppositeTeam],
+      minesDetonated:
+        gameStats[oppositeTeam].minesDetonated + oppMinesDetonated.length,
+    },
+  }
+
   return syncNetworkMessage;
 }
 
@@ -962,6 +1011,7 @@ export function firstMateScan(context, message) {
     messageTimestamp,
     notificationMessages,
     currentlySurfacing,
+    gameStats,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -995,6 +1045,13 @@ export function firstMateScan(context, message) {
         scan: 0,
       },
     },
+    gameStats: {
+      ...gameStats,
+      [team]: {
+        ...gameStats[team],
+        timesScanned: gameStats[team].timesScanned + 1,
+      },
+    }
   };
 }
 
