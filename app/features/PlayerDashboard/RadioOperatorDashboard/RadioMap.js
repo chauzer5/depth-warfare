@@ -2,12 +2,16 @@
 import { useGameContext } from "@/app/state/game_state";
 import { indexToColumn, indexToRow } from "@/app/utils";
 import theme from "@/app/styles/theme";
+import targetImage from "../../../target.png";
+import Image from "next/image";
 import { useAblyContext } from "@/app/state/ably_state";
+import {useState} from "react";
 
 export default function RadioMap() {
   const { networkState, playerTeam } = useGameContext();
   const { gameMap, radioMapNotes } = networkState;
   const { channel } = useAblyContext();
+  const [clickedCell, setClickedCell] = useState({});
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
   const SECTOR_DIMENSION = process.env.SECTOR_DIMENSION;
@@ -49,11 +53,43 @@ export default function RadioMap() {
     },
     note: {
       color: theme.white,
-      fontSize: "24px",
+      borderRadius: "50%",
+      display: "inline-block",
+      width: "19px",
+      height: "19px",
+      justifyContent: "center", 
+      alignItems: "center",
+      fontWeight: "bold",
+      lineHeight: "19px",
+      textAlign: "center",
+      background: "transparent", 
+      border: "3px solid white", 
+      fontSize: "18px",
     },
     latestNote: {
-      color: theme.red,
-      fontSize: "24px",
+      color: theme.white,
+      borderRadius: "50%",
+      display: "inline-block",
+      width: "20px",
+      height: "20px",
+      justifyContent: "center", 
+      alignItems: "center",
+      fontWeight: "bold",
+      lineHeight: "19px",
+      textAlign: "center",
+      background: "transparent", 
+      border: "3px solid red", 
+      boxShadow: "0px 0px 4px 4px rgba(255,0,0,0.8)",
+      fontSize: "18px",
+    },
+    targetCellStyle: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100%",
+      width: "100%",
+      zIndex: 1,
+      pointerEvents: "none",
     },
   };
 
@@ -92,6 +128,8 @@ export default function RadioMap() {
 
   const handleClick = (row, column) => {
     channel.publish("radio-operator-add-remove-note", { row, column });
+    const newClickedCell = {row, column};
+    setClickedCell(newClickedCell);
   };
 
   return (
@@ -128,22 +166,31 @@ export default function RadioMap() {
                     (note) => note[0] === rowIndex && note[1] === columnIndex,
                   ) && (
                     <span
-                      style={
-                        rowIndex ===
-                          radioMapNotes[playerTeam][
-                            radioMapNotes[playerTeam].length - 1
-                          ][0] &&
+                      style={...rowIndex ===
+                        radioMapNotes[playerTeam][
+                          radioMapNotes[playerTeam].length - 1
+                        ][0] &&
                         columnIndex ===
                           radioMapNotes[playerTeam][
                             radioMapNotes[playerTeam].length - 1
                           ][1]
                           ? styles.latestNote
                           : styles.note
-                      }
+                    }
                     >
-                      X
+                      1
                     </span>
                   )}
+                  {/* {clickedCell && clickedCell.row === rowIndex && clickedCell.column === columnIndex && (
+                    <span style={styles.targetCellStyle}>
+                      <Image
+                        src={targetImage}
+                        alt="Target"
+                        width={25}
+                        height={25}
+                      />
+                    </span>
+                  )} */}
                 </div>
               </td>
             ))}

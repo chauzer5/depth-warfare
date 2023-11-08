@@ -1137,7 +1137,6 @@ export function radioOperatorPlaceProbe(context, message){
   const {
     systemChargeLevels,
     messageTimestamp,
-    notificationMessages,
     currentlySurfacing,
   } = networkState;
 
@@ -1146,6 +1145,37 @@ export function radioOperatorPlaceProbe(context, message){
   if (currentlySurfacing[team]) {
     return {};
   }
+
+  const row = message.data.row;
+  const column = message.data.column;
+  if (
+    row < 0 ||
+    row >= process.env.MAP_DIMENSION ||
+    column < 0 ||
+    column >= process.env.MAP_DIMENSION
+  ) {
+    return {};
+  }
+
+  // if (
+  //   radioMapNotes[team].find((note) => note[0] === row && note[1] === column)
+  // ) {
+  //   return {
+  //     radioMapNotes: {
+  //       ...radioMapNotes,
+  //       [team]: radioMapNotes[team].filter(
+  //         (note) => note[0] !== row || note[1] !== column,
+  //       ),
+  //     },
+  //   };
+  // } else {
+  //   return {
+  //     radioMapNotes: {
+  //       ...radioMapNotes,
+  //       [team]: [...radioMapNotes[team], [row, column]],
+  //     },
+  //   };
+  // }
 
 
   return {
@@ -1157,6 +1187,7 @@ export function radioOperatorPlaceProbe(context, message){
         probe: 0,
       },
     },
+    
   };
 }
 
