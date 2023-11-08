@@ -24,6 +24,14 @@ export default function EngineerDashboard() {
   const marginRight = lengthDifference > 0 ? 10 * lengthDifference : 0;
 
   const styles = {
+    main: {
+      width: "100%",
+      height: "100%",
+      flexGrow: 1,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
     systemLabel: {
       fontSize: "100px",
     },
@@ -33,16 +41,24 @@ export default function EngineerDashboard() {
       justifyContent: "center",
       flexDirection: "row",
       width: "100%" /* Set a fixed width for all the containers */,
-      margin: "0 auto" /* Center the containers on the page */,
       marginLeft: "20px" /* Add some margin between each section */,
       marginRight: "20px",
     },
-    containerColumn: {
+    leftContainerColumn: {
+      // backgroundColor: theme.orange,
       display: "flex" /* Use flexbox to display children side by side */,
       alignItems: "center" /* Align children vertically in the center */,
       flexDirection: "Column",
-      width: "100%" /* Set a fixed width for all the containers */,
-      margin: "0 auto" /* Center the containers on the page */,
+      width: "450px" /* Set a fixed width for all the containers */,
+      marginBottom: "5px" /* Add some margin between each section */,
+      marginLeft: "5px",
+    },
+    rightContainerColumn: {
+      // backgroundColor: theme.white,
+      display: "flex" /* Use flexbox to display children side by side */,
+      alignItems: "center" /* Align children vertically in the center */,
+      flexDirection: "Column",
+      width: "500px" /* Set a fixed width for all the containers */,
       marginBottom: "5px" /* Add some margin between each section */,
       marginLeft: "5px",
     },
@@ -128,9 +144,9 @@ export default function EngineerDashboard() {
   };
 
   return (
-    <>
+    <div style={styles.main}>
       <div style={styles.containerRow}>
-        <div style={styles.containerColumn}>
+        <div style={styles.leftContainerColumn}>
           {pendingNavigate[playerTeam] && !engineerPendingBlock[playerTeam] && (
             <div>
               <h4 style={styles.pendingText}>{`MOVING: ${pendingNavigate[
@@ -170,8 +186,8 @@ export default function EngineerDashboard() {
           </div>
         </div>
 
-        <div style={styles.containerColumn}>
-          <div style={styles.containerColumn}>
+        <div style={styles.rightContainerColumn}>
+          <div style={styles.rightContainerColumn}>
             {ENGINEER_SYSTEMS_INFO.map((system, index) => {
               return <SystemDamage key={index} system={system} />;
             })}
@@ -231,6 +247,6 @@ export default function EngineerDashboard() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
