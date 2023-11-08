@@ -120,9 +120,15 @@ export default function RadioOperatorDashboard() {
   };
 
   const launchProbe = () => {
-    console.log("Clicked");
-    channel.publish("radio-operator-place-probe", {} );
+    channel.publish("radio-operator-place-probe", clickedCell );
   }
+
+  const [clickedCell, setClickedCell] = useState({});
+
+  const handleClick = (row, column) => {
+    const newClickedCell = {row, column};
+    setClickedCell(newClickedCell);
+  };
 
   const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
 
@@ -131,7 +137,7 @@ export default function RadioOperatorDashboard() {
       <div style={styles.container}>
         <div style={styles.leftColumn}>
           <SectorsKey />
-          <div style={styles.shiftControls}>
+          {/* <div style={styles.shiftControls}>
             <div style={styles.shiftRow}>
               <span style={{ color: theme.white }}>North</span>
             </div>
@@ -153,28 +159,28 @@ export default function RadioOperatorDashboard() {
             <div style={styles.shiftRow}>
               <span style={{ color: theme.white }}>South</span>
             </div>
-          </div>
+          </div> */}
         </div>
         <div>
-          <RadioMap />
-          <button
+          <RadioMap handleClick={handleClick} clickedCell={clickedCell} />
+          {/* <button
             style={styles.clearButton}
             onClick={() => channel.publish("radio-operator-clear-notes", {})}
           >
             Clear
-          </button>
+          </button> */}
         </div>
         <div style={styles.rightColumn}>
           <button style={{
             ...styles.bigButton,
             backgroundColor: probeDisabled
             ? "gray"
-            : isSystemCharged("probe", systemChargeLevels)
+            : systemChargeLevels[playerTeam]["probe"] > 0
             ? getFirstMateSystem("probe").color || "defaultColor"
             : "gray"
           }}
             onClick={() => launchProbe()}
-            disabled={!isSystemCharged("probe", systemChargeLevels)}>
+            disabled={systemChargeLevels[playerTeam]["probe"] === 0}>
             PROBE 
           </button>
           <SystemChargeMeter systemName="probe" />

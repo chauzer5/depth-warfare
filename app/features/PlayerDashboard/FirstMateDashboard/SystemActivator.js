@@ -62,6 +62,7 @@ export default function SystemActivator(props) {
     systemChargeLevels[playerTeam][system.name] < system.maxCharge;
 
   const handleClick = () => {
+    console.log("charged system")
     channel.publish("first-mate-choose-system-charge", { system: system.name });
   };
 

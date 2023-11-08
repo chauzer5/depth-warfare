@@ -59,6 +59,7 @@ export function GameWrapper({ children }) {
       },
     },
     radioMapNotes: { blue: [], red: [] },
+    probes: { blue: [], red: [] },
     movements: { blue: [], red: [] },
     movementCountOnDisable: { blue: 0, red: 0 },
     engineerCompassMap: {
