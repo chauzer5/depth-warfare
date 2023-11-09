@@ -96,6 +96,7 @@ export default function RadioOperatorDashboard() {
     networkState, 
     playerTeam,
     getFirstMateSystem,
+    getCellsDistanceAway,
   } = useGameContext();
 
   const { 
@@ -103,10 +104,12 @@ export default function RadioOperatorDashboard() {
     systemHealthLevels, 
     movementCountOnDisable,
     systemChargeLevels,
+    probes,
    } = networkState;
 
   const { channel } = useAblyContext();
   const [probeDisabled, setProbeDisabled] = useState(false);
+  const [probeRange, setProbeRange] = useState([]);
 
   useEffect(() => {
     setProbeDisabled(systemHealthLevels[playerTeam]["probe"] === 0);
@@ -128,6 +131,23 @@ export default function RadioOperatorDashboard() {
   const handleClick = (row, column) => {
     const newClickedCell = {row, column};
     setClickedCell(newClickedCell);
+    console.log(probes[playerTeam]);
+
+    //Attempts to find a probe with given row and column
+    const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === row && list[1] === column);
+    if (findProbeIndex === -1){
+      setProbeRange([]);
+    }
+    else {
+      const newProbeRangeCells = getCellsDistanceAway(
+        row,
+        column,
+        probes[playerTeam][findProbeIndex][2],
+        false,
+        false,
+      )
+      setProbeRange(newProbeRangeCells);
+    }
   };
 
   const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
@@ -162,7 +182,7 @@ export default function RadioOperatorDashboard() {
           </div> */}
         </div>
         <div>
-          <RadioMap handleClick={handleClick} clickedCell={clickedCell} />
+          <RadioMap handleClick={handleClick} clickedCell={clickedCell} probeRange={probeRange} />
           {/* <button
             style={styles.clearButton}
             onClick={() => channel.publish("radio-operator-clear-notes", {})}

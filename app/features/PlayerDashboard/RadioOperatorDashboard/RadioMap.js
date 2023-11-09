@@ -8,7 +8,7 @@ import { useAblyContext } from "@/app/state/ably_state";
 import {useState} from "react";
 
 export default function RadioMap(props) {
-  const { handleClick, clickedCell } = props
+  const { handleClick, clickedCell, probeRange } = props
   const { networkState, playerTeam } = useGameContext();
   const { gameMap, probes } = networkState;
 
@@ -96,6 +96,17 @@ export default function RadioMap(props) {
       zIndex: 1,
       pointerEvents: "none",
     },
+    inRangeCell: {
+      width: "25px",
+      height: "26px",
+      background: theme.gray,
+      // background: `linear-gradient(45deg, ${theme.black} 20%, ${theme.green} 20%, ${theme.gray} 50%, ${theme.black} 20%, ${theme.green} 20%)`,
+      // background: `linear-gradient(45deg, ${theme.black}, ${theme.purple})`,
+      // background: `linear-gradient(45deg, ${theme.black} 0%, ${theme.black} 15%, ${theme.darkGreen} 15%, ${theme.darkGreen} 25%, ${theme.black} 25%, ${theme.black} 40%, ${theme.darkGreen} 40%, ${theme.darkGreen} 50%, ${theme.black} 50%, ${theme.black} 65%, ${theme.darkGreen} 65%, ${theme.darkGreen} 75%, ${theme.black} 75%, ${theme.black} 100%)`,
+      "&:hover": {
+        backgroundColor: theme.green,
+      },
+    },
   };
 
   const getSectorStyle = (row, column) => {
@@ -152,7 +163,6 @@ export default function RadioMap(props) {
 
               const probe = probes[playerTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex)
 
-              console.log("probe", probe)
 
               return (
                 <td
@@ -164,7 +174,16 @@ export default function RadioMap(props) {
                   }}
                 >
                   <div
-                    css={cell.type === "island" ? styles.island : styles.water}
+                    css={
+                        cell.type === "island" 
+                          ? styles.island 
+                          :probeRange.find(
+                            (cell) =>
+                            cell[0] === rowIndex && cell[1] === columnIndex,
+                          )
+                          ?styles.inRangeCell
+                          : styles.water
+                          }
                     onClick={() => handleClick(rowIndex, columnIndex)}
                   >
                     {(probe) && ( <span style={styles.probe}>{probe[2]}</span>

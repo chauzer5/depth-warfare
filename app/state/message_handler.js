@@ -1170,7 +1170,6 @@ export function radioOperatorPlaceProbe(context, message){
     if (probe) {
       probe[2] += 1;
     } else {
-      console.log("added probe")
       updatedProbes = {
         ...updatedProbes,
         [team]: [...updatedProbes[team], [row, column, 1]],

@@ -992,6 +992,7 @@ export function GameWrapper({ children }) {
     distance,
     visited,
     validCells,
+    avoidIslands,
     currentDistance = 0,
   ) {
     const { gameMap } = networkState;
@@ -1002,7 +1003,7 @@ export function GameWrapper({ children }) {
       col >= gameMap[0].length ||
       currentDistance > distance ||
       visited[row][col] ||
-      gameMap[row][col].type === "island"
+      (avoidIslands && gameMap[row][col].type === "island")
     ) {
       // visited[row][col] = true;
       return;
@@ -1018,6 +1019,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
+      avoidIslands,
       currentDistance + 1,
     ); // Down
     explorePaths(
@@ -1026,6 +1028,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
+      avoidIslands,
       currentDistance + 1,
     ); // Up
     explorePaths(
@@ -1034,6 +1037,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
+      avoidIslands,
       currentDistance + 1,
     ); // Right
     explorePaths(
@@ -1042,6 +1046,7 @@ export function GameWrapper({ children }) {
       distance,
       visited,
       validCells,
+      avoidIslands,
       currentDistance + 1,
     ); // Left
 
@@ -1053,6 +1058,7 @@ export function GameWrapper({ children }) {
     startCol,
     maxDistance,
     removeStart = true,
+    avoidIslands = true,
   ) {
     const { gameMap } = networkState;
     const rows = gameMap.length;
@@ -1064,7 +1070,7 @@ export function GameWrapper({ children }) {
       .map(() => new Array(cols).fill(false));
 
     const validCells = [];
-    explorePaths(startRow, startCol, maxDistance, visited, validCells);
+    explorePaths(startRow, startCol, maxDistance, visited, validCells, avoidIslands);
 
     // Find the index of the starting cell in validCells and remove it
     if (removeStart) {
