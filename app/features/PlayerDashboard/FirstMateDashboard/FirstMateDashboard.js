@@ -131,8 +131,8 @@ export default function FirstMateDashboard() {
   }, [subLocations[playerTeam], minesList[playerTeam]]);
 
   useEffect(() => {
-    setScanDisabled(systemHealthLevels[playerTeam]["scan"] === 0);
-  }, [systemHealthLevels[playerTeam]["scan"]]);
+    setScanDisabled(systemHealthLevels[playerTeam]["probe"] === 0);
+  }, [systemHealthLevels[playerTeam]["probe"]]);
 
   useEffect(() => {
     setWeaponsDisabled(systemHealthLevels[playerTeam]["weapons"] === 0);
@@ -150,7 +150,7 @@ export default function FirstMateDashboard() {
       channel.publish("first-mate-fire-torpedo", clickedCell);
     }
 
-    if (systemName === "scan") {
+    if (systemName === "probe") {
       const scanResult = scanForEnemySub(
         clickedCell.row,
         clickedCell.column,
@@ -183,7 +183,7 @@ export default function FirstMateDashboard() {
     ) {
       return true;
     }
-    if (systemName === "scan" && scanDisabled) {
+    if (systemName === "probe" && scanDisabled) {
       return true;
     }
     return false;
@@ -284,17 +284,17 @@ export default function FirstMateDashboard() {
               style={{
                 ...styles.systemButton,
                 backgroundColor:
-                  toggledSystem === "scan"
-                    ? getFirstMateSystem("scan").color
+                  toggledSystem === "probe"
+                    ? getFirstMateSystem("probe").color
                     : "black",
                 border:
-                  toggledSystem === "scan"
+                  toggledSystem === "probe"
                     ? theme.white
-                    : `3px solid ${getFirstMateSystem("scan").color}`,
+                    : `3px solid ${getFirstMateSystem("probe").color}`,
               }}
-              onClick={() => setToggledSystem("scan")}
+              onClick={() => setToggledSystem("probe")}
             >
-              Scan
+              Probe
             </button>
 
             <select
@@ -325,10 +325,10 @@ export default function FirstMateDashboard() {
                 ? getFirstMateSystem("mine").color
                 : validDetonateMine && toggledSystem === "mine"
                 ? getFirstMateSystem("mine").color
-                : isSystemCharged("scan", systemChargeLevels) &&
+                : isSystemCharged("probe", systemChargeLevels) &&
                   validScanSelection &&
-                  toggledSystem === "scan"
-                ? getFirstMateSystem("scan").color
+                  toggledSystem === "probe"
+                ? getFirstMateSystem("probe").color
                 : "gray",
             }}
             disabled={
@@ -341,9 +341,9 @@ export default function FirstMateDashboard() {
               (!isSystemCharged("torpedo", systemChargeLevels) &&
                 toggledSystem === "torpedo") ||
               (toggledSystem === "torpedo" && !validTorpedoSelection) ||
-              (!isSystemCharged("scan", systemChargeLevels) &&
-                toggledSystem === "scan") ||
-              (toggledSystem === "scan" && !validScanSelection) ||
+              (!isSystemCharged("probe", systemChargeLevels) &&
+                toggledSystem === "probe") ||
+              (toggledSystem === "probe" && !validScanSelection) ||
               isSystemDisabled(toggledSystem)
             }
             onClick={() => launchSystem(toggledSystem)}
@@ -358,13 +358,13 @@ export default function FirstMateDashboard() {
                 isSystemCharged("torpedo", systemChargeLevels) &&
                 !validTorpedoSelection
               ? "Invalid Selection"
-              : toggledSystem === "scan" &&
-                isSystemCharged("scan", systemChargeLevels) &&
+              : toggledSystem === "probe" &&
+                isSystemCharged("probe", systemChargeLevels) &&
                 !validScanSelection
               ? "Invalid Selection"
-              : toggledSystem === "scan" &&
-                isSystemCharged("scan", systemChargeLevels)
-              ? "Scan"
+              : toggledSystem === "probe" &&
+                isSystemCharged("probe", systemChargeLevels)
+              ? "probe"
               : toggledSystem === "mine" && validDetonateMine // Detonate happens before drop
               ? "Detonate Mine"
               : toggledSystem === "mine" && !validDetonateMine && !validDropMine

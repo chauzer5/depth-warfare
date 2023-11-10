@@ -177,6 +177,8 @@ export function firstMateChooseSystemCharge(context, message) {
 
   let tempNetworkState = {};
 
+  console.log("check charge system", systemChargeLevels[team][message.data.system], getSystemMaxCharge(message.data.system), pendingNavigate[team], !pendingSystemCharge[team])
+
   // Enforce that we are able to charge the system we are looking at
   if (
     systemChargeLevels[team][message.data.system] <
@@ -1042,7 +1044,7 @@ export function firstMateScan(context, message) {
       ...systemChargeLevels,
       [team]: {
         ...systemChargeLevels[team],
-        scan: 0,
+        probe: 0,
       },
     },
     gameStats: {
@@ -1185,6 +1187,66 @@ export function radioOperatorShiftNotes(context, message) {
       ...radioMapNotes,
       [team]: updatedNotes,
     },
+  };
+}
+
+export function radioOperatorPlaceProbe(context, message){
+  const { getMessagePlayer, networkState } = context;
+
+  const {
+    systemChargeLevels,
+    messageTimestamp,
+    currentlySurfacing,
+    probes,
+  } = networkState;
+
+  const team = getMessagePlayer(message).team;
+
+  if (currentlySurfacing[team]) {
+    return {};
+  }
+
+  const row = message.data.row;
+  const column = message.data.column;
+
+  if (
+    row < 0 ||
+    row >= process.env.MAP_DIMENSION ||
+    column < 0 ||
+    column >= process.env.MAP_DIMENSION
+  ) {
+    return {};
+  }
+
+  let updatedProbes = {...probes}
+  
+  const probe = probes[team].find((note) => note[0] === row && note[1] === column)
+  let probeChargeLevel;
+
+  if (systemChargeLevels[team]["probe"] > 0) {
+    if (probe) {
+      probe[2] += 1;
+    } else {
+      updatedProbes = {
+        ...updatedProbes,
+        [team]: [...updatedProbes[team], [row, column, 1]],
+      };
+    }
+    probeChargeLevel = Math.max(0, systemChargeLevels[team]["probe"] - 1)
+  } else {
+    probeChargeLevel = systemChargeLevels[team]["probe"]
+  }
+  
+  return {
+    messageTimestamp: messageTimestamp + 1,
+    systemChargeLevels: {
+      ...systemChargeLevels,
+      [team]: {
+        ...systemChargeLevels[team],
+        probe: probeChargeLevel,
+      },
+    },
+    probes: updatedProbes
   };
 }
 

@@ -45,6 +45,7 @@ async function openTabs() {
 
   const pages = await Promise.all(Array.from({ length: numberOfTabs }, async (_, index) => {
     const page = await browser.newPage();
+    await new Promise(resolve => setTimeout(resolve, 100)); // Waits for 1 second
     await page.goto(url);
     await page.waitForSelector("input");
     await page.type("input", userNameArray[index]);

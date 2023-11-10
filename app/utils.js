@@ -7,9 +7,9 @@ export const SYSTEMS_INFO = [
     maxCharge: 6,
   },
   {
-    name: "scan",
+    name: "probe",
     color: theme.darkGreen,
-    maxCharge: 4,
+    maxCharge: 3,
   },
   {
     name: "torpedo",
