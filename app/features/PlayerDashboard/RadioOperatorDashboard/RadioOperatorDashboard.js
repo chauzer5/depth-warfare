@@ -110,10 +110,12 @@ export default function RadioOperatorDashboard() {
   const { channel } = useAblyContext();
   const [probeDisabled, setProbeDisabled] = useState(false);
   const [probeRange, setProbeRange] = useState([]);
+  const [clickedCell, setClickedCell] = useState({});
 
   useEffect(() => {
-    setProbeDisabled(systemHealthLevels[playerTeam]["probe"] === 0);
-  }, [systemHealthLevels[playerTeam]["probe"]]);
+    setProbeDisabled(systemHealthLevels[playerTeam]["probe"] === 0 ||
+    Object.keys(clickedCell).length === 0);
+  }, [systemHealthLevels[playerTeam]["probe"], clickedCell]);
 
   const isSystemCharged = (systemName, systemChargeLevels) => {
     return (
@@ -123,15 +125,34 @@ export default function RadioOperatorDashboard() {
   };
 
   const launchProbe = () => {
+    console.log(clickedCell);
     channel.publish("radio-operator-place-probe", clickedCell );
+    const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column);
+    if (findProbeIndex === -1){
+      const newProbeRangeCells = getCellsDistanceAway(
+        clickedCell.row,
+        clickedCell.column,
+        1,
+        false,
+        false,
+      )
+      setProbeRange(newProbeRangeCells);
+    }
+    else {
+      const newProbeRangeCells = getCellsDistanceAway(
+        clickedCell.row,
+        clickedCell.column,
+        probes[playerTeam][findProbeIndex][2] +1,
+        false,
+        false,
+      )
+      setProbeRange(newProbeRangeCells);
+    }
   }
-
-  const [clickedCell, setClickedCell] = useState({});
 
   const handleClick = (row, column) => {
     const newClickedCell = {row, column};
     setClickedCell(newClickedCell);
-    console.log(probes[playerTeam]);
 
     //Attempts to find a probe with given row and column
     const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === row && list[1] === column);
@@ -200,7 +221,8 @@ export default function RadioOperatorDashboard() {
             : "gray"
           }}
             onClick={() => launchProbe()}
-            disabled={systemChargeLevels[playerTeam]["probe"] === 0}>
+            // disabled={systemChargeLevels[playerTeam]["probe"] === 0 }>
+            disabled={probeDisabled || systemChargeLevels[playerTeam]["probe"] ===0 }>
             PROBE 
           </button>
           <SystemChargeMeter systemName="probe" />

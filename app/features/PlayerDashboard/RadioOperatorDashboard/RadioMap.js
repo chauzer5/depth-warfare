@@ -9,8 +9,8 @@ import {useState} from "react";
 
 export default function RadioMap(props) {
   const { handleClick, clickedCell, probeRange } = props
-  const { networkState, playerTeam } = useGameContext();
-  const { gameMap, probes } = networkState;
+  const { networkState, playerTeam, getCellsDistanceAway } = useGameContext();
+  const { gameMap, probes, subLocations } = networkState;
 
   const { channel } = useAblyContext();
 
@@ -108,7 +108,7 @@ export default function RadioMap(props) {
       },
     },
   };
-
+  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
   const getSectorStyle = (row, column) => {
     const sectorStyle = {};
 
@@ -162,7 +162,21 @@ export default function RadioMap(props) {
             {row.map((cell, columnIndex) => {
 
               const probe = probes[playerTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex)
-
+              let probeDetecting = false;
+              if(probe){
+                const getProbeRange = getCellsDistanceAway(
+                  rowIndex,
+                  columnIndex,
+                  probe[2],
+                  false,
+                  false
+                );
+                probeDetecting = getProbeRange.some(
+                  (note) =>
+                    note[0] === subLocations[oppositeTeam][0] &&
+                    note[1] === subLocations[oppositeTeam][1]
+                );
+              }
 
               return (
                 <td
@@ -186,7 +200,8 @@ export default function RadioMap(props) {
                           }
                     onClick={() => handleClick(rowIndex, columnIndex)}
                   >
-                    {(probe) && ( <span style={styles.probe}>{probe[2]}</span>
+                    {(probe) && ( 
+                      <span style={!probeDetecting ? styles.probe : styles.activeProbe}>{probe[2]}</span>
                     )}
                     {clickedCell && clickedCell.row === rowIndex && clickedCell.column === columnIndex && (
                       <span style={styles.targetCellStyle}>
