@@ -349,6 +349,7 @@ export function captainSurface(context, message) {
     repairMatrix,
     messageTimestamp,
     notificationMessages,
+    gameStats
   } = networkState;
 
   const team = getMessagePlayer(message).team;
