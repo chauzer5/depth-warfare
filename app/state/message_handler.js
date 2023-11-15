@@ -347,6 +347,8 @@ export function captainSurface(context, message) {
     movements,
     currentlySurfacing,
     repairMatrix,
+    messageTimestamp,
+    notificationMessages,
   } = networkState;
 
   const team = getMessagePlayer(message).team;
@@ -359,7 +361,7 @@ export function captainSurface(context, message) {
   const sector = getCellSector(subLocations[team]);
 
   const notificationMessage = {
-    oppositeTeam,
+    team: oppositeTeam,
     sameTeamMessage: `Opponent surfaced at sector ${sector}`,
     oppTeamMessage: null,
     intendedPlayer: "all", // You can specify a player here if needed
@@ -367,6 +369,9 @@ export function captainSurface(context, message) {
     severityOppTeam: null,
     timestamp: messageTimestamp,
   }; 
+
+  console.log("notifications", notificationMessage, 
+  keepLastNElements([...notificationMessages, notificationMessage], process.env.MAX_MESSAGES))
 
   return {
     messageTimestamp: messageTimestamp + 1,
