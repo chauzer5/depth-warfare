@@ -110,11 +110,11 @@ export default function RadioOperatorDashboard() {
   const { channel } = useAblyContext();
   const [probeDisabled, setProbeDisabled] = useState(false);
   const [probeRange, setProbeRange] = useState([]);
+  const [findProbeIndex, setFindProbeIndex] = useState(-1);
   const [clickedCell, setClickedCell] = useState({});
 
   useEffect(() => {
-    setProbeDisabled(systemHealthLevels[playerTeam]["probe"] === 0 ||
-    Object.keys(clickedCell).length === 0);
+    setProbeDisabled(systemHealthLevels[playerTeam]["probe"] === 0);
   }, [systemHealthLevels[playerTeam]["probe"], clickedCell]);
 
   const isSystemCharged = (systemName, systemChargeLevels) => {
@@ -124,10 +124,14 @@ export default function RadioOperatorDashboard() {
     );
   };
 
+  useEffect(() => {
+    setFindProbeIndex(probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column));
+  }, [clickedCell]);
+
   const launchProbe = () => {
     console.log(clickedCell);
     channel.publish("radio-operator-place-probe", clickedCell );
-    const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column);
+    // const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column);
     if (findProbeIndex === -1){
       const newProbeRangeCells = getCellsDistanceAway(
         clickedCell.row,
@@ -155,7 +159,6 @@ export default function RadioOperatorDashboard() {
     setClickedCell(newClickedCell);
 
     //Attempts to find a probe with given row and column
-    const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === row && list[1] === column);
     if (findProbeIndex === -1){
       setProbeRange([]);
     }
@@ -178,52 +181,28 @@ export default function RadioOperatorDashboard() {
       <div style={styles.container}>
         <div style={styles.leftColumn}>
           <SectorsKey />
-          {/* <div style={styles.shiftControls}>
-            <div style={styles.shiftRow}>
-              <span style={{ color: theme.white }}>North</span>
-            </div>
-            <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="north" />
-            </div>
-            <div style={styles.shiftRow}>
-              <span style={{ ...styles.directionText, width: "50px" }}>
-                West
-              </span>
-              <TriangleShiftButton direction="west" />
-              <div style={{ height: "100%", width: "50px" }} />
-              <TriangleShiftButton direction="east" />
-              <span style={styles.directionText}>East</span>
-            </div>
-            <div style={styles.shiftRow}>
-              <TriangleShiftButton direction="south" />
-            </div>
-            <div style={styles.shiftRow}>
-              <span style={{ color: theme.white }}>South</span>
-            </div>
-          </div> */}
         </div>
         <div>
           <RadioMap handleClick={handleClick} clickedCell={clickedCell} probeRange={probeRange} />
-          {/* <button
-            style={styles.clearButton}
-            onClick={() => channel.publish("radio-operator-clear-notes", {})}
-          >
-            Clear
-          </button> */}
         </div>
         <div style={styles.rightColumn}>
           <button style={{
             ...styles.bigButton,
-            backgroundColor: probeDisabled
+            backgroundColor: probeDisabled || systemChargeLevels[playerTeam]["probe"] === 0 || Object.keys(clickedCell).length === 0
             ? "gray"
-            : systemChargeLevels[playerTeam]["probe"] > 0
-            ? getFirstMateSystem("probe").color || "defaultColor"
-            : "gray"
+            : getFirstMateSystem("probe").color
           }}
             onClick={() => launchProbe()}
-            // disabled={systemChargeLevels[playerTeam]["probe"] === 0 }>
-            disabled={probeDisabled || systemChargeLevels[playerTeam]["probe"] ===0 }>
-            PROBE 
+            disabled={probeDisabled || systemChargeLevels[playerTeam]["probe"] === 0 || Object.keys(clickedCell).length === 0 }>
+            { probeDisabled ? 
+            "Probe Disabled" :
+            Object.keys(clickedCell).length === 0 ?
+            "Invalid Selection" :
+            systemChargeLevels[playerTeam]["probe"] === 0 ?
+            "Charge Probe" :
+            findProbeIndex == -1 ?
+            "Place Probe" :
+            "Upgrade Probe" }
           </button>
           <SystemChargeMeter systemName="probe" />
         </div>

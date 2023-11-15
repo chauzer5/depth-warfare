@@ -30,7 +30,7 @@ export const getSystemMaxCharge = (systemName) => {
 
 export const ENGINEER_SYSTEMS_INFO = [
   {
-    name: "scan",
+    name: "probe",
     color: theme.darkGreen,
   },
   {
