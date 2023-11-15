@@ -83,7 +83,6 @@ export default function FirstMateDashboard() {
     playerTeam,
     getFirstMateSystem,
     getCellsDistanceAway,
-    scanForEnemySub,
     networkState,
   } = useGameContext();
 
@@ -97,12 +96,10 @@ export default function FirstMateDashboard() {
   } = networkState;
 
   const [toggledSystem, setToggledSystem] = useState("torpedo");
-  const [scanType, setScanType] = useState("sector"); // ['sector', 'row', 'column']
   const [clickedCell, setClickedCell] = useState({});
   const [torpedoCells, setTorpedoCells] = useState([]);
   const [dropMineCells, setDropMineCells] = useState([]);
   const [weaponsDisabled, setWeaponsDisabled] = useState(false);
-  const [scanDisabled, setScanDisabled] = useState(false);
 
   useEffect(() => {
     const [startRow, startCol] = subLocations[playerTeam];
@@ -130,9 +127,6 @@ export default function FirstMateDashboard() {
     setDropMineCells(filteredDropMineCells);
   }, [subLocations[playerTeam], minesList[playerTeam]]);
 
-  useEffect(() => {
-    setScanDisabled(systemHealthLevels[playerTeam]["probe"] === 0);
-  }, [systemHealthLevels[playerTeam]["probe"]]);
 
   useEffect(() => {
     setWeaponsDisabled(systemHealthLevels[playerTeam]["weapons"] === 0);
@@ -148,16 +142,6 @@ export default function FirstMateDashboard() {
   const launchSystem = (systemName) => {
     if (systemName === "torpedo") {
       channel.publish("first-mate-fire-torpedo", clickedCell);
-    }
-
-    if (systemName === "probe") {
-      const scanResult = scanForEnemySub(
-        clickedCell.row,
-        clickedCell.column,
-        scanType,
-        subLocations,
-      );
-      channel.publish("first-mate-scan", { scanResult });
     }
 
     if (systemName === "mine" && validDropMine) {
@@ -183,9 +167,6 @@ export default function FirstMateDashboard() {
     ) {
       return true;
     }
-    if (systemName === "probe" && scanDisabled) {
-      return true;
-    }
     return false;
   };
 
@@ -194,7 +175,7 @@ export default function FirstMateDashboard() {
     torpedoCells.find(
       (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column,
     );
-  const validScanSelection = !!clickedCell;
+ 
   const validDropMine =
     clickedCell &&
     dropMineCells.find(
@@ -273,43 +254,6 @@ export default function FirstMateDashboard() {
             Mine
           </button>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              marginLeft: "56px",
-            }}
-          >
-            <button
-              style={{
-                ...styles.systemButton,
-                backgroundColor:
-                  toggledSystem === "probe"
-                    ? getFirstMateSystem("probe").color
-                    : "black",
-                border:
-                  toggledSystem === "probe"
-                    ? theme.white
-                    : `3px solid ${getFirstMateSystem("probe").color}`,
-              }}
-              onClick={() => setToggledSystem("probe")}
-            >
-              Probe
-            </button>
-
-            <select
-              style={styles.scanTypeSelector}
-              name="scanType"
-              id="scanType"
-              value={scanType}
-              onChange={(e) => setScanType(e.target.value)}
-            >
-              <option value="sector">Sector</option>
-              <option value="row">Row</option>
-              <option value="column">Column</option>
-            </select>
-          </div>
-
           <button
             style={{
               ...styles.bigButton,
@@ -325,10 +269,6 @@ export default function FirstMateDashboard() {
                 ? getFirstMateSystem("mine").color
                 : validDetonateMine && toggledSystem === "mine"
                 ? getFirstMateSystem("mine").color
-                : isSystemCharged("probe", systemChargeLevels) &&
-                  validScanSelection &&
-                  toggledSystem === "probe"
-                ? getFirstMateSystem("probe").color
                 : "gray",
             }}
             disabled={
@@ -341,9 +281,6 @@ export default function FirstMateDashboard() {
               (!isSystemCharged("torpedo", systemChargeLevels) &&
                 toggledSystem === "torpedo") ||
               (toggledSystem === "torpedo" && !validTorpedoSelection) ||
-              (!isSystemCharged("probe", systemChargeLevels) &&
-                toggledSystem === "probe") ||
-              (toggledSystem === "probe" && !validScanSelection) ||
               isSystemDisabled(toggledSystem)
             }
             onClick={() => launchSystem(toggledSystem)}
@@ -358,13 +295,6 @@ export default function FirstMateDashboard() {
                 isSystemCharged("torpedo", systemChargeLevels) &&
                 !validTorpedoSelection
               ? "Invalid Selection"
-              : toggledSystem === "probe" &&
-                isSystemCharged("probe", systemChargeLevels) &&
-                !validScanSelection
-              ? "Invalid Selection"
-              : toggledSystem === "probe" &&
-                isSystemCharged("probe", systemChargeLevels)
-              ? "probe"
               : toggledSystem === "mine" && validDetonateMine // Detonate happens before drop
               ? "Detonate Mine"
               : toggledSystem === "mine" && !validDetonateMine && !validDropMine
