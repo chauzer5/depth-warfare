@@ -2,6 +2,7 @@ import { useAblyContext } from "@/app/state/ably_state";
 import { useGameContext } from "@/app/state/game_state";
 import { deleteSupabaseRow } from "@/app/state/supabase_access";
 import { useEffect } from "react";
+import TeamStats from "./TeamStats";
 
 export default function GameEnd() {
   const styles = {
@@ -31,31 +32,50 @@ export default function GameEnd() {
     systemHealthLevels[playerTeam === "red" ? "blue" : "red"]["life support"] <=
     0;
 
-  if (teamDead && enemyTeamDead) {
-    return (
-      <div style={styles.main}>
-        <p>
-          {"Both subs were destroyed in the same explosion at the same time."}
-        </p>
-        <p>{"The result is a draw."}</p>
-      </div>
-    );
-  } else if (enemyTeamDead) {
-    return (
-      <div style={styles.main}>
-        <p>{"You destroyed the enemy sub and won."}</p>
-        <p>{"Congratulations for this outstanding achievement."}</p>
-        <p>
-          {"We're sure we'll see even greater things from you in the future."}
-        </p>
-      </div>
-    );
-  } else {
-    return (
-      <div style={styles.main}>
-        <p>{"The enemy team destroyed your sub and you lost."}</p>
-        <p>{"We expect to see better results from you next time."}</p>
-      </div>
-    );
+  const getEndGameMessage = () => {
+    if (teamDead && enemyTeamDead) {
+      return (
+        <>
+          <p>
+            {"Both subs were destroyed in the same explosion at the same time."}
+          </p>
+          <p>{"The result is a draw."}</p>
+        </>
+      );
+    } else if (enemyTeamDead) {
+      return (
+        <>
+          <p>{"You destroyed the enemy sub and won."}</p>
+          <p>{"Congratulations for this outstanding achievement."}</p>
+          <p>
+            {"We're sure we'll see even greater things from you in the future."}
+          </p>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <p>{"The enemy team destroyed your sub and you lost."}</p>
+          <p>{"We expect to see better results from you next time."}</p>
+        </>
+      );
+    }
   }
+  
+
+  return (
+    <div style={styles.main}>
+      {getEndGameMessage()}
+      <div style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        width: "100%",
+        marginTop: "20px",
+      }}>
+        <TeamStats team="blue"/>
+        <TeamStats team="red"/>
+      </div>
+    </div>
+  )
 }

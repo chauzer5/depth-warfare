@@ -3,6 +3,10 @@ import { ROLE_MAP } from "@/app/utils";
 
 export default function RoleButton(props) {
   const { id, team, role, handleClick, roomPlayers } = props;
+  const playerSelected = roomPlayers.find((player) => {
+    return player.data.team === team && player.data.role === role;
+  });
+
   const styles = {
     button: {
       width: "230px",
@@ -18,17 +22,13 @@ export default function RoleButton(props) {
       paddingLeft: "15px",
     },
     label: {
-      color: team,
+      color: playerSelected ? theme.white : team,
       fontSize: "24px",
       fontFamily: "'VT323', monospace",
       margin: "5px",
       marginTop: "10px",
     },
   };
-
-  const playerSelected = roomPlayers.find((player) => {
-    return player.data.team === team && player.data.role === role;
-  });
 
   return (
     <>
