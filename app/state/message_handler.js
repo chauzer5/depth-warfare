@@ -358,7 +358,6 @@ export function captainSurface(context, message) {
     repairMatrix,
     messageTimestamp,
     notificationMessages,
-    gameStats
     gameStats,
   } = networkState;
 
@@ -1248,15 +1247,20 @@ export function radioOperatorPlaceProbe(context, message){
   if (systemChargeLevels[team]["probe"] > 0) {
     if (probe) {
       probe[2] += 1;
+      probeChargeLevel = Math.max(0, systemChargeLevels[team]["probe"] - 1);
     } else {
-      updatedProbes = {
-        ...updatedProbes,
-        [team]: [...updatedProbes[team], [row, column, 1]],
-      };
+      if (systemChargeLevels[team]["probe"]< 2){
+        return {};
+      } else {
+        updatedProbes = {
+          ...updatedProbes,
+          [team]: [...updatedProbes[team], [row, column, 1]],
+        };
+        probeChargeLevel = Math.max(0, systemChargeLevels[team]["probe"] - 2);
+      }
     }
-    probeChargeLevel = Math.max(0, systemChargeLevels[team]["probe"] - 1)
   } else {
-    probeChargeLevel = systemChargeLevels[team]["probe"]
+    probeChargeLevel = systemChargeLevels[team]["probe"];
   }
   
   return {
