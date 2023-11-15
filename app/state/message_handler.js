@@ -350,6 +350,7 @@ export function captainSurface(context, message) {
   } = networkState;
 
   const team = getMessagePlayer(message).team;
+  const oppositeTeam = team === "blue" ? "red" : "blue";
 
   // Clear path
   const updatedGameMap = clearVisitedPath(team);
@@ -357,13 +358,28 @@ export function captainSurface(context, message) {
   // Send to enemy radio operator
   const sector = getCellSector(subLocations[team]);
 
+  const notificationMessage = {
+    oppositeTeam,
+    sameTeamMessage: `Opponent surfaced at sector ${sector}`,
+    oppTeamMessage: null,
+    intendedPlayer: "all", // You can specify a player here if needed
+    severitySameTeam: "success",
+    severityOppTeam: null,
+    timestamp: messageTimestamp,
+  }; 
+
   return {
+    messageTimestamp: messageTimestamp + 1,
+    notificationMessages: keepLastNElements(
+      [...notificationMessages, notificationMessage],
+      process.env.MAX_MESSAGES,
+    ),
     currentlySurfacing: { ...currentlySurfacing, [team]: true },
     systemHealthLevels: {
       ...systemHealthLevels,
       [team]: {
         weapons: calculateMaxSystemHealth(repairMatrix[team], "weapons"),
-        scan: calculateMaxSystemHealth(repairMatrix[team], "scan"),
+        probe: calculateMaxSystemHealth(repairMatrix[team], "probe"),
         engine: calculateMaxSystemHealth(repairMatrix[team], "engine"),
         comms: calculateMaxSystemHealth(repairMatrix[team], "comms"),
         "life support": systemHealthLevels[team]["life support"],

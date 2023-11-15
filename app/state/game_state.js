@@ -45,14 +45,14 @@ export function GameWrapper({ children }) {
     systemHealthLevels: {
       blue: {
         weapons: 0,
-        scan: 0,
+        probe: 0,
         engine: 0,
         comms: 0,
         "life support": process.env.STARTING_LIFE_SUPPORT,
       },
       red: {
         weapons: 0,
-        scan: 0,
+        probe: 0,
         engine: 0,
         comms: 0,
         "life support": process.env.STARTING_LIFE_SUPPORT,
@@ -63,8 +63,8 @@ export function GameWrapper({ children }) {
     movements: { blue: [], red: [] },
     movementCountOnDisable: { blue: 0, red: 0 },
     engineerCompassMap: {
-      blue: { north: "scan", south: "comms", east: "weapons", west: "engine" },
-      red: { north: "scan", south: "comms", east: "weapons", west: "engine" },
+      blue: { north: "probe", south: "comms", east: "weapons", west: "engine" },
+      red: { north: "probe", south: "comms", east: "weapons", west: "engine" },
     },
     notificationMessages: [],
     messageTimestamp: 0,
