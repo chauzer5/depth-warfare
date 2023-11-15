@@ -129,7 +129,6 @@ export default function RadioOperatorDashboard() {
   }, [clickedCell]);
 
   const launchProbe = () => {
-    console.log(clickedCell);
     channel.publish("radio-operator-place-probe", clickedCell );
     // const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column);
     if (findProbeIndex === -1){
@@ -188,17 +187,17 @@ export default function RadioOperatorDashboard() {
         <div style={styles.rightColumn}>
           <button style={{
             ...styles.bigButton,
-            backgroundColor: probeDisabled || systemChargeLevels[playerTeam]["probe"] === 0 || Object.keys(clickedCell).length === 0
+            backgroundColor: probeDisabled || systemChargeLevels[playerTeam]["probe"] === 0 || Object.keys(clickedCell).length === 0 || (findProbeIndex === -1 && systemChargeLevels[playerTeam]["probe"] < 2)
             ? "gray"
             : getFirstMateSystem("probe").color
           }}
             onClick={() => launchProbe()}
-            disabled={probeDisabled || systemChargeLevels[playerTeam]["probe"] === 0 || Object.keys(clickedCell).length === 0 }>
+            disabled={probeDisabled || systemChargeLevels[playerTeam]["probe"] === 0 || Object.keys(clickedCell).length === 0 || (findProbeIndex === -1 && systemChargeLevels[playerTeam]["probe"] < 2) }>
             { probeDisabled ? 
             "Probe Disabled" :
             Object.keys(clickedCell).length === 0 ?
             "Invalid Selection" :
-            systemChargeLevels[playerTeam]["probe"] === 0 ?
+            systemChargeLevels[playerTeam]["probe"] === 0 || (findProbeIndex === -1 && systemChargeLevels[playerTeam]["probe"] < 2)?
             "Charge Probe" :
             findProbeIndex == -1 ?
             "Place Probe" :
