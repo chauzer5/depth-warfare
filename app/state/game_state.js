@@ -638,14 +638,14 @@ export function GameWrapper({ children }) {
       process.env.MAX_MESSAGES,
     );
     syncStateMessage["messageTimestamp"] = tempMessageTimestamp;
-    syncStateMessage["gameStats"] = {
-      ...gameStats,
-      [team]: {
-        ...gameStats[team],
-        // spacesTraveled: gameStats[team].spacesTraveled + 1,
-        systemsDisabled: newSystemDisabled ? gameStats[team].systemsDisabled + 1 : gameStats[team].systemsDisabled,
-      }
-    }
+    // syncStateMessage["gameStats"] = {
+    //   ...gameStats,
+    //   [team]: {
+    //     ...gameStats[team],
+    //     spacesTraveled: gameStats[team].spacesTraveled + 1,
+    //     systemsDisabled: newSystemDisabled ? gameStats[team].systemsDisabled + 1 : gameStats[team].systemsDisabled,
+    //   }
+    // }
 
     // sync state across the clients
     return syncStateMessage;
