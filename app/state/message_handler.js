@@ -320,7 +320,7 @@ export function captainBoost(context, message) {
   tempNetworkState["gameStats"] = {
     ...tempNetworkState.gameStats,
     [team]: {
-      ...tempNetworkState.gameStats[team],
+      ...gameStats[team],
       timesBoosted: gameStats[team].timesBoosted + 1,
     },
   };
