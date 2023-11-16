@@ -108,14 +108,14 @@ export default function Game() {
       const newSystemHealthLevels = {
         blue: {
           weapons: calculateMaxSystemHealth(blueRepairMatrix, "weapons"),
-          scan: calculateMaxSystemHealth(blueRepairMatrix, "scan"),
+          probe: calculateMaxSystemHealth(blueRepairMatrix, "probe"),
           engine: calculateMaxSystemHealth(blueRepairMatrix, "engine"),
           comms: calculateMaxSystemHealth(blueRepairMatrix, "comms"),
           "life support": systemHealthLevels["blue"]["life support"],
         },
         red: {
           weapons: calculateMaxSystemHealth(redRepairMatrix, "weapons"),
-          scan: calculateMaxSystemHealth(redRepairMatrix, "scan"),
+          probe: calculateMaxSystemHealth(redRepairMatrix, "probe"),
           engine: calculateMaxSystemHealth(redRepairMatrix, "engine"),
           comms: calculateMaxSystemHealth(redRepairMatrix, "comms"),
           "life support": systemHealthLevels["red"]["life support"],
