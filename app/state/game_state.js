@@ -39,8 +39,8 @@ export function GameWrapper({ children }) {
     pendingSystemCharge: { blue: null, red: null },
     currentlySurfacing: { blue: false, red: false },
     systemChargeLevels: {
-      blue: { mine: 0, torpedo: 0, probe: 0, silence: 0 },
-      red: { mine: 0, torpedo: 0, probe: 0, silence: 0 },
+      blue: { mine: 0, torpedo: 0, probe: 0, boost: 0 },
+      red: { mine: 0, torpedo: 0, probe: 0, boost: 0 },
     },
     systemHealthLevels: {
       blue: {
@@ -71,7 +71,7 @@ export function GameWrapper({ children }) {
     gameStats: {
       blue: {
         spacesTraveled: 0,
-        timesSilenced: 0,
+        timesBoosted: 0,
         scansUsed: 0,
         minesDropped: 0,
         minesDetonated: 0,
@@ -81,7 +81,7 @@ export function GameWrapper({ children }) {
       },
       red: {
         spacesTraveled: 0,
-        timesSilenced: 0,
+        timesBoosted: 0,
         scansUsed: 0,
         minesDropped: 0,
         minesDetonated: 0,
@@ -952,7 +952,7 @@ export function GameWrapper({ children }) {
     return shuffled;
   }
 
-  function getValidSilenceCells(team, subLocations, gameMap) {
+  function getValidBoostCells(team, subLocations, gameMap) {
     const [row, column] = subLocations[team];
     const validCells = [];
 
@@ -1175,7 +1175,7 @@ export function GameWrapper({ children }) {
         calculateMaxSystemHealth,
         clearVisitedPath,
         pickNewOuterCells,
-        getValidSilenceCells,
+        getValidBoostCells,
         isNavigationDisabled,
         setUsername,
         setRoomCode,

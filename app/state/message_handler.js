@@ -232,13 +232,13 @@ export function captainCancelSubNavigate(context, message) {
   };
 }
 
-// Captain uses the silence ability
+// Captain uses the boost ability
 // MESSAGE: {row, column}
-export function captainSilence(context, message) {
+export function captainBoost(context, message) {
   const {
     networkState,
     getMessagePlayer,
-    getValidSilenceCells,
+    getValidBoostCells,
     isNavigationDisabled,
     moveSub,
   } = context;
@@ -265,7 +265,7 @@ export function captainSilence(context, message) {
   }
 
   //Enforcing silencing
-  const validCells = getValidSilenceCells(team, subLocations, gameMap);
+  const validCells = getValidBoostCells(team, subLocations, gameMap);
   const arrayToCheck = [message.data.row, message.data.column];
 
   let isValid = validCells.some((arr) => {
@@ -309,19 +309,19 @@ export function captainSilence(context, message) {
     ...systemChargeLevels,
     [team]: {
       ...systemChargeLevels[team],
-      silence: 0,
+      boost: 0,
     },
   };
   tempNetworkState["movements"] = {
     ...movements,
-    [team]: [...movements[team], "silence"],
+    [team]: [...movements[team], "boost"],
   };
 
   tempNetworkState["gameStats"] = {
     ...tempNetworkState.gameStats,
     [team]: {
       ...tempNetworkState.gameStats[team],
-      timesSilenced: gameStats[team].timesSilenced + 1,
+      timesBoosted: gameStats[team].timesBoosted + 1,
     },
   };
 

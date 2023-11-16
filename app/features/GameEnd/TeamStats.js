@@ -36,7 +36,7 @@ export default function TeamStats(props) {
       <p style={styles.stat}>{`Torpedoes launched: `}<span style={styles.number}>{gameStats[team].torpedoesLaunched}</span></p>
       <p style={styles.stat}>{`Times surfaced: `}<span style={styles.number}>{gameStats[team].timesSurfaced}</span></p>
       <p style={styles.stat}>{`Systems disabled: `}<span style={styles.number}>{gameStats[team].systemsDisabled}</span></p>
-      <p style={styles.stat}>{`Times silenced: `}<span style={styles.number}>{gameStats[team].timesSilenced}</span></p>
+      <p style={styles.stat}>{`Times boosted: `}<span style={styles.number}>{gameStats[team].timesBoosted}</span></p>
     </div>
   );
 }

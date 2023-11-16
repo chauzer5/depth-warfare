@@ -53,7 +53,7 @@ export default function CaptainDashboard() {
     directionText: {
       margin: "10px",
     },
-    silenceControls: {
+    boostControls: {
       width: "100%",
       height: "50px",
       marginBottom: "20px",
@@ -70,7 +70,7 @@ export default function CaptainDashboard() {
       fontFamily: "'VT323', monospace",
       fontSize: "24px",
     },
-    silenceButton: {
+    boostButton: {
       backgroundColor: theme.black,
       border: "none",
       textDecoration: "none",
@@ -105,26 +105,26 @@ export default function CaptainDashboard() {
     );
   });
 
-  const [silenceActivated, setSilenceActivated] = useState(false);
+  const [boostActivated, setBoostActivated] = useState(false);
 
-  const silenceCharged =
-    systemChargeLevels[playerTeam].silence ===
-    SYSTEMS_INFO.find((system) => system.name === "silence").maxCharge;
+  const boostCharged =
+    systemChargeLevels[playerTeam].boost ===
+    SYSTEMS_INFO.find((system) => system.name === "boost").maxCharge;
 
-  const silenceStateStyle = {
+  const boostStateStyle = {
     color:
-      !silenceCharged || pendingNavigate[playerTeam]
+      !boostCharged || pendingNavigate[playerTeam]
         ? theme.gray
-        : silenceActivated
+        : boostActivated
         ? theme.purple
         : theme.white,
     cursor:
-      silenceCharged && !pendingNavigate[playerTeam] ? "pointer" : "default",
+    boostCharged && !pendingNavigate[playerTeam] ? "pointer" : "default",
   };
 
-  const handleClickSilence = () => {
-    if (silenceCharged && !pendingNavigate[playerTeam]) {
-      setSilenceActivated(!silenceActivated);
+  const handleClickBoost = () => {
+    if (boostCharged && !pendingNavigate[playerTeam]) {
+      setBoostActivated(!boostActivated);
     }
   };
 
@@ -133,11 +133,11 @@ export default function CaptainDashboard() {
   };
 
   useEffect(() => {
-    // If we've just used silence, turn off the cell selector
-    if (systemChargeLevels[playerTeam].silence === 0) {
-      setSilenceActivated(false);
+    // If we've just used boost, turn off the cell selector
+    if (systemChargeLevels[playerTeam].boost === 0) {
+      setBoostActivated(false);
     }
-  }, [systemChargeLevels[playerTeam].silence]);
+  }, [systemChargeLevels[playerTeam].boost]);
 
   const brokenEngine = systemHealthLevels[playerTeam].engine === 0;
 
@@ -145,7 +145,7 @@ export default function CaptainDashboard() {
     <div style={styles.main}>
       <div style={styles.container}>
         <SectorsKey />
-        <GameMap silence={silenceActivated} />
+        <GameMap boost={boostActivated} />
         <div style={styles.controls}>
           {brokenEngine ? (
             <h3 style={{ color: "red" }}>Engine is Broken</h3>
@@ -162,7 +162,7 @@ export default function CaptainDashboard() {
                 disabled={
                   disabledDirectionStates["north"] ||
                   pendingNavigate[playerTeam] ||
-                  silenceActivated
+                  boostActivated
                 }
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
@@ -175,7 +175,7 @@ export default function CaptainDashboard() {
                 disabled={
                   disabledDirectionStates["west"] ||
                   pendingNavigate[playerTeam] ||
-                  silenceActivated
+                  boostActivated
                 }
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
@@ -186,7 +186,7 @@ export default function CaptainDashboard() {
                 disabled={
                   disabledDirectionStates["east"] ||
                   pendingNavigate[playerTeam] ||
-                  silenceActivated
+                  boostActivated
                 }
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
@@ -199,7 +199,7 @@ export default function CaptainDashboard() {
                 disabled={
                   disabledDirectionStates["south"] ||
                   pendingNavigate[playerTeam] ||
-                  silenceActivated
+                  boostActivated
                 }
                 enabledDirection={randomEnabledDirection[playerTeam]}
               />
@@ -208,20 +208,20 @@ export default function CaptainDashboard() {
               <span>South</span>
             </div>
           </div>
-          <div style={styles.silenceControls}>
+          <div style={styles.boostControls}>
             <button
-              style={{ ...styles.silenceButton, ...silenceStateStyle }}
-              onClick={handleClickSilence}
+              style={{ ...styles.boostButton, ...boostStateStyle }}
+              onClick={handleClickBoost}
             >
-              {!silenceCharged
-                ? "Charge Silence"
+              {!boostCharged
+                ? "Charge Boost"
                 : pendingNavigate[playerTeam]
                 ? "Pending Navigate"
-                : silenceActivated
+                : boostActivated
                 ? "Cancel"
-                : "Activate Silence"}
+                : "Activate Boost"}
             </button>
-            <SystemChargeMeter systemName="silence" />
+            <SystemChargeMeter systemName="boost" />
           </div>
           <button style={styles.surfaceButton} onClick={handleClickSurface}>
             Surface

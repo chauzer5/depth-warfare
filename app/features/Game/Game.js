@@ -7,7 +7,7 @@ import PlayerDashboard from "../PlayerDashboard/PlayerDashboard";
 import {
   captainCancelSubNavigate,
   captainSetStartingSpot,
-  captainSilence,
+  captainBoost,
   captainStartSubNavigate,
   firstMateScan,
   engineerPlaceSystemBlock,
@@ -320,9 +320,9 @@ export default function Game() {
           );
         }
         break;
-      case "captain-silence":
+      case "captain-boost":
         if (selfClientId === hostClientId) {
-          networkStateSubset = captainSilence(gameContext, newMessage);
+          networkStateSubset = captainBoost(gameContext, newMessage);
           syncNetworkState(gameContext, networkStateSubset);
           channel.publish(
             "sync-network-state",

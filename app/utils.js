@@ -2,9 +2,9 @@ import theme from "@/app/styles/theme";
 
 export const SYSTEMS_INFO = [
   {
-    name: "silence",
+    name: "boost",
     color: theme.purple,
-    maxCharge: 6,
+    maxCharge: 3,
   },
   {
     name: "probe",

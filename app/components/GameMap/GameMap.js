@@ -10,13 +10,13 @@ import { useAblyContext } from "@/app/state/ably_state";
 export default function GameMap(props) {
   const {
     handleClick,
-    silence,
+    boost,
     toggledSystem,
     clickedCell,
     torpedoCells,
     dropMineCells,
   } = props;
-  const { networkState, playerTeam, getValidSilenceCells, getFirstMateSystem } =
+  const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem } =
     useGameContext();
 
   const { gameMap, pendingNavigate, subLocations, minesList } = networkState;
@@ -148,21 +148,21 @@ export default function GameMap(props) {
     return islandStyle;
   };
 
-  const [silenceCells, setSilenceCells] = useState([]);
+  const [boostCells, setBoostCells] = useState([]);
 
   useEffect(() => {
-    if (silence) {
-      const newSilenceCells = getValidSilenceCells(
+    if (boost) {
+      const newBoostCells = getValidBoostCells(
         playerTeam,
         subLocations,
         gameMap,
       );
-      setSilenceCells(newSilenceCells);
+      setBoostCells(newBoostCells);
     }
-  }, [silence]);
+  }, [boost]);
 
-  const handleSilence = (row, column) => {
-    channel?.publish("captain-silence", { row, column });
+  const handleBoost = (row, column) => {
+    channel?.publish("captain-boost", { row, column });
   };
 
   if (typeof gameMap === "undefined" || gameMap === null) {
@@ -267,8 +267,8 @@ export default function GameMap(props) {
                           cell[0] === rowIndex && cell[1] === columnIndex,
                       ) && <span style={styles.mineCell}>M</span>}
 
-                    {silence &&
-                      silenceCells.find(
+                    {boost &&
+                      boostCells.find(
                         (cell) =>
                           cell[0] === rowIndex && cell[1] === columnIndex,
                       ) && (
@@ -283,7 +283,7 @@ export default function GameMap(props) {
                             },
                           }}
                           onClick={() => {
-                            handleSilence(rowIndex, columnIndex);
+                            handleBoost(rowIndex, columnIndex);
                           }}
                         />
                       )}
