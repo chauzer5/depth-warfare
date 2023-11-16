@@ -24,6 +24,8 @@ export function GameWrapper({ children }) {
   const [playerTeam, setPlayerTeam] = useState();
   const [playerRole, setPlayerRole] = useState();
   const [playerData, setPlayerData] = useState();
+  
+
 
   // NEW CODE
   const initialNetworkState = {

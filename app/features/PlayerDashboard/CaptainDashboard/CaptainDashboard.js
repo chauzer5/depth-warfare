@@ -79,7 +79,7 @@ export default function CaptainDashboard() {
     },
   };
 
-  const { playerTeam, networkState, isNavigationDisabled } = useGameContext();
+  const { playerTeam, networkState, isNavigationDisabled, getCellsDistanceAway} = useGameContext();
 
   const {
     pendingNavigate,
@@ -88,6 +88,7 @@ export default function CaptainDashboard() {
     gameMap,
     subLocations,
     randomEnabledDirection,
+    probes
   } = networkState;
 
   const { channel } = useAblyContext();
@@ -106,6 +107,7 @@ export default function CaptainDashboard() {
   });
 
   const [boostActivated, setBoostActivated] = useState(false);
+  const [anyProbeDetecting, setAnyProbeDetecting] = useState(false);
 
   const boostCharged =
     systemChargeLevels[playerTeam].boost ===
@@ -139,7 +141,44 @@ export default function CaptainDashboard() {
     }
   }, [systemChargeLevels[playerTeam].boost]);
 
+  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
   const brokenEngine = systemHealthLevels[playerTeam].engine === 0;
+
+  useEffect(() => {
+    const newAnyProbeDetecting = gameMap.some(row =>
+      row.some((cell, columnIndex) => {
+        const rowIndex = gameMap.indexOf(row);
+        const probe = probes[oppositeTeam].find(
+          note => note[0] === rowIndex && note[1] === columnIndex
+        );
+
+        if (probe) {
+          const getProbeRange = getCellsDistanceAway(
+            rowIndex,
+            columnIndex,
+            probe[2],
+            false,
+            false
+          );
+
+          return getProbeRange.some(
+            note =>
+              note[0] === subLocations[playerTeam][0] &&
+              note[1] === subLocations[playerTeam][1]
+          );
+        }
+
+        return false;
+      })
+    );
+
+    setAnyProbeDetecting(newAnyProbeDetecting);
+    console.log(newAnyProbeDetecting);
+  }, [subLocations, probes]);
+
+  useEffect(() => {
+    console.log('Updated state:', anyProbeDetecting);
+  }, [anyProbeDetecting]);
 
   return (
     <div style={styles.main}>
@@ -148,7 +187,7 @@ export default function CaptainDashboard() {
           <SectorsKey />
           <h6 style={{ color: theme.white, margin: "10px" }}>Enemy Detection</h6>
           <div style={{
-            backgroundColor: theme.white,
+            backgroundColor: anyProbeDetecting ? theme.red : theme.white,
             width: "30px",
             height: "30px",
             borderRadius: "15px",

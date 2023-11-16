@@ -5,11 +5,11 @@ import theme from "@/app/styles/theme";
 import targetImage from "../../../target.png";
 import Image from "next/image";
 import { useAblyContext } from "@/app/state/ably_state";
-import {useState} from "react";
+import { useEffect, useState } from "react";
 
 export default function RadioMap(props) {
   const { handleClick, clickedCell, probeRange } = props
-  const { networkState, playerTeam, getCellsDistanceAway } = useGameContext();
+  const { networkState, playerTeam, getCellsDistanceAway, anyProbeDetecting, setAnyProbeDetecting } = useGameContext();
   const { gameMap, probes, subLocations } = networkState;
 
   const { channel } = useAblyContext();
@@ -141,6 +141,9 @@ export default function RadioMap(props) {
 
     return islandStyle;
   };
+  
+
+  
 
   return (
     <table style={styles.table}>
