@@ -144,7 +144,17 @@ export default function CaptainDashboard() {
   return (
     <div style={styles.main}>
       <div style={styles.container}>
-        <SectorsKey />
+        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+          <SectorsKey />
+          <h6 style={{ color: theme.white, margin: "10px" }}>Enemy Detection</h6>
+          <div style={{
+            backgroundColor: theme.white,
+            width: "30px",
+            height: "30px",
+            borderRadius: "15px",
+            filter: "blur(5px)"
+          }} />
+        </div>
         <GameMap boost={boostActivated} />
         <div style={styles.controls}>
           {brokenEngine ? (
