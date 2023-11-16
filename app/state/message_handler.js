@@ -358,7 +358,6 @@ export function captainSurface(context, message) {
     repairMatrix,
     messageTimestamp,
     notificationMessages,
-    gameStats
     gameStats,
   } = networkState;
 
