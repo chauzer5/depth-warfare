@@ -1012,12 +1012,7 @@ export function firstMateDetonateMine(context, message) {
     ...gameStats,
     [team]: {
       ...gameStats[team],
-      minesDetonated: gameStats[team].minesDetonated + ownMinesDetonated.length,
-    },
-    [oppositeTeam]: {
-      ...gameStats[oppositeTeam],
-      minesDetonated:
-        gameStats[oppositeTeam].minesDetonated + oppMinesDetonated.length,
+      minesDetonated: gameStats[team].minesDetonated + 1,
     },
   }
 

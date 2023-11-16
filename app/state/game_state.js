@@ -640,7 +640,7 @@ export function GameWrapper({ children }) {
       ...gameStats,
       [team]: {
         ...gameStats[team],
-        spacesTraveled: gameStats[team].spacesTraveled + 1,
+        // spacesTraveled: gameStats[team].spacesTraveled + 1,
         systemsDisabled: newSystemDisabled ? gameStats[team].systemsDisabled + 1 : gameStats[team].systemsDisabled,
       }
     }
