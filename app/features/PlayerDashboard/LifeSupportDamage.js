@@ -5,6 +5,15 @@ import { useEffect, useState } from "react";
 
 export default function LifeSupportDamage() {
 
+	const {
+    playerTeam,
+    calculateSystemNodeDistance,
+    calculateMaxSystemHealth,
+    networkState,
+  } = useGameContext();
+
+	const { systemHealthLevels, repairMatrix } = networkState;
+
   const styles = {
     container: {
       display: "flex",
@@ -28,7 +37,9 @@ export default function LifeSupportDamage() {
     },
     rectangle: {
       height: "15px",
-      backgroundColor: theme.white,
+      backgroundColor: systemHealthLevels[playerTeam]["life support"] > 50
+			? theme.darkGreen : systemHealthLevels[playerTeam]["life support"] > 25 
+			? "yellow" : theme.red,
       leftborderRadius: "10px",
       marginRight: "0px",
       transition: "width 1s ease",
@@ -52,24 +63,12 @@ export default function LifeSupportDamage() {
     },
   };
 
-  const {
-    playerTeam,
-    calculateSystemNodeDistance,
-    calculateMaxSystemHealth,
-    networkState,
-  } = useGameContext();
-
-  const { systemHealthLevels, repairMatrix } = networkState;
-
   const [numChunks, setNumChunks] = useState(0);
   const [barWidth, setBarWidth] = useState(0);
 
   useEffect(() => {
     setBarWidth(
-        Math.ceil(
-            (systemHealthLevels[playerTeam]["life support"] * 100) /
-            process.env.STARTING_LIFE_SUPPORT,
-        ),
+        systemHealthLevels[playerTeam]["life support"],
     );
   }, [systemHealthLevels[playerTeam]["life support"]]);
 
@@ -92,7 +91,7 @@ export default function LifeSupportDamage() {
 				</div>
 				<div style={{ ...styles.textContainer, width: "80px", marginLeft: "5px" }}>
 					<span style={styles.buttonText}>
-						{ (systemHealthLevels[playerTeam]["life support"] * 100) / process.env.STARTING_LIFE_SUPPORT }%
+						{ systemHealthLevels[playerTeam]["life support"] }%
 					</span>
 				</div>
       </div>

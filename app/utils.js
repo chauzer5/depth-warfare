@@ -45,10 +45,6 @@ export const ENGINEER_SYSTEMS_INFO = [
     name: "engine",
     color: theme.purple,
   },
-  {
-    name: "life support",
-    color: theme.gray,
-  },
 ];
 
 export const ROLE_MAP = {

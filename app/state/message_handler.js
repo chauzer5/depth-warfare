@@ -393,10 +393,10 @@ export function captainSurface(context, message) {
     systemHealthLevels: {
       ...systemHealthLevels,
       [team]: {
-        weapons: calculateMaxSystemHealth(repairMatrix[team], "weapons"),
-        probe: calculateMaxSystemHealth(repairMatrix[team], "probe"),
-        engine: calculateMaxSystemHealth(repairMatrix[team], "engine"),
-        comms: calculateMaxSystemHealth(repairMatrix[team], "comms"),
+        weapons: process.env.MAX_SYSTEM_HEALTH,
+        probe: process.env.MAX_SYSTEM_HEALTH,
+        engine: process.env.MAX_SYSTEM_HEALTH,
+        comms: process.env.MAX_SYSTEM_HEALTH,
         "life support": systemHealthLevels[team]["life support"],
       },
     },
@@ -440,6 +440,9 @@ export function firstMateFireTorpedo(context, message) {
 
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
+  const ownMultiplier = Math.round(systemHealthLevels[team]["weapons"] * .5 + 50)
+  console.log("Health Levels", systemHealthLevels[team])
+  // const oppMultiplier = systemHealthLevels[oppositeTeam]["weapons"] * .5 + 50
 
   if (currentlySurfacing[team]) {
     return {};
@@ -566,6 +569,7 @@ export function firstMateFireTorpedo(context, message) {
       [],
       updatedDamageMap,
       process.env.MAX_TORPEDO_DAMAGE,
+      ownMultiplier
     );
     updatedDamageMap = ownTorpedoResult.updatedDamageMap;
 
