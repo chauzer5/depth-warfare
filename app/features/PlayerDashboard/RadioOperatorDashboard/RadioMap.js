@@ -164,7 +164,7 @@ export default function RadioMap(props) {
             <th>{indexToRow(rowIndex)}</th>
             {row.map((cell, columnIndex) => {
 
-              const probe = probes[playerTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex)
+              const probe = probes[playerTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex);
               let probeDetecting = false;
               if(probe){
                 const getProbeRange = getCellsDistanceAway(
