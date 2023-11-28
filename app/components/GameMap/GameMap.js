@@ -15,11 +15,12 @@ export default function GameMap(props) {
     clickedCell,
     torpedoCells,
     dropMineCells,
+    probeDetectionRange,
   } = props;
-  const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem } =
+  const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem} =
     useGameContext();
 
-  const { gameMap, pendingNavigate, subLocations, minesList } = networkState;
+  const { gameMap, pendingNavigate, subLocations, minesList, probes } = networkState;
   const { channel } = useAblyContext();
 
   const MAP_DIMENSION = process.env.MAP_DIMENSION;
@@ -35,6 +36,7 @@ export default function GameMap(props) {
       borderCollapse: "collapse",
       width: "25px",
       padding: 0,
+      position: "relative",
     },
     columnHeader: {
       width: "25px",
@@ -61,6 +63,7 @@ export default function GameMap(props) {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      zIndex: 2,
     },
     redSub: {
       width: "25px",
@@ -69,6 +72,7 @@ export default function GameMap(props) {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      zIndex: 2,
     },
     pendingMoveCell: {
       width: "25px",
@@ -91,8 +95,11 @@ export default function GameMap(props) {
       height: "26px",
       backgroundColor: theme.gray,
       "&:hover": {
-        backgroundColor: theme.green,
+        backgroundColor: handleClick ? theme.green : theme.black,
       },
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
     },
     visitedCell: {
       color: theme.white,
@@ -112,6 +119,41 @@ export default function GameMap(props) {
       width: "100%",
       zIndex: 1,
       pointerEvents: "none",
+    },
+    probe: {
+      color: theme.white,
+      borderRadius: "50%",
+      display: "inline-block",
+      width: "19px",
+      height: "19px",
+      justifyContent: "center", 
+      alignItems: "center",
+      fontWeight: "bold",
+      lineHeight: "19px",
+      textAlign: "center",
+      background: "transparent", 
+      border: "3px solid white", 
+      fontSize: "18px",
+      position: "absolute",
+      zIndex: 0,
+    },
+    probeRange: {
+      color: theme.gray,
+      borderRadius: "50%",
+      display: "inline-block",
+      width: `${32 * 2 * process.env.PROBE_DETECTION_RANGE}px`,
+      height: `${32 * 2 * process.env.PROBE_DETECTION_RANGE}px`,
+      justifyContent: "center",
+      alignItems: "center",
+      fontWeight: "bold",
+      lineHeight: "19px",
+      background: "transparent",
+      border: "3px solid white",
+      fontSize: "18px",
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)", // Center the element
     },
   };
 
@@ -149,6 +191,7 @@ export default function GameMap(props) {
   };
 
   const [boostCells, setBoostCells] = useState([]);
+  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
 
   useEffect(() => {
     if (boost) {
@@ -260,6 +303,18 @@ export default function GameMap(props) {
                       cell.visited[playerTeam] && (
                         <span style={styles.visitedCell}>X</span>
                       )}
+
+                    {!toggledSystem && 
+                    cell.subPresent &&
+                    cell.subPresent[playerTeam] && (
+                      <span style={styles.probeRange}></span>
+                    )}
+
+                    {!toggledSystem &&
+                    (probeDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex) && 
+                    probes[oppositeTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex)) && (
+                      <span style={styles.probe}></span>
+                    )}
 
                     {toggledSystem === "mine" &&
                       minesList[playerTeam].find(

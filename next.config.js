@@ -28,6 +28,7 @@ const nextConfig = {
     MIN_NODE_DISTANCE: 3,
     COMPLETE_STATE_UPDATE_INTERVAL: 50000,
     ROOM_CODE_LENGTH: 4,
+    PROBE_DETECTION_RANGE: 3, 
   },
   productionBrowserSourceMaps: true,
 };

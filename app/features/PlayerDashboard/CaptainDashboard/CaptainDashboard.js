@@ -108,6 +108,7 @@ export default function CaptainDashboard() {
 
   const [boostActivated, setBoostActivated] = useState(false);
   const [anyProbeDetecting, setAnyProbeDetecting] = useState(false);
+  const [probeDetectionRange, setProbeDetectionRange] = useState([]);
 
   const boostCharged =
     systemChargeLevels[playerTeam].boost ===
@@ -177,6 +178,17 @@ export default function CaptainDashboard() {
   }, [subLocations, probes]);
 
   useEffect(() => {
+    const subRange = getCellsDistanceAway(
+      subLocations[playerTeam][0],
+      subLocations[playerTeam][1],
+      process.env.PROBE_DETECTION_RANGE,   
+      false,
+      false,
+    );
+    setProbeDetectionRange(subRange);
+  }, [subLocations]);
+
+  useEffect(() => {
     console.log('Updated state:', anyProbeDetecting);
   }, [anyProbeDetecting]);
 
@@ -191,10 +203,10 @@ export default function CaptainDashboard() {
             width: "30px",
             height: "30px",
             borderRadius: "15px",
-            filter: "blur(5px)"
+            filter: anyProbeDetecting ?  "blur(5px)" : "blur(2px)",
           }} />
         </div>
-        <GameMap boost={boostActivated} />
+        <GameMap boost={boostActivated} probeDetectionRange={probeDetectionRange} />
         <div style={styles.controls}>
           {brokenEngine ? (
             <h3 style={{ color: "red" }}>Engine is Broken</h3>
