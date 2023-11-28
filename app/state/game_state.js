@@ -46,17 +46,17 @@ export function GameWrapper({ children }) {
     },
     systemHealthLevels: {
       blue: {
-        weapons: 0,
-        probe: 0,
-        engine: 0,
-        comms: 0,
+        weapons: process.env.MAX_SYSTEM_HEALTH,
+        probe: process.env.MAX_SYSTEM_HEALTH,
+        engine: process.env.MAX_SYSTEM_HEALTH,
+        comms: process.env.MAX_SYSTEM_HEALTH,
         "life support": process.env.STARTING_LIFE_SUPPORT,
       },
       red: {
-        weapons: 0,
-        probe: 0,
-        engine: 0,
-        comms: 0,
+        weapons: process.env.MAX_SYSTEM_HEALTH,
+        probe: process.env.MAX_SYSTEM_HEALTH,
+        engine: process.env.MAX_SYSTEM_HEALTH,
+        comms: process.env.MAX_SYSTEM_HEALTH,
         "life support": process.env.STARTING_LIFE_SUPPORT,
       },
     },
@@ -190,6 +190,7 @@ export function GameWrapper({ children }) {
     listToUpdate,
     updatedDamageMap,
     damage,
+    multiplier = 100,
   ) {
     let allHitCells = [];
 
@@ -215,8 +216,7 @@ export function GameWrapper({ children }) {
       // Then create a damage map hit
       const damageMap = hitCells.reduce((result, [row, col]) => {
         const tempDamage =
-          damage -
-          manhattanDistance(row, col, detonationCell[0], detonationCell[1]);
+          Math.round((damage - manhattanDistance(row, col, detonationCell[0], detonationCell[1])) * multiplier * .25);
         result[`${row}-${col}`] = tempDamage;
         return result;
       }, {});
@@ -476,9 +476,10 @@ export function GameWrapper({ children }) {
     // Update the repair matrix and check to see if it is repaired
     const updatedMatrix = [...repairMatrix[team].map((row) => [...row])];
 
+    const systemHealthDivider = calculateMaxSystemHealth(updatedMatrix, randomSystem)
     // set the updated health level for the system
     const updatedHealthLevel = Math.max(
-      systemHealthLevels[team][randomSystem] - 1, // process.env.SYSTEM_DAMAGE_AMOUNT,
+      Math.round(systemHealthLevels[team][randomSystem] - 100 / systemHealthDivider) , // process.env.SYSTEM_DAMAGE_AMOUNT,
       0,
     );
 
@@ -535,8 +536,8 @@ export function GameWrapper({ children }) {
       tempMessages.push(notificationMessage);
       tempMessageTimestamp += 1;
 
-      syncStateMessage["systemHealthLevels"][team][blockSystem] =
-        calculateMaxSystemHealth(updatedMatrix, blockSystem);
+      syncStateMessage["systemHealthLevels"][team][blockSystem] = process.env.MAX_SYSTEM_HEALTH
+        // calculateMaxSystemHealth(updatedMatrix, blockSystem);
     }
 
     // move the sub in the specified direction
@@ -1125,7 +1126,7 @@ export function GameWrapper({ children }) {
         ...systemHealthLevels,
         [team]: {
           ...systemHealthLevels[team],
-          [system]: calculateMaxSystemHealth(repairMatrix[team], system),
+          [system]: process.env.MAX_SYSTEM_HEALTH // calculateMaxSystemHealth(repairMatrix[team], system),
         },
       },
     });
@@ -1135,9 +1136,9 @@ export function GameWrapper({ children }) {
     return Math.abs(row1 - row2) + Math.abs(col1 - col2);
   }
 
-  function updateLifeSupport(team, hits) {
+  function updateLifeSupport(team, damage) {
     const { systemHealthLevels } = networkState;
-    return Math.max(systemHealthLevels[team]["life support"] - hits, 0);
+    return Math.max(systemHealthLevels[team]["life support"] - damage, 0);
   }
 
   function scanForEnemySub(row, column, scanType, subLocations) {

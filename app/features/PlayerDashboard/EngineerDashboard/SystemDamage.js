@@ -85,31 +85,24 @@ export default function SystemDamage(props) {
   } = useGameContext();
 
   const { systemHealthLevels, repairMatrix } = networkState;
+  const [ systemHealthDivider, setSystemHealthDivider ] = useState(1)
 
   const [numChunks, setNumChunks] = useState(0);
   const [barWidth, setBarWidth] = useState(0);
 
   useEffect(() => {
     setNumChunks(calculateSystemNodeDistance(system.name));
+    setSystemHealthDivider(calculateMaxSystemHealth(repairMatrix[playerTeam], system.name))
   }, [system, repairMatrix]);
 
   useEffect(() => {
-    if (system.name === "life support") {
-      setBarWidth(
-        Math.ceil(
-          (systemHealthLevels[playerTeam][system.name] * 100) /
-            process.env.STARTING_LIFE_SUPPORT,
-        ),
-      );
-    } else {
-      setBarWidth(
-        Math.ceil(
-          (systemHealthLevels[playerTeam][system.name] * 100) /
-            calculateMaxSystemHealth(repairMatrix[playerTeam], system.name),
-        ),
-      );
-    }
+    setBarWidth(
+        systemHealthLevels[playerTeam][system.name]
+    );
   }, [systemHealthLevels[playerTeam][system.name]]);
+
+  console.log("divider", Math.round(systemHealthLevels[playerTeam][system.name] * 
+    systemHealthDivider / 100) - 2)
 
   return (
     <div style={styles.container}>
@@ -125,7 +118,7 @@ export default function SystemDamage(props) {
             width: `${barWidth}%`,
           }}
         ></div>
-        {system.name != "life support" && numChunks > 0 && (
+        {numChunks > 0 && (
           <div style={styles.dividersContainer}>
             {Array(numChunks - 1)
               .fill(0)
@@ -137,29 +130,8 @@ export default function SystemDamage(props) {
                       width: "2px",
                       height: "15px",
                       backgroundColor:
-                        index > systemHealthLevels[playerTeam][system.name] - 2
-                          ? "#00000000"
-                          : theme.black,
-                    }}
-                  ></div>
-                );
-              })}
-          </div>
-        )}
-
-        {system.name === "life support" && (
-          <div style={styles.dividersContainer}>
-            {Array(process.env.STARTING_LIFE_SUPPORT - 1)
-              .fill(0)
-              .map((chunk, index) => {
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      width: "2px",
-                      height: "15px",
-                      backgroundColor:
-                        index > systemHealthLevels[playerTeam][system.name] - 2
+                        index > Math.round(systemHealthLevels[playerTeam][system.name] * 
+                        systemHealthDivider / 100) - 2
                           ? "#00000000"
                           : theme.black,
                     }}

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ROLE_MAP } from "@/app/utils";
 import { useAblyContext } from "@/app/state/ably_state";
 import theme from "@/app/styles/theme";
-import SystemDamage from "./EngineerDashboard/SystemDamage";
+import LifeSupportDamage from "./LifeSupportDamage"
 
 export default function DashboardHeader() {
   const { playerRole, playerTeam, hostClientId, roomCode } = useGameContext();
@@ -85,7 +85,7 @@ export default function DashboardHeader() {
             } Team`}</span>
             {` ${ROLE_MAP[playerRole]}`}
           </h4>
-          <SystemDamage system={{name: "life support", color: theme.gray}} />
+          <LifeSupportDamage />
         </div>
         {selfClientId === hostClientId && <h4 style={styles.role}>Host</h4>}
         <div style={styles.rightContainer}>
