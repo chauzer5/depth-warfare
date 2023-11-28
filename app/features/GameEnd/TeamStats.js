@@ -28,11 +28,11 @@ export default function TeamStats(props) {
   return (
     <div style={styles.main}>
       <h2 style={styles.header}>{`${capitalizeFirstLetter(team)} team stats:`}</h2>
-      <p style={styles.stat}>{`Remaining life support: `}
+      {/* <p style={styles.stat}>{`Remaining life support: `}
         <span style={styles.number}>
           {`${systemHealthLevels[team]["life support"]}/${process.env.STARTING_LIFE_SUPPORT}`}
         </span>
-      </p>
+      </p> */}
       {/* <p style={styles.stat}>{`Spaces traveled: `}<span style={styles.number}>{gameStats[team].spacesTraveled}</span></p> */}
       <p style={styles.stat}>{`Mines deployed: `}<span style={styles.number}>{gameStats[team].minesDropped}</span></p>
       <p style={styles.stat}>{`Mines detonated: `}<span style={styles.number}>{gameStats[team].minesDetonated}</span></p>
