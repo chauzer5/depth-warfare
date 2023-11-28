@@ -74,7 +74,6 @@ export function GameWrapper({ children }) {
       blue: {
         // spacesTraveled: 0,
         timesBoosted: 0,
-        // scansUsed: 0,
         minesDropped: 0,
         minesDetonated: 0,
         torpedoesLaunched: 0,
@@ -84,7 +83,6 @@ export function GameWrapper({ children }) {
       red: {
         // spacesTraveled: 0,
         timesBoosted: 0,
-        // scansUsed: 0,
         minesDropped: 0,
         minesDetonated: 0,
         torpedoesLaunched: 0,

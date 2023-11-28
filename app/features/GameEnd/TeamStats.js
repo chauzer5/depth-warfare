@@ -34,7 +34,6 @@ export default function TeamStats(props) {
         </span>
       </p>
       {/* <p style={styles.stat}>{`Spaces traveled: `}<span style={styles.number}>{gameStats[team].spacesTraveled}</span></p> */}
-      {/* <p style={styles.stat}>{`Scans used: `}<span style={styles.number}>{gameStats[team].scansUsed}</span></p> */}
       <p style={styles.stat}>{`Mines deployed: `}<span style={styles.number}>{gameStats[team].minesDropped}</span></p>
       <p style={styles.stat}>{`Mines detonated: `}<span style={styles.number}>{gameStats[team].minesDetonated}</span></p>
       <p style={styles.stat}>{`Torpedoes launched: `}<span style={styles.number}>{gameStats[team].torpedoesLaunched}</span></p>
