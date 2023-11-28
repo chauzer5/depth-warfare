@@ -72,24 +72,24 @@ export function GameWrapper({ children }) {
     messageTimestamp: 0,
     gameStats: {
       blue: {
-        spacesTraveled: 0,
+        // spacesTraveled: 0,
         timesBoosted: 0,
-        scansUsed: 0,
+        // scansUsed: 0,
         minesDropped: 0,
         minesDetonated: 0,
         torpedoesLaunched: 0,
         timesSurfaced: 0,
-        systemsDisabled: 0,
+        // systemsDisabled: 0,
       },
       red: {
-        spacesTraveled: 0,
+        // spacesTraveled: 0,
         timesBoosted: 0,
-        scansUsed: 0,
+        // scansUsed: 0,
         minesDropped: 0,
         minesDetonated: 0,
         torpedoesLaunched: 0,
         timesSurfaced: 0,
-        systemsDisabled: 0,
+        // systemsDisabled: 0,
       }
     }
   };
