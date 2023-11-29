@@ -231,7 +231,10 @@ export default function GameMap(props) {
           {gameMap.map((row, rowIndex) => (
             <tr key={rowIndex} style={styles.row}>
               <th>{indexToRow(rowIndex)}</th>
-              {row.map((cell, columnIndex) => (
+              {row.map((cell, columnIndex) => {
+                // !!!!!!! 
+                const probeAtLocation = probes[oppositeTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex);
+                const isProbeActive = probeAtLocation ;// && manhattan distance thing?
                 <td
                   key={columnIndex}
                   style={{
@@ -316,8 +319,8 @@ export default function GameMap(props) {
 
                     {!toggledSystem &&
                     (probeDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex) && 
-                    probes[oppositeTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex)) && (
-                      <span style={styles.probe}></span>
+                    probeAtLocation) && (
+                      <span style={isProbeActive ? styles.probe :  styles.probe}></span>
                     )}
 
                     {toggledSystem === "mine" &&
@@ -348,7 +351,7 @@ export default function GameMap(props) {
                       )}
                   </div>
                 </td>
-              ))}
+              })}
             </tr>
           ))}
         </tbody>
