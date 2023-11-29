@@ -100,10 +100,13 @@ export default function GameMap(props) {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      // zIndex: 0,
     },
     visitedCell: {
       color: theme.white,
       fontSize: "24px",
+      position: "absolute",
+      // zIndex: 1,
     },
     mineCell: {
       color: getFirstMateSystem("mine").color,
@@ -117,7 +120,7 @@ export default function GameMap(props) {
       justifyContent: "center",
       height: "100%",
       width: "100%",
-      zIndex: 1,
+      Index: 1,
       pointerEvents: "none",
     },
     probe: {
@@ -305,9 +308,10 @@ export default function GameMap(props) {
                       )}
 
                     {!toggledSystem && 
+                    probeDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex) &&
                     cell.subPresent &&
-                    cell.subPresent[playerTeam] && (
-                      <span style={styles.probeRange}></span>
+                    !cell.subPresent[playerTeam] && (
+                      <span style={styles.inRangeCell}></span>
                     )}
 
                     {!toggledSystem &&
