@@ -101,9 +101,6 @@ export default function SystemDamage(props) {
     );
   }, [systemHealthLevels[playerTeam][system.name]]);
 
-  console.log("divider", Math.round(systemHealthLevels[playerTeam][system.name] * 
-    systemHealthDivider / 100) - 2)
-
   return (
     <div style={styles.container}>
       <div style={{ ...styles.textContainer, width: "150px" }}>

@@ -479,7 +479,7 @@ export function GameWrapper({ children }) {
     const systemHealthDivider = calculateMaxSystemHealth(updatedMatrix, randomSystem)
     // set the updated health level for the system
     const updatedHealthLevel = Math.max(
-      Math.round(systemHealthLevels[team][randomSystem] - 100 / systemHealthDivider) , // process.env.SYSTEM_DAMAGE_AMOUNT,
+      systemHealthLevels[team][randomSystem] - Math.ceil(100 / systemHealthDivider) , // process.env.SYSTEM_DAMAGE_AMOUNT,
       0,
     );
 
