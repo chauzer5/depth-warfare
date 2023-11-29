@@ -17,7 +17,7 @@ export default function GameMap(props) {
     dropMineCells,
     probeDetectionRange,
   } = props;
-  const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem} =
+  const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem, manhattanDistance} =
     useGameContext();
 
   const { gameMap, pendingNavigate, subLocations, minesList, probes } = networkState;
@@ -234,7 +234,8 @@ export default function GameMap(props) {
               {row.map((cell, columnIndex) => {
                 // !!!!!!! 
                 const probeAtLocation = probes[oppositeTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex);
-                const isProbeActive = probeAtLocation ;// && manhattan distance thing?
+                const isProbeActive = probeAtLocation 
+                && (manhattanDistance(rowIndex, columnIndex, subLocations[playerTeam][0], subLocations[playerTeam][1]) <= probeAtLocation[2]);
                 <td
                   key={columnIndex}
                   style={{
