@@ -125,12 +125,28 @@ export default function RadioOperatorDashboard() {
   };
 
   useEffect(() => {
-    setFindProbeIndex(probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column));
-  }, [clickedCell]);
+    const probeIndex = probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column);
+    //Attempts to find a probe with given row and column
+    if (probeIndex === -1){
+      setProbeRange([]);
+    }
+    else {
+      const newProbeRangeCells = getCellsDistanceAway(
+        clickedCell.row,
+        clickedCell.column,
+        probes[playerTeam][probeIndex][2],
+        false,
+        false,
+      )
+      setProbeRange(newProbeRangeCells);
+    }
+    setFindProbeIndex(probeIndex)
+
+  }, [clickedCell, probes[playerTeam]]);
 
   const launchProbe = () => {
     channel.publish("radio-operator-place-probe", clickedCell );
-    // const findProbeIndex = probes[playerTeam].findIndex(list => list[0] === clickedCell.row && list[1] === clickedCell.column);
+
     if (findProbeIndex === -1){
       const newProbeRangeCells = getCellsDistanceAway(
         clickedCell.row,
@@ -145,7 +161,7 @@ export default function RadioOperatorDashboard() {
       const newProbeRangeCells = getCellsDistanceAway(
         clickedCell.row,
         clickedCell.column,
-        probes[playerTeam][findProbeIndex][2] +1,
+        probes[playerTeam][findProbeIndex][2] + 1,
         false,
         false,
       )
@@ -157,20 +173,7 @@ export default function RadioOperatorDashboard() {
     const newClickedCell = {row, column};
     setClickedCell(newClickedCell);
 
-    //Attempts to find a probe with given row and column
-    if (findProbeIndex === -1){
-      setProbeRange([]);
-    }
-    else {
-      const newProbeRangeCells = getCellsDistanceAway(
-        row,
-        column,
-        probes[playerTeam][findProbeIndex][2],
-        false,
-        false,
-      )
-      setProbeRange(newProbeRangeCells);
-    }
+    
   };
 
   const oppositeTeam = playerTeam === "blue" ? "red" : "blue";

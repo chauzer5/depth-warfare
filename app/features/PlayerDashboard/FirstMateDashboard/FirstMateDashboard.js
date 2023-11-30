@@ -187,6 +187,19 @@ export default function FirstMateDashboard() {
       (cell) => cell[0] === clickedCell.row && cell[1] === clickedCell.column,
     );
 
+  const [sonarDetectionRange, setSonarDetectionRange] = useState([]);
+
+  useEffect(() => {
+    const subRange = getCellsDistanceAway(
+      subLocations[playerTeam][0],
+      subLocations[playerTeam][1],
+      process.env.SONAR_DETECTION_RANGE,   
+      false,
+      false,
+    );
+    setSonarDetectionRange(subRange);
+  }, [subLocations]);
+
   return (
     <div style={styles.main}>
       <div style={styles.systemsRow}>
@@ -218,6 +231,7 @@ export default function FirstMateDashboard() {
           handleClick={handleMapSelector}
           torpedoCells={torpedoCells}
           dropMineCells={dropMineCells}
+          sonarDetectionRange={sonarDetectionRange}
         />
         <div style={styles.controlsContainer}>
           <button
