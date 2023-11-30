@@ -20,6 +20,7 @@ export default function GameMap(props) {
   const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem, manhattanDistance} =
     useGameContext();
 
+  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
   const { gameMap, pendingNavigate, subLocations, minesList, probes } = networkState;
   const { channel } = useAblyContext();
 
@@ -140,6 +141,23 @@ export default function GameMap(props) {
       position: "absolute",
       zIndex: 0,
     },
+    probeActive: {
+      color: theme.red,
+      borderRadius: "50%",
+      display: "inline-block",
+      width: "19px",
+      height: "19px",
+      justifyContent: "center", 
+      alignItems: "center",
+      fontWeight: "bold",
+      lineHeight: "19px",
+      textAlign: "center",
+      background: "transparent", 
+      border: `3px solid ${oppositeTeam}`, 
+      fontSize: "18px",
+      position: "absolute",
+      zIndex: 0,
+    },
     probeRange: {
       color: theme.gray,
       borderRadius: "50%",
@@ -194,7 +212,6 @@ export default function GameMap(props) {
   };
 
   const [boostCells, setBoostCells] = useState([]);
-  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
 
   useEffect(() => {
     if (boost) {
@@ -236,6 +253,13 @@ export default function GameMap(props) {
                 const probeAtLocation = probes[oppositeTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex);
                 const isProbeActive = probeAtLocation 
                 && (manhattanDistance(rowIndex, columnIndex, subLocations[playerTeam][0], subLocations[playerTeam][1]) <= probeAtLocation[2]);
+                if (probeAtLocation) {
+                  console.log("manhattan", manhattanDistance(rowIndex, columnIndex, subLocations[playerTeam][0], subLocations[playerTeam][1]));
+                  console.log("probe range", probeAtLocation[2]);
+                  console.log("probe position", rowIndex, columnIndex)
+                  console.log("isProbeActive", isProbeActive)
+                }
+                return (
                 <td
                   key={columnIndex}
                   style={{
@@ -321,7 +345,8 @@ export default function GameMap(props) {
                     {!toggledSystem &&
                     (probeDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex) && 
                     probeAtLocation) && (
-                      <span style={isProbeActive ? styles.probe :  styles.probe}></span>
+                      <span style={isProbeActive ? styles.probeActive : styles.probe}></span>
+                      // <span style={styles.probe}></span>
                     )}
 
                     {toggledSystem === "mine" &&
@@ -352,6 +377,7 @@ export default function GameMap(props) {
                       )}
                   </div>
                 </td>
+                );
               })}
             </tr>
           ))}
