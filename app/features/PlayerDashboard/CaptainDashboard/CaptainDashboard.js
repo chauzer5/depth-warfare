@@ -107,7 +107,7 @@ export default function CaptainDashboard() {
   });
 
   const [boostActivated, setBoostActivated] = useState(false);
-  const [anyProbeDetecting, setAnyProbeDetecting] = useState(false);
+  // const [anyProbeDetecting, setAnyProbeDetecting] = useState(false);
   const [probeDetectionRange, setProbeDetectionRange] = useState([]);
 
   const boostCharged =
@@ -145,37 +145,37 @@ export default function CaptainDashboard() {
   const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
   const brokenEngine = systemHealthLevels[playerTeam].engine === 0;
 
-  useEffect(() => {
-    const newAnyProbeDetecting = gameMap.some(row =>
-      row.some((cell, columnIndex) => {
-        const rowIndex = gameMap.indexOf(row);
-        const probe = probes[oppositeTeam].find(
-          note => note[0] === rowIndex && note[1] === columnIndex
-        );
+  // useEffect(() => {
+  //   const newAnyProbeDetecting = gameMap.some(row =>
+  //     row.some((cell, columnIndex) => {
+  //       const rowIndex = gameMap.indexOf(row);
+  //       const probe = probes[oppositeTeam].find(
+  //         note => note[0] === rowIndex && note[1] === columnIndex
+  //       );
 
-        if (probe) {
-          const getProbeRange = getCellsDistanceAway(
-            rowIndex,
-            columnIndex,
-            probe[2],
-            false,
-            false
-          );
+  //       if (probe) {
+  //         const getProbeRange = getCellsDistanceAway(
+  //           rowIndex,
+  //           columnIndex,
+  //           probe[2],
+  //           false,
+  //           false
+  //         );
 
-          return getProbeRange.some(
-            note =>
-              note[0] === subLocations[playerTeam][0] &&
-              note[1] === subLocations[playerTeam][1]
-          );
-        }
+  //         return getProbeRange.some(
+  //           note =>
+  //             note[0] === subLocations[playerTeam][0] &&
+  //             note[1] === subLocations[playerTeam][1]
+  //         );
+  //       }
 
-        return false;
-      })
-    );
+  //       return false;
+  //     })
+  //   );
 
-    setAnyProbeDetecting(newAnyProbeDetecting);
-    console.log(newAnyProbeDetecting);
-  }, [subLocations, probes]);
+  //   setAnyProbeDetecting(newAnyProbeDetecting);
+  //   console.log(newAnyProbeDetecting);
+  // }, [subLocations, probes]);
 
   useEffect(() => {
     const subRange = getCellsDistanceAway(
@@ -188,14 +188,10 @@ export default function CaptainDashboard() {
     setProbeDetectionRange(subRange);
   }, [subLocations]);
 
-  useEffect(() => {
-    console.log('Updated state:', anyProbeDetecting);
-  }, [anyProbeDetecting]);
-
   return (
     <div style={styles.main}>
       <div style={styles.container}>
-        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+        {/* <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
           <SectorsKey />
           <h6 style={{ color: theme.white, margin: "10px" }}>Enemy Detection</h6>
           <div style={{
@@ -205,7 +201,7 @@ export default function CaptainDashboard() {
             borderRadius: "15px",
             filter: anyProbeDetecting ?  "blur(5px)" : "blur(2px)",
           }} />
-        </div>
+        </div> */}
         <GameMap boost={boostActivated} probeDetectionRange={probeDetectionRange} />
         <div style={styles.controls}>
           {brokenEngine ? (
