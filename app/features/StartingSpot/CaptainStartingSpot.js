@@ -96,7 +96,7 @@ export default function CaptainStartingSpot() {
             seconds={process.env.STARTING_SPOT_TIMER_SECONDS}
             onFinish={handleTimeOut}
           />
-          <GameMap handleClick={handleClick} probeDetectionRange={[]} />
+          <GameMap handleClick={handleClick} sonarDetectionRange={[]} />
           <SectorsKey />
         </div>
       </div>

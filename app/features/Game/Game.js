@@ -110,14 +110,14 @@ export default function Game() {
           weapons: process.env.MAX_SYSTEM_HEALTH,
           probe: process.env.MAX_SYSTEM_HEALTH,
           engine: process.env.MAX_SYSTEM_HEALTH,
-          comms: process.env.MAX_SYSTEM_HEALTH,
+          sonar: process.env.MAX_SYSTEM_HEALTH,
           "life support": systemHealthLevels["blue"]["life support"],
         },
         red: {
           weapons: process.env.MAX_SYSTEM_HEALTH,
           probe: process.env.MAX_SYSTEM_HEALTH,
           engine: process.env.MAX_SYSTEM_HEALTH,
-          comms: process.env.MAX_SYSTEM_HEALTH,
+          sonar: process.env.MAX_SYSTEM_HEALTH,
           "life support": systemHealthLevels["red"]["life support"],
         },
       };

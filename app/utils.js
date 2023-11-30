@@ -34,7 +34,7 @@ export const ENGINEER_SYSTEMS_INFO = [
     color: theme.darkGreen,
   },
   {
-    name: "comms",
+    name: "sonar",
     color: theme.blue,
   },
   {

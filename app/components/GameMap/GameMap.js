@@ -15,7 +15,8 @@ export default function GameMap(props) {
     clickedCell,
     torpedoCells,
     dropMineCells,
-    probeDetectionRange,
+    sonarDetectionRange,
+    brokenSonar,
   } = props;
   const { networkState, playerTeam, getValidBoostCells, getFirstMateSystem, manhattanDistance} =
     useGameContext();
@@ -162,8 +163,8 @@ export default function GameMap(props) {
       color: theme.gray,
       borderRadius: "50%",
       display: "inline-block",
-      width: `${32 * 2 * process.env.PROBE_DETECTION_RANGE}px`,
-      height: `${32 * 2 * process.env.PROBE_DETECTION_RANGE}px`,
+      width: `${32 * 2 * process.env.SONAR_DETECTION_RANGE}px`,
+      height: `${32 * 2 * process.env.SONAR_DETECTION_RANGE}px`,
       justifyContent: "center",
       alignItems: "center",
       fontWeight: "bold",
@@ -253,12 +254,7 @@ export default function GameMap(props) {
                 const probeAtLocation = probes[oppositeTeam].find((note) => note[0] === rowIndex && note[1] === columnIndex);
                 const isProbeActive = probeAtLocation 
                 && (manhattanDistance(rowIndex, columnIndex, subLocations[playerTeam][0], subLocations[playerTeam][1]) <= probeAtLocation[2]);
-                if (probeAtLocation) {
-                  console.log("manhattan", manhattanDistance(rowIndex, columnIndex, subLocations[playerTeam][0], subLocations[playerTeam][1]));
-                  console.log("probe range", probeAtLocation[2]);
-                  console.log("probe position", rowIndex, columnIndex)
-                  console.log("isProbeActive", isProbeActive)
-                }
+                const sonarRangeCell = sonarDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex)
                 return (
                 <td
                   key={columnIndex}
@@ -336,17 +332,23 @@ export default function GameMap(props) {
                       )}
 
                     {!toggledSystem && 
-                    probeDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex) &&
+                    !brokenSonar &&
+                    sonarRangeCell &&
                     cell.subPresent &&
                     !cell.subPresent[playerTeam] && (
-                      <span style={styles.inRangeCell}></span>
+                      <span style={
+                        (cell.subPresent[oppositeTeam] && oppositeTeam === "red") 
+                        ? styles.redSub
+                        : (cell.subPresent[oppositeTeam] && oppositeTeam === "blue")
+                        ? styles.blueSub 
+                        : styles.inRangeCell
+                      }></span>
                     )}
 
                     {!toggledSystem &&
-                    (probeDetectionRange.find((note) => note[0] === rowIndex && note[1] === columnIndex) && 
-                    probeAtLocation) && (
+                    !brokenSonar &&
+                    (sonarRangeCell && probeAtLocation) && (
                       <span style={isProbeActive ? styles.probeActive : styles.probe}></span>
-                      // <span style={styles.probe}></span>
                     )}
 
                     {toggledSystem === "mine" &&

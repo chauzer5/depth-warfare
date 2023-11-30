@@ -108,7 +108,7 @@ export default function CaptainDashboard() {
 
   const [boostActivated, setBoostActivated] = useState(false);
   // const [anyProbeDetecting, setAnyProbeDetecting] = useState(false);
-  const [probeDetectionRange, setProbeDetectionRange] = useState([]);
+  const [sonarDetectionRange, setSonarDetectionRange] = useState([]);
 
   const boostCharged =
     systemChargeLevels[playerTeam].boost ===
@@ -142,8 +142,9 @@ export default function CaptainDashboard() {
     }
   }, [systemChargeLevels[playerTeam].boost]);
 
-  const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
+  // const oppositeTeam = playerTeam === "blue" ? "red" : "blue";
   const brokenEngine = systemHealthLevels[playerTeam].engine === 0;
+  const brokenSonar = systemHealthLevels[playerTeam].sonar === 0;
 
   // useEffect(() => {
   //   const newAnyProbeDetecting = gameMap.some(row =>
@@ -181,28 +182,28 @@ export default function CaptainDashboard() {
     const subRange = getCellsDistanceAway(
       subLocations[playerTeam][0],
       subLocations[playerTeam][1],
-      process.env.PROBE_DETECTION_RANGE,   
+      process.env.SONAR_DETECTION_RANGE,   
       false,
       false,
     );
-    setProbeDetectionRange(subRange);
+    setSonarDetectionRange(subRange);
   }, [subLocations]);
 
   return (
     <div style={styles.main}>
       <div style={styles.container}>
-        {/* <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
           <SectorsKey />
-          <h6 style={{ color: theme.white, margin: "10px" }}>Enemy Detection</h6>
+          {/* <h6 style={{ color: theme.white, margin: "10px" }}>Enemy Detection</h6>
           <div style={{
             backgroundColor: anyProbeDetecting ? theme.red : theme.white,
             width: "30px",
             height: "30px",
             borderRadius: "15px",
             filter: anyProbeDetecting ?  "blur(5px)" : "blur(2px)",
-          }} />
-        </div> */}
-        <GameMap boost={boostActivated} probeDetectionRange={probeDetectionRange} />
+          }} /> */}
+        </div>
+        <GameMap boost={boostActivated} sonarDetectionRange={sonarDetectionRange} brokenSonar={brokenSonar} />
         <div style={styles.controls}>
           {brokenEngine ? (
             <h3 style={{ color: "red" }}>Engine is Broken</h3>

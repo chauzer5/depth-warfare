@@ -49,14 +49,14 @@ export function GameWrapper({ children }) {
         weapons: process.env.MAX_SYSTEM_HEALTH,
         probe: process.env.MAX_SYSTEM_HEALTH,
         engine: process.env.MAX_SYSTEM_HEALTH,
-        comms: process.env.MAX_SYSTEM_HEALTH,
+        sonar: process.env.MAX_SYSTEM_HEALTH,
         "life support": process.env.STARTING_LIFE_SUPPORT,
       },
       red: {
         weapons: process.env.MAX_SYSTEM_HEALTH,
         probe: process.env.MAX_SYSTEM_HEALTH,
         engine: process.env.MAX_SYSTEM_HEALTH,
-        comms: process.env.MAX_SYSTEM_HEALTH,
+        sonar: process.env.MAX_SYSTEM_HEALTH,
         "life support": process.env.STARTING_LIFE_SUPPORT,
       },
     },
@@ -65,8 +65,8 @@ export function GameWrapper({ children }) {
     movements: { blue: [], red: [] },
     movementCountOnDisable: { blue: 0, red: 0 },
     engineerCompassMap: {
-      blue: { north: "probe", south: "comms", east: "weapons", west: "engine" },
-      red: { north: "probe", south: "comms", east: "weapons", west: "engine" },
+      blue: { north: "probe", south: "sonar", east: "weapons", west: "engine" },
+      red: { north: "probe", south: "sonar", east: "weapons", west: "engine" },
     },
     notificationMessages: [],
     messageTimestamp: 0,
@@ -565,8 +565,8 @@ export function GameWrapper({ children }) {
       tempMessages.push(notificationMessage);
       tempMessageTimestamp += 1;
 
-      // If the system is comms, keep track of how many enemy movements were before it was disabled
-      if (randomSystem === "comms") {
+      // If the system is sonar, keep track of how many enemy movements were before it was disabled
+      if (randomSystem === "sonar") {
         const oppositeTeam = team === "blue" ? "red" : "blue";
         syncStateMessage["movementCountOnDisable"] = {
           ...movementCountOnDisable,

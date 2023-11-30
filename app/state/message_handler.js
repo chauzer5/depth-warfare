@@ -318,7 +318,7 @@ export function captainBoost(context, message) {
   };
 
   tempNetworkState["gameStats"] = {
-    ...tempNetworkState.gameStats,
+    ...gameStats,
     [team]: {
       ...gameStats[team],
       timesBoosted: gameStats[team].timesBoosted + 1,
@@ -364,6 +364,9 @@ export function captainSurface(context, message) {
   const team = getMessagePlayer(message).team;
   const oppositeTeam = team === "blue" ? "red" : "blue";
 
+  console.log("surfaced:", team)
+  console.log("game stats:", gameStats)
+
   // Clear path
   const updatedGameMap = clearVisitedPath(team);
 
@@ -396,7 +399,7 @@ export function captainSurface(context, message) {
         weapons: process.env.MAX_SYSTEM_HEALTH,
         probe: process.env.MAX_SYSTEM_HEALTH,
         engine: process.env.MAX_SYSTEM_HEALTH,
-        comms: process.env.MAX_SYSTEM_HEALTH,
+        sonar: process.env.MAX_SYSTEM_HEALTH,
         "life support": systemHealthLevels[team]["life support"],
       },
     },
