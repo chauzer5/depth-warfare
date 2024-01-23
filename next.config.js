@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    // ABLY_API_KEY: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", // Riley key
-    ABLY_API_KEY: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY", // Jamison key
+    ABLY_API_KEY: "2KJZGA.aX_e0g:13USKhuP_xe_jQEIP1eUmkGsau-UUNCITFKa-ZqiU1A", // Riley key
+    // ABLY_API_KEY: "GYFYvQ.VENUww:V9gwlj00MZ3gMTjBBngSQDtmFo11yYPDp8AGELV_yxY", // Jamison key
     // ABLY_API_KEY: "4DgG4w.aAimlA:kdKzu4HgukdZCT4w8Xgp5Ejeg1yviggZu28cDpNIQV0", // Jess key
     SUPABASE_URL: "https://cebtsanmxjqeyeafgepw.supabase.co",
     SUPABASE_API_KEY:
